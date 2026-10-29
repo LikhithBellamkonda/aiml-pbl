@@ -1,0 +1,8 @@
+torch
+torch_geometric
+rdkit
+xgboost
+pandas
+streamlit
+scikit-learn
+pytest
