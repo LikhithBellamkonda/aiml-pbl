@@ -82,6 +82,9 @@ try:
 
         if st.button("Run Prediction"):
             with st.spinner("Running Monte Carlo Dropout for Uncertainty Estimation..."):
+                # Set a fixed random seed so that Monte Carlo Dropout produces the EXACT same
+                # probabilistic outputs every single time the user clicks the button for a specific drug.
+                torch.manual_seed(42)
                 mean_pred, var_pred = model.predict_with_uncertainty(selected_batch, num_samples=20)
 
                 mean_pred = mean_pred.flatten().numpy()
