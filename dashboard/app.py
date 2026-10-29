@@ -17,22 +17,23 @@ def load_data_and_model():
     model = MultimodalPregnancyADRModel(num_outcomes=1)
     model.eval()
 
-    # We aren't loading trained weights in this MVP demo, so we'll just use the initialized model
-    # to demonstrate the forward pass and uncertainty prediction.
+    # Load trained weights
+    model_path = 'src/models/pregnancy_adr_model.pt'
+    if os.path.exists(model_path):
+        model.load_state_dict(torch.load(model_path, weights_only=True))
 
     # Load Dataloader
     loader = get_dataloader(
-        'data/mock_faers_adr.csv',
-        'data/mock_pubchem.csv',
-        'data/mock_toxicity.csv',
+        'data/real_faers_adr.csv',
+        'data/real_pubchem.csv',
+        'data/real_toxicity.csv',
         batch_size=1, # One by one for dashboard
         shuffle=False
     )
 
-    drugs_data = []
     # Get metadata for the dashboard
-    pubchem_df = pd.read_csv('data/mock_pubchem.csv').set_index('drug_id')
-    adr_df = pd.read_csv('data/mock_faers_adr.csv').set_index('drug_id')
+    pubchem_df = pd.read_csv('data/real_pubchem.csv').set_index('drug_id')
+    adr_df = pd.read_csv('data/real_faers_adr.csv').set_index('drug_id')
 
     return model, loader, pubchem_df, adr_df
 
