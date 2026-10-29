@@ -52,6 +52,7 @@ class MultimodalPregnancyADRModel(nn.Module):
         Estimates epistemic uncertainty using Monte Carlo Dropout.
         Model should be in train() mode for dropout to be active, or we force dropout.
         """
+        was_training = self.training
         self.train() # Enable dropout
 
         preds = []
@@ -66,5 +67,9 @@ class MultimodalPregnancyADRModel(nn.Module):
 
         # Variance (Uncertainty)
         variance_pred = preds_stack.var(dim=0)
+
+        # Restore training state
+        if not was_training:
+            self.eval()
 
         return mean_pred, variance_pred

@@ -1,7 +1,7 @@
 torch
 torch_geometric
 rdkit
-xgboost
+openpyxl
 pandas
 streamlit
 scikit-learn

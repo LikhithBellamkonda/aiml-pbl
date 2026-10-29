@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score
 import os
 from torch.utils.data import random_split
 from torch_geometric.loader import DataLoader
@@ -35,23 +35,40 @@ def evaluate(model, loader, criterion, device):
             all_masks.append(batch.y_mask.cpu().numpy())
 
     if len(all_preds) == 0:
-        return 0.0, 0.0
+        return 0.0, 0.0, 0.0, 0.0, 0.0
 
     all_preds = np.vstack(all_preds)
     all_targets = np.vstack(all_targets)
     all_masks = np.vstack(all_masks)
 
     auc_scores = []
+    acc_scores = []
+    prec_scores = []
+    rec_scores = []
+
     for i in range(1):
         valid_idx = all_masks[:, i] == 1
-        if valid_idx.sum() > 0 and len(np.unique(all_targets[valid_idx, i])) > 1:
-            auc = roc_auc_score(all_targets[valid_idx, i], all_preds[valid_idx, i])
-            auc_scores.append(auc)
+        if valid_idx.sum() > 0:
+            targets = all_targets[valid_idx, i]
+            preds_prob = all_preds[valid_idx, i]
+            preds_bin = (preds_prob > 0.5).astype(float)
+
+            if len(np.unique(targets)) > 1:
+                auc_scores.append(roc_auc_score(targets, preds_prob))
+
+            acc_scores.append(accuracy_score(targets, preds_bin))
+            # Zero_division=0 to prevent warnings on small datasets with no positives
+            prec_scores.append(precision_score(targets, preds_bin, zero_division=0))
+            rec_scores.append(recall_score(targets, preds_bin, zero_division=0))
 
     mean_auc = np.mean(auc_scores) if auc_scores else 0.0
+    mean_acc = np.mean(acc_scores) if acc_scores else 0.0
+    mean_prec = np.mean(prec_scores) if prec_scores else 0.0
+    mean_rec = np.mean(rec_scores) if rec_scores else 0.0
+
     mean_loss = total_loss / len(loader) if len(loader) > 0 else 0.0
 
-    return mean_loss, mean_auc
+    return mean_loss, mean_auc, mean_acc, mean_prec, mean_rec
 
 def train_model():
     # 1. Setup Data
@@ -118,10 +135,10 @@ def train_model():
                 total_loss += final_loss.item()
 
         # Evaluate
-        train_loss, train_auc = evaluate(model, train_loader, criterion, device)
-        val_loss, val_auc = evaluate(model, val_loader, criterion, device)
+        train_loss, train_auc, train_acc, train_prec, train_rec = evaluate(model, train_loader, criterion, device)
+        val_loss, val_auc, val_acc, val_prec, val_rec = evaluate(model, val_loader, criterion, device)
 
-        print(f"Epoch {epoch+1}/{epochs} | Train Loss: {train_loss:.4f} | Train AUC: {train_auc:.4f} | Val Loss: {val_loss:.4f} | Val AUC: {val_auc:.4f}")
+        print(f"Epoch {epoch+1}/{epochs} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} | Val AUC: {val_auc:.4f} | Val Acc: {val_acc:.4f} | Val Prec: {val_prec:.4f} | Val Rec: {val_rec:.4f}")
 
         # Save best model
         if val_auc >= best_val_auc or epoch == epochs - 1: # save last epoch if AUC is uncomputable
@@ -133,8 +150,8 @@ def train_model():
 
     # Test Evaluation
     model.load_state_dict(torch.load('src/models/pregnancy_adr_model.pt', weights_only=True))
-    test_loss, test_auc = evaluate(model, test_loader, criterion, device)
-    print(f"Test Set Evaluation | Loss: {test_loss:.4f} | AUC: {test_auc:.4f}")
+    test_loss, test_auc, test_acc, test_prec, test_rec = evaluate(model, test_loader, criterion, device)
+    print(f"Test Set Evaluation | Loss: {test_loss:.4f} | AUC: {test_auc:.4f} | Accuracy: {test_acc:.4f} | Precision: {test_prec:.4f} | Recall: {test_rec:.4f}")
 
 if __name__ == "__main__":
     train_model()

@@ -66,20 +66,26 @@ try:
         st.subheader("Model Predictions")
 
         # Get data for this specific drug by iterating until we find it
-        # (In a real app we'd query by index, but this is a simple demo)
-        idx = drug_ids.index(selected_drug)
-        # Loader is not subscriptable directly easily, so we just iterate
-        for i, batch in enumerate(loader):
-            if i == idx:
-                selected_batch = batch
-                break
+        # Since PregnancyDataset merges the DFs based on adr_df's index, we need to find
+        # the true integer location of the selected_drug in that specific merged dataframe.
+        # We can look up the index in the dataset directly.
+        dataset_drug_ids = loader.dataset.drug_ids
+        try:
+            true_idx = dataset_drug_ids.index(selected_drug)
+            for i, batch in enumerate(loader):
+                if i == true_idx:
+                    selected_batch = batch
+                    break
+        except ValueError:
+            st.error("Drug ID not found in the processed dataset.")
+            st.stop()
 
         if st.button("Run Prediction"):
             with st.spinner("Running Monte Carlo Dropout for Uncertainty Estimation..."):
                 mean_pred, var_pred = model.predict_with_uncertainty(selected_batch, num_samples=20)
 
-                mean_pred = mean_pred.squeeze().numpy()
-                var_pred = var_pred.squeeze().numpy()
+                mean_pred = mean_pred.flatten().numpy()
+                var_pred = var_pred.flatten().numpy()
 
                 outcomes = ['Pregnancy ADR Signal']
 
