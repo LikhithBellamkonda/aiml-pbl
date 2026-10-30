@@ -103,14 +103,14 @@ class PregnancyDataset(Dataset):
         tox_feat_tensor = torch.tensor(tox_features, dtype=torch.float)
 
         # 4. Target Label (Pregnancy ADR Signal)
-        # Generate a dummy target for training since we used Tox as evidence
-        # In a real scenario, this would come from a specific FAERS pregnancy outcome column
-        # We will create a synthetic binary target based on ADR and Tox signals to simulate a signal
-        synth_target = (adr_features.sum() + tox_feat_tensor.sum() > 3).float()
-        synth_target_mask = torch.tensor([1.0], dtype=torch.float) # Always available in our dummy target
-
-        y = synth_target.unsqueeze(-1)
-        y_mask = synth_target_mask
+        # We now have real target labels from the Pregnancy database via Actual_Pregnancy_Risk
+        actual_risk = row.get('Actual_Pregnancy_Risk', np.nan)
+        if pd.isna(actual_risk):
+            y = torch.tensor([[0.0]], dtype=torch.float)
+            y_mask = torch.tensor([[0.0]], dtype=torch.float) # Not available
+        else:
+            y = torch.tensor([[float(actual_risk)]], dtype=torch.float)
+            y_mask = torch.tensor([[1.0]], dtype=torch.float) # Available
 
         # 5. Availability Masks [ADR, Mol, Tox]
         has_adr = float(row['has_adr_data'])
@@ -122,8 +122,8 @@ class PregnancyDataset(Dataset):
         mol_graph.adr_features = adr_features.unsqueeze(0)
         mol_graph.mol_desc = mol_desc.unsqueeze(0)
         mol_graph.tox_features = tox_feat_tensor.unsqueeze(0)
-        mol_graph.y = y.unsqueeze(0)
-        mol_graph.y_mask = y_mask.unsqueeze(0)
+        mol_graph.y = y
+        mol_graph.y_mask = y_mask
         mol_graph.availability_mask = availability_mask.unsqueeze(0)
 
         return mol_graph

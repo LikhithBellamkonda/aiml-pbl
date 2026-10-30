@@ -3,7 +3,7 @@ abacavir,B3,,Antimicrobials,Antiviral agents,
 abacavir / dolutegravir / lamivudine,B3,,Antimicrobials,Antiviral agents,
 abacavir / lamivudine / zidovudine,B3,,Antimicrobials,Antiviral agents,
 abacavir/ lamivudine,B3,,Antimicrobials,Antiviral agents,
-abaloparatide ,B3,Abaloparatide is contraindicated during pregnancy. ,Endocrine System,Agents affecting calcium and bone metabolism, 
+abaloparatide ,B3,Abaloparatide is contraindicated during pregnancy. ,Endocrine System,Agents affecting calcium and bone metabolism,
 abatacept,C,,Allergy and Immune System,Immunomodifiers,
 abciximab,C,All anticoagulants and thrombolytic agents can produce placental haemorrhage and subsequent prematurity and fetal loss.,Cardiovascular System,Anticoagulants and thrombolytic agents,
 abemaciclib,D,"Based on results from animal studies and its mechanism of action, abemaciclib may harm the foetus. ",Antineoplastic Agents,,
@@ -273,7 +273,7 @@ capivasertib,D,"PI3K/AKT/mTOR signalling plays important roles in embryofetal de
 caplacizumab,B1,,Cardiovascular System,Anticoagulants and thrombolytic agents,
 captopril,D,"When taken during the second and third trimesters, ACE inhibitors cause a range of abnormalities including renal dysfunction and oligohydramnios. These can be associated with fetal death in utero. Although no adverse fetal effects have been linked to first trimester drug use of ACE inhibitors, the number of exposures reported is too small to determine conclusively that ACE inhibitors are safe in the first trimester.  Pregnant women who are taking ACE inhibitors should be changed as quickly as possible to other antihypertensive medication to maintain normal blood pressure.  It is generally advisable not to use ACE inhibitors for the management of hypertension in women who are likely to become pregnant.",Cardiovascular System,Antihypertensives,Angiotensin converting enzyme (ACE) inhibitors
 carbachol,B2,,Ophthalmic Drugs,,
-carbamazepine,D,"Spina bifida occurs in about one percent of pregnancies in which carbamazepine is used as monotherapy. Carbamazepine taken during pregnancy also has been associated with minor craniofacial defects, fingernail hypoplasia and developmental disability. Carbamazepine also can cause coagulation defects with consequent risk of haemorrhage in the fetus and the newborn infant which may be preventable by the prophylactic administration of vitamin K to the mother prior to delivery.  The risk of having an abnormal child as a result of antiepileptic medication is far outweighed by the dangers to the mother and fetus of uncontrolled epilepsy. 
+carbamazepine,D,"Spina bifida occurs in about one percent of pregnancies in which carbamazepine is used as monotherapy. Carbamazepine taken during pregnancy also has been associated with minor craniofacial defects, fingernail hypoplasia and developmental disability. Carbamazepine also can cause coagulation defects with consequent risk of haemorrhage in the fetus and the newborn infant which may be preventable by the prophylactic administration of vitamin K to the mother prior to delivery.  The risk of having an abnormal child as a result of antiepileptic medication is far outweighed by the dangers to the mother and fetus of uncontrolled epilepsy.
 It is recommended that:
 • women on antiepileptic drugs (AEDs) receive prepregnancy counselling with regard to the risk of fetal abnormalities;
 • AEDs should be continued during pregnancy and monotherapy should be used if possible at the lowest effective dose as risk of abnormality is greater in women taking combined medication;
@@ -312,7 +312,7 @@ ceftazidime / avibactam,B3,,Antimicrobials,Antibiotics,
 ceftolozane/tazobactam,B1,,Antimicrobials,Antibiotics,
 ceftriaxone,B1,,Antimicrobials,Antibiotics,Cephalosporins
 cefuroxime,B1,,Antimicrobials,Antibiotics,Cephalosporins
-celecoxib,B3,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+celecoxib,B3,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -466,7 +466,7 @@ deferiprone,D,Reproductive studies in non iron-loaded rats and rabbits have indi
 defibrotide,D,This drug has revealed a high rate of haemorrhagic abortion in animals.,Blood and Haemopoietic System,,
 degarelix ,D,"At very low doses (<10% clinical dose), an increase in the number of abortions, early embryo/fetal deaths and premature deliveries along with prolonged parturition were observed in animals",Antineoplastic Agents,Hormonal antineoplastic agents,
 delavirdine,B3,,Antimicrobials,Antiviral agents,
-delgocitinib (dermal),B1,,Allergy and Immune System,Immunomodifiers, 
+delgocitinib (dermal),B1,,Allergy and Immune System,Immunomodifiers,
 demeclocycline,D,Tetracyclines are safe for use during the first 18 weeks of pregnancy (16 weeks post conception) after which they cause discolouration of the baby’s teeth. ,Antimicrobials,Antibiotics,Tetracyclines
 dengue tetravalent vaccine ,B2,"This is a live attenuated vaccine, therefore is contraindicated during pregnancy.",Vaccines,Live attenuated vaccines,
 denosumab,D,Treatment with denosumab may impair bone growth in children with open growth plates and may inhibit eruption of dentition.,Endocrine System,Agents affecting calcium and bone metabolism,
@@ -481,7 +481,7 @@ desogestrel with ethinylestradiol,B3,,Contraceptive Agents,Oral contraceptives,
 desonide,B3,,Drugs used in Dermatology,Topical,
 desvenlafaxine,B2,,Central Nervous System,Antidepressants,
 deucravacitinib,B1,,Allergy and Immune System,Immunomodifiers,
-deutetrabenazine ,B3,,Central Nervous System,, 
+deutetrabenazine ,B3,,Central Nervous System,,
 dexamethasone,A,,Endocrine System,Corticosteroids,Systemic
 dexamfetamine,B3,,Central Nervous System,CNS stimulants,
 dexchlorphenamine (dexchlorpheniramine ),A,,Allergy and Immune System,Antihistamines,
@@ -492,7 +492,7 @@ dextromoramide,C,Opioid analgesics may cause respiratory depression in the newbo
 dextropropoxyphene,C,Opioid analgesics may cause respiratory depression in the newborn infant. Withdrawal symptoms in newborn infants have been reported with prolonged use of this class of drugs.,Central Nervous System,Analgesics and Antipyretics (see also non-steroidal anti-inflammatory agents),Opioid analgesics
 diazepam,C,"Benzodiazepines may cause hypotonia, respiratory depression and hypothermia in the newborn infant if used in high doses during labour. Withdrawal symptoms in newborn infants have been reported with prolonged use of this class of drugs.",Central Nervous System,Benzodiazepines,
 diazoxide,C,This drug may cause fetal bradycardia. Hyperglycaemia has been observed in the newborn. Diazoxide is a potent relaxant of uterine smooth muscle and may inhibit uterine contraction if given during labour. Diazoxide should be used with extreme caution during pregnancy.,Cardiovascular System,Antihypertensives,
-diclofenac,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+diclofenac,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -508,7 +508,7 @@ dienosliterol,B1,,Genitourinary System,Topical vaginal medication,
 diethylcarbamazine,B2,,Antimicrobials,Anthelmintics,
 diethylpropion,B2,Weight reduction using appetite suppressant drugs is not recommended in pregnancy.,Metabolism,Anorectic and weight reducing agents,
 difelikefalin ,B1,,Allergy and Immune System,Immunomodifiers,
-diflunisal,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+diflunisal,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -592,7 +592,7 @@ eflornithine,B3,,Drugs used in Dermatology,Topical,
 eformoterol (formoterol),B3,,Respiratory System,Inhalational agents,Bronchospasm relaxants
 efraloctocog alfa (rhu),C,,Cardiovascular System,Haemostatic agents,
 eftrenonacog alfa (rhu),C,,Cardiovascular System,Haemostatic agents,
-elafibranor  ,D,Studies in animals indicate strong potential for malformations and embryofetal loss with use in pregnancy.,Alimentary System,, 
+elafibranor  ,D,Studies in animals indicate strong potential for malformations and embryofetal loss with use in pregnancy.,Alimentary System,,
 elbasvir / grazoprevir,B1,,Antimicrobials,Antiviral agents,
 eletriptan,B1,,Cardiovascular System,Antimigraine preparations,
 eliglustat,B3,,Metabolism,Agents used for the treatment of metabolic disorders,
@@ -671,14 +671,14 @@ etidocaine,B1,,Drugs Used in Anaesthesia,Local anaesthetics,
 etidronate disodium,B3,,Endocrine System,Agents affecting calcium and bone metabolism,
 etonogestrel,B3,,Contraceptive Agents,,
 etoposide,D,"Cytotoxic agents can produce spontaneous abortion, fetal loss and birth defects.",Antineoplastic Agents,,
-etoricoxib,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+etoricoxib,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
 When given during the latter part of pregnancy, may cause closure of the fetal ductus arteriosus, oligohydramnios, fetal renal impairment, inhibition of platelet aggregation, and delay labour and birth.
 
 Continuous treatment with NSAIDs during the last trimester of pregnancy should only be given on sound indications. During the last few days before expected birth, agents with an inhibitory effect on prostaglandin synthesis should be avoided.",Musculoskeletal System,Non-steroidal anti-inflammatory drugs (NSAIDS),
-etranacogene dezaparvovec,B2,,Cardiovascular System,Haemostatic agents, 
+etranacogene dezaparvovec,B2,,Cardiovascular System,Haemostatic agents,
 etrasimod arginine,D,"Administration of etrasimod during pregnancy in rats and rabbits produced adverse effects on development, including embryolethality, fetal malformations and an increased number of stillbirths.",Allergy and Immune System,Immunomodifiers,
 etravirine,B1,,Antimicrobials,Antiviral agents,
 etretinate,X,"This drug is teratogenic at doses within the therapeutic range. The drug is stored in the body for several months after cessation. Because of the long half-life of this drug and storage in fat, patients are advised not to conceive until two years after cessation of treatment because of risk of birth defects. Should pregnancy occur during treatment with this drug, there is a high risk of birth defects.",Drugs used in Dermatology,Systemic,
@@ -859,7 +859,7 @@ hyoscyamine,B2,,Alimentary System,Antidiarrhoeals,
 hyoscyamine,B2,,Cholinergic and Anticholinergic Agents,,
 ibandronate,B3,,Endocrine System,Agents affecting calcium and bone metabolism,Bisphosphonates
 ibrutinib,D,"This drug is embryotoxic in both pregnant rats and rabbits, and teratogenic when administered to pregnant animals.",Antineoplastic Agents,Tyrosine kinase inhibitors,
-ibuprofen,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+ibuprofen,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -882,7 +882,7 @@ imipenem with cilastatin,B3,,Antimicrobials,Antibiotics,
 imipramine,C,Withdrawal symptoms in newborn infants have been reported with prolonged maternal use of tricyclic antidepressants.,Central Nervous System,Antidepressants,Tricyclic antidepressants
 imiquimod,B1,,Drugs used in Dermatology,Topical antiviral,
 imlifidase,B2,,Allergy and Immune System,,
-inavolisib,D,"Based on animal studies and its pharmacological activity, inavolisib is expected to cause fetal harm (including teratogenicity and miscarriage) when administered to a pregnant woman.",Antineoplastic Agents,, 
+inavolisib,D,"Based on animal studies and its pharmacological activity, inavolisib is expected to cause fetal harm (including teratogenicity and miscarriage) when administered to a pregnant woman.",Antineoplastic Agents,,
 inclisiran,B1,,Cardiovascular System,Hypolipidaemic agents,
 incobotulinumtoxinA,B3,,Musculoskeletal System,Muscle relaxants,
 indacaterol,B3,,Respiratory System,Inhalational agents,Bronchospasm relaxants
@@ -892,7 +892,7 @@ indapamide,C,"Thiazides, related diuretics and loop diuretics may cause electrol
 indigo carmine,B2,,Genitourinary System,,
 indinavir,B3,,Antimicrobials,Antiviral agents,
 indocyanine green,B2,,Diagnostic Agents,Radiographic agents,
-indometacin,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+indometacin,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -963,14 +963,14 @@ Japanese encephalitis vaccine (inactivated),B1,,Vaccines,Inactivated vaccines,
 kanamycin,D,"There is evidence of selective uptake of aminoglycosides by the fetal kidney resulting in damage (probably reversible) to immature nephrons. Eighth cranial nerve damage has also been reported following in utero exposure to some of the aminoglycosides. Because of their chemical similarity, all aminoglycosides must be considered potentially nephrotoxic and ototoxic to the fetus. It should also be noted that therapeutic blood concentrations in the mother do not equate with safety for the fetus.",Antimicrobials,Antibiotics,Aminoglycosides
 ketamine,B3,"All general anaesthetics carry the potential to produce central nervous system and respiratory depression in the newborn infant. In routine practice this does not appear to be a problem. However, in the compromised fetus, careful consideration should be given to this potential depression and to the selection of particular anaesthetic drugs, doses and techniques.",Drugs Used in Anaesthesia,General anaesthetics,
 ketoconazole,B3,,Antimicrobials,Antifungal agents (see also topical antifungals),
-ketoprofen,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+ketoprofen,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
 When given during the latter part of pregnancy, may cause closure of the fetal ductus arteriosus, oligohydramnios, fetal renal impairment, inhibition of platelet aggregation, and delay labour and birth.
 
 Continuous treatment with NSAIDs during the last trimester of pregnancy should only be given on sound indications. During the last few days before expected birth, agents with an inhibitory effect on prostaglandin synthesis should be avoided.",Musculoskeletal System,Non-steroidal anti-inflammatory drugs (NSAIDS),
-ketorolac,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+ketorolac,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -979,7 +979,7 @@ When given during the latter part of pregnancy, may cause closure of the fetal d
 Continuous treatment with NSAIDs during the last trimester of pregnancy should only be given on sound indications. During the last few days before expected birth, agents with an inhibitory effect on prostaglandin synthesis should be avoided.",Musculoskeletal System,Non-steroidal anti-inflammatory drugs (NSAIDS),
 ketotifen,B1,,Ophthalmic Drugs,,
 labetalol,C,Beta-adrenergic blocking agents may cause pharmacological effects such as bradycardia in the fetus and newborn infant. ,Cardiovascular System,Beta-adrenergic blocking agents,
-lacosamide,B3,"The risk of having an abnormal child as a result of antiepileptic medication is far outweighed by the dangers to the mother and fetus of uncontrolled epilepsy. 
+lacosamide,B3,"The risk of having an abnormal child as a result of antiepileptic medication is far outweighed by the dangers to the mother and fetus of uncontrolled epilepsy.
 It is recommended that:
 • women on antiepileptic drugs (AEDs) receive prepregnancy counselling with regard to the risk of fetal abnormalities;
 • AEDs should be continued during pregnancy and monotherapy should be used if possible at the lowest effective dose as risk of abnormality is greater in women taking combined medication;
@@ -1062,8 +1062,8 @@ lorazepam,C,"Benzodiazepines may cause hypotonia, respiratory depression and hyp
 lorlatinib,D,"Based on its mechanism of action and findings in animal studies, lorlatinib may cause embryo-fetal harm (including embryolethality, abortions and malformations). ",Antineoplastic Agents,Tyrosine kinase inhibitors,
 losartan,D,"When used in pregnancy during the second and third trimesters, drugs that act directly on the renin-angiotensin system can cause injury and even death in the developing fetus. Although no adverse fetal effects have been linked to first trimester drug use of ARAs, the number of exposures reported is too small to determine conclusively that ARAs are safe in the first trimester. Pregnant women who are taking ARAs should be changed as quickly as possible to other antihypertensive medication to maintain normal blood pressure. It is generally advisable not to use ARAs for the management of hypertension in women who are likely to become pregnant.",Cardiovascular System,Antihypertensives,Angiotensin II receptor antagonists and renin inhibitors
 lumacaftor/ivacaftor,B3,,Respiratory System,,
-lumasiran ,B1,,Metabolism,Agents used for the treatment of metabolic disorders, 
-lumiracoxib,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+lumasiran ,B1,,Metabolism,Agents used for the treatment of metabolic disorders,
+lumiracoxib,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1093,7 +1093,7 @@ mecasermin,B3,,Endocrine System,Hormonal agents,
 medroxyprogesterone (IM contraceptive dose),A,,Contraceptive Agents,,
 medroxyprogesterone (oral & SC high dose),D,"If taken by the mother at or after 8 weeks post conception, these drugs can cause virilisation of the female fetus. This is a dose-dependent effect. Prior to 8 weeks post conception, they have no virilising effects.",Endocrine System,Progestogens (see also oral contraceptives),
 medroxyprogesterone (oral and IM high dose),D,May cause virilisation of fetus if taken at or after 8 weeks post conception.,Antineoplastic Agents,Hormonal antineoplastic agents,
-mefenamic acid,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+mefenamic acid,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1104,7 +1104,7 @@ mefloquine,B3,The use of this drug in the treatment of malaria is accepted becau
 mefruside,C,"Thiazides, related diuretics and loop diuretics may cause electrolyte disturbances in the fetus. Neonatal thrombocytopenia has been reported with thiazides and related diuretics. Loop diuretics, like frusemide and bumetanide, are probably also associated with this risk. During the latter part of pregnancy products of this type should only be given on sound indications, and then in the lowest effective dose.",Cardiovascular System,Diuretics,"Thiazides, related diuretics and loop diuretics"
 megestrol,D,"If taken by the mother at or after 8 weeks post conception, these drugs can cause virilisation of the female fetus. This is a dose-dependent effect. Prior to 8 weeks post conception, they have no virilising effects.",Endocrine System,Progestogens (see also oral contraceptives),
 melatonin,B3,,Central Nervous System,Hypnotics and sedatives,
-meloxicam,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+meloxicam,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1148,13 +1148,13 @@ methyldopa,A,,Cardiovascular System,Antihypertensives,
 methylene blue,D,There have been reports of haemolytic anaemia and hyperbilirubinaemia in neonates exposed to methylene blue in the amniotic cavity. ,Blood and Haemopoietic System,,
 methylnaltrexone,B1,,Central Nervous System,,
 methylphenidate,D,"Dosing in rabbits produced teratogenic effects at doses approximately 5 fold that in humans receiving the maximal recommended dose. Dosing to rats from early pregnancy until weaning reduced offspring weight and marginal alterations in neuromotor performance in offspring at doses approximately 3-6 fold the maximum recommended clinical dose on a mg/m2 basis. Dosing to juvenile male and female rats from weaning through mating, pregnancy and lactation until offspring weaning, was associated with reduced body weight gain and motor activity in males as well as reduced offspring weight and postnatal survival - at doses 1 to 3 fold that expected in adults or children given the maximum recommended clinical dose. The safety of methylphenidate for use during human pregnancy has not been established. Cases of fetal cardiac malformations have been identified in large observational studies. Methylphenidate should not be prescribed for pregnant women unless, in opinion of the physician, the potential benefits outweigh the possible risks",Central Nervous System,CNS stimulants,
-methylphenobarbital,D,"The use in pregnancy of primidone, phenobarbitone or methylphenobarbitone has been associated with minor craniofacial defects, fingernail hypoplasia and developmental disability. Their use in pregnancy alone, or in combination with other anticonvulsants, can cause coagulation defects in the newborn infant which may be preventable by the prophylactic administration of vitamin K to the mother prior to delivery.  The risk of having an abnormal child as a result of antiepileptic medication is far outweighed by the dangers to the mother and fetus of uncontrolled epilepsy. 
+methylphenobarbital,D,"The use in pregnancy of primidone, phenobarbitone or methylphenobarbitone has been associated with minor craniofacial defects, fingernail hypoplasia and developmental disability. Their use in pregnancy alone, or in combination with other anticonvulsants, can cause coagulation defects in the newborn infant which may be preventable by the prophylactic administration of vitamin K to the mother prior to delivery.  The risk of having an abnormal child as a result of antiepileptic medication is far outweighed by the dangers to the mother and fetus of uncontrolled epilepsy.
 It is recommended that:
 • women on antiepileptic drugs (AEDs) receive prepregnancy counselling with regard to the risk of fetal abnormalities;
 • AEDs should be continued during pregnancy and monotherapy should be used if possible at the lowest effective dose as risk of abnormality is greater in women taking combined medication;
 • folic acid supplementation (5mg) should be commenced four weeks prior to and continue for twelve weeks after conception;
 • Specialist prenatal diagnosis including detailed mid-trimester ultrasound should be offered.",Central Nervous System,Anticonvulsants/antiepileptics,
-methylphenobarbitone (methylphenobarbital),D,"The use in pregnancy of primidone, phenobarbitone or methylphenobarbitone has been associated with minor craniofacial defects, fingernail hypoplasia and developmental disability. Their use in pregnancy alone, or in combination with other anticonvulsants, can cause coagulation defects in the newborn infant which may be preventable by the prophylactic administration of vitamin K to the mother prior to delivery.  The risk of having an abnormal child as a result of antiepileptic medication is far outweighed by the dangers to the mother and fetus of uncontrolled epilepsy. 
+methylphenobarbitone (methylphenobarbital),D,"The use in pregnancy of primidone, phenobarbitone or methylphenobarbitone has been associated with minor craniofacial defects, fingernail hypoplasia and developmental disability. Their use in pregnancy alone, or in combination with other anticonvulsants, can cause coagulation defects in the newborn infant which may be preventable by the prophylactic administration of vitamin K to the mother prior to delivery.  The risk of having an abnormal child as a result of antiepileptic medication is far outweighed by the dangers to the mother and fetus of uncontrolled epilepsy.
 It is recommended that:
 • women on antiepileptic drugs (AEDs) receive prepregnancy counselling with regard to the risk of fetal abnormalities;
 • AEDs should be continued during pregnancy and monotherapy should be used if possible at the lowest effective dose as risk of abnormality is greater in women taking combined medication;
@@ -1211,7 +1211,7 @@ mustine,D,"Cytotoxic agents can produce spontaneous abortion, fetal loss and bir
 mycophenolate mofetil,D,"It inhibits nucleic acid synthesis and may cause fetal malformations/death. Congenital malformations, including ear malformations i.e. abnormally formed or absent external/middle ear, have been reported in children of patients exposed to mycophenolate mofetil in combination with other immunosuppressants during pregnancy.",Allergy and Immune System,Immunomodifiers,
 mycophenolic acid,D,"It inhibits nucleic acid synthesis and may cause fetal malformations/death. Congenital malformations, including ear malformations i.e. abnormally formed or absent external/middle ear, have been reported in children of patients exposed to mycophenolate mofetil in combination with other immunosuppressants during pregnancy.",Allergy and Immune System,Immunomodifiers,
 nabiximols,B2,,Central Nervous System,,
-nabumetone,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+nabumetone,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1224,7 +1224,7 @@ nalidixic acid,A,,Antimicrobials,Antibiotics,
 naloxone,B1,,"Detoxifying Agents, Antidotes ",,
 naltrexone,B3,,Agents used in dependency states,,
 nandrolone,D,Anabolic steroids and other substances with androgenic effects may have a virilising effect on the female fetus and should be avoided during pregnancy.,Endocrine System,Androgens and anabolic steroids,
-naproxen,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+naproxen,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1242,7 +1242,7 @@ nelfinavir,B2,,Antimicrobials,Antiviral agents,
 nemolizumab ,B1,,Allergy and Immune System,Immunomodifiers,
 neomycin,D,"There is evidence of selective uptake of aminoglycosides by the fetal kidney resulting in damage (probably reversible) to immature nephrons. Eighth cranial nerve damage has also been reported following in utero exposure to some of the aminoglycosides. Because of their chemical similarity, all aminoglycosides must be considered potentially nephrotoxic and ototoxic to the fetus. It should also be noted that therapeutic blood concentrations in the mother do not equate with safety for the fetus.",Antimicrobials,Antibiotics,Aminoglycosides
 neostigmine,B2,,Drugs Used in Myasthenia Gravis,,
-nepafenac,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+nepafenac,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1294,7 +1294,7 @@ ocriplasmin,B2,,Ophthalmic Drugs,,
 octocog alfa (factor VIII - rch),B2,,Cardiovascular System,Haemostatic agents,
 octoxinol,A,,Contraceptive Agents,Vaginal spermicides,
 octreotide,C,"This drug may cause fetal growth retardation, probably due to suppression of growth hormone.  ",Endocrine System,Pituitary hormones,
-odevixibat ,D,"Based on findings from animal studies, odevixibat may cause cardiac malformations when a fetus is exposed during pregnancy.",Alimentary System,, 
+odevixibat ,D,"Based on findings from animal studies, odevixibat may cause cardiac malformations when a fetus is exposed during pregnancy.",Alimentary System,,
 oestrone,B1,,Endocrine System,Oestrogens (see also oral contraceptives),
 ofatumumab (rmc),C,IgG antibodies are known to cross the placental barrier. This drug has the potential to affect embryofetal survival due to its pharmacological action.,Antineoplastic Agents,Monoclonal antibodies,
 ofloxacin,B3,,Antimicrobials,Antibiotics,Quinolones
@@ -1326,7 +1326,7 @@ osimertinib,D,This drug inhibits EGFR. EGFR plays an important role in embryofet
 oxaliplatin,D,"Cytotoxic agents can produce spontaneous abortion, fetal loss and birth defects.",Antineoplastic Agents,,
 oxandrolone,D,Anabolic steroids and other substances with androgenic effects may have a virilising effect on the female fetus and should be avoided during pregnancy.,Endocrine System,Androgens and anabolic steroids,
 oxazepam,C,"Benzodiazepines may cause hypotonia, respiratory depression and hypothermia in the newborn infant if used in high doses during labour. Withdrawal symptoms in newborn infants have been reported with prolonged use of this class of drugs.",Central Nervous System,Benzodiazepines,
-oxcarbazepine,D,"This drug and its active metabolite (10-monohydroxy derivative, MHD) cross the human placenta. Oxcarbazepine is (structurally) closely related to carbamazepine, which is considered to be teratogenic in humans. This drug is teratogenic in rats.  The risk of having an abnormal child as a result of antiepileptic medication is far outweighed by the dangers to the mother and fetus of uncontrolled epilepsy. 
+oxcarbazepine,D,"This drug and its active metabolite (10-monohydroxy derivative, MHD) cross the human placenta. Oxcarbazepine is (structurally) closely related to carbamazepine, which is considered to be teratogenic in humans. This drug is teratogenic in rats.  The risk of having an abnormal child as a result of antiepileptic medication is far outweighed by the dangers to the mother and fetus of uncontrolled epilepsy.
 It is recommended that:
 • women on antiepileptic drugs (AEDs) receive prepregnancy counselling with regard to the risk of fetal abnormalities;
 • AEDs should be continued during pregnancy and monotherapy should be used if possible at the lowest effective dose as risk of abnormality is greater in women taking combined medication;
@@ -1348,7 +1348,7 @@ palbociclib,D,"Based on findings in animals and mechanism of action, palbociclib
 palifermin,B3,,Antineoplastic Agents,Non-cytotoxic supportive therapy,
 paliperidone,C,"Neonates exposed to antipsychotic drugs during the third trimester of pregnancy are at risk of experiencing extrapyramidal neurological disturbances and/or withdrawal symptoms following delivery. There have been reports of agitation, hypertonia, hypotonia, tremor, somnolence, respiratory distress and feeding disorder in these neonates.",Central Nervous System,Antipsychotic drugs,
 palonosetron,B1,,Central Nervous System,"Antiemetics, antinauseants",
-palopegteriparatide ,B3,,Endocrine System,Agents affecting calcium and bone metabolism, 
+palopegteriparatide ,B3,,Endocrine System,Agents affecting calcium and bone metabolism,
 palovarotene,X,"Palovarotene is contraindicated in pregnancy due to the potential of severe and life-threatening birth defects. Palovarotene was shown to produce fetal malformations typical of retinoids (e.g., cleft palate, malformed skull bone, shortening of the long bones) at subclinical exposure levels in rats.",Musculoskeletal System,,
 pamidronate,B3,,Endocrine System,Agents affecting calcium and bone metabolism,Bisphosphonates
 pancuronium,B2,,Drugs Used in Anaesthesia,Neuromuscular blocking agents,
@@ -1361,7 +1361,7 @@ papaverine,B3,,Cholinergic and Anticholinergic Agents,,
 paracetamol,A,,Central Nervous System,Analgesics and Antipyretics (see also non-steroidal anti-inflammatory agents),
 paracetomol / tramadol,C,Opioid analgesics may cause respiratory depression in the newborn infant. Withdrawal symptoms in newborn infants have been reported with prolonged use of this class of drugs.,Central Nervous System,Analgesics and Antipyretics (see also non-steroidal and anti-inflammatory agents),
 paraldehyde,D,This drug readily diffuses across the placenta and has been known to cause respiratory depression in neonates.,Central Nervous System,Hypnotics and sedatives,
-parecoxib,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+parecoxib,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1417,28 +1417,28 @@ pheniramine,A,,Allergy and Immune System,Antihistamines,
 phenobarbital,D,"Refer to the relevant texts in the Product Information of individual antiepileptics  for more information regarding the suitability for use in pregnancy.
 
 Phenobarbital therapy in pregnant women with epilepsy presents a risk to the fetus in terms of major and minor congenital defects including congenital craniofacial and cardiac defects digital abnormalities and less commonly cleft lip and palate.
- 
+
 Haemorrhage at birth and addiction are also at risk. Prophylactic treatment with vitamin K1 for the mother before delivery (as well as the neonate) is recommended and the neonate should be monitored for signs of bleeding.
 
 Adverse effects on neurobehavioral development have also been reported. Studies investigating neurodevelopmental effects of prenatally administered phenobarbital were mostly small in numbers, however significant negative effects on neurodevelopment and IQ were found following in utero and postnatal exposure.
 
 It is recommended that:
-• women on antiepileptic drugs (AEDs) receive prepregnancy counselling with regard to the risk of congenital malformations and adverse developmental outcomes; 
-• AEDs should be continued during pregnancy at the lowest effective dose and monotherapy should be considered if appropriate; 
-• Adequate folic acid supplementation should be discussed as part of pre-pregnancy and pregnancy counselling; 
+• women on antiepileptic drugs (AEDs) receive prepregnancy counselling with regard to the risk of congenital malformations and adverse developmental outcomes;
+• AEDs should be continued during pregnancy at the lowest effective dose and monotherapy should be considered if appropriate;
+• Adequate folic acid supplementation should be discussed as part of pre-pregnancy and pregnancy counselling;
 • specialist prenatal diagnosis including detailed mid-trimester ultrasound should be considered.",Central Nervous System,Anticonvulsants/antiepileptics,
 phenobarbitone (phenobarbital),D,"Refer to the relevant texts in the Product Information of individual antiepileptics  for more information regarding the suitability for use in pregnancy.
 
 Phenobarbital therapy in pregnant women with epilepsy presents a risk to the fetus in terms of major and minor congenital defects including congenital craniofacial and cardiac defects digital abnormalities and less commonly cleft lip and palate.
- 
+
 Haemorrhage at birth and addiction are also at risk. Prophylactic treatment with vitamin K1 for the mother before delivery (as well as the neonate) is recommended and the neonate should be monitored for signs of bleeding.
 
 Adverse effects on neurobehavioral development have also been reported. Studies investigating neurodevelopmental effects of prenatally administered phenobarbital were mostly small in numbers, however significant negative effects on neurodevelopment and IQ were found following in utero and postnatal exposure.
 
 It is recommended that:
-• women on antiepileptic drugs (AEDs) receive prepregnancy counselling with regard to the risk of congenital malformations and adverse developmental outcomes; 
-• AEDs should be continued during pregnancy at the lowest effective dose and monotherapy should be considered if appropriate; 
-• Adequate folic acid supplementation should be discussed as part of pre-pregnancy and pregnancy counselling; 
+• women on antiepileptic drugs (AEDs) receive prepregnancy counselling with regard to the risk of congenital malformations and adverse developmental outcomes;
+• AEDs should be continued during pregnancy at the lowest effective dose and monotherapy should be considered if appropriate;
+• Adequate folic acid supplementation should be discussed as part of pre-pregnancy and pregnancy counselling;
 • specialist prenatal diagnosis including detailed mid-trimester ultrasound should be considered.",Central Nervous System,Anticonvulsants/antiepileptics,
 phenolphthalein,B2,,Alimentary System,Laxatives,
 phenoperidine,C,Opioid analgesics may cause respiratory depression in the newborn infant. Withdrawal symptoms in newborn infants have been reported with prolonged use of this class of drugs.,Central Nervous System,Analgesics and Antipyretics (see also non-steroidal anti-inflammatory agents),Opioid analgesics
@@ -1447,7 +1447,7 @@ phenoxymethylpenicillin,A,,Antimicrobials,Antibiotics,Penicillins
 phensuximide,D,"Compared to conventional anticonvulsants, the extent of the risk of this drug is unknown.",Central Nervous System,Anticonvulsants/antiepileptics,
 phentermine,B2,Weight reduction using appetite suppressant drugs is not recommended in pregnancy.,Metabolism,Anorectic and weight reducing agents,
 phentolamine,B1,,Cardiovascular System,Vasodilators,
-phenylbutazone,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+phenylbutazone,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1462,15 +1462,15 @@ phenytoin sodium,D,"Refer to the relevant texts in the Product Information of in
 
 Prenatal exposure to phenytoin may increase the risks for congenital malformations and other adverse developmental outcomes. Malformations such as orofacial clefts, cardiac defects, dysmorphic facial features, nail and digit hypoplasia, and growth abnormalities (including microcephaly) have been reported either individually or as part of a fetal Hydantoin Syndrome among children born to women with epilepsy who took phenytoin during pregnancy.
 Neurodevelopmental disorder has been reported among children born to women with epilepsy who used phenytoin alone or in combination with other AEDs during pregnancy.
-There have been several reported cases of malignancies including neuroblastoma, in children whose mothers received phenytoin during pregnancy. 
+There have been several reported cases of malignancies including neuroblastoma, in children whose mothers received phenytoin during pregnancy.
 
-Neurodevelopmental disorder has been reported among children born to women with epilepsy who used phenytoin alone or in combination with other antiepileptics during pregnancy. 
-Phenytoin can cause coagulation defects with consequent risk of haemorrhage in the fetus and the newborn infant which may be preventable by the prophylactic administration of vitamin K to the mother prior to delivery. 
+Neurodevelopmental disorder has been reported among children born to women with epilepsy who used phenytoin alone or in combination with other antiepileptics during pregnancy.
+Phenytoin can cause coagulation defects with consequent risk of haemorrhage in the fetus and the newborn infant which may be preventable by the prophylactic administration of vitamin K to the mother prior to delivery.
 
-It is recommended that: 
-• Women on antiepileptic drugs (AEDs) receive pre-pregnancy counselling with regard to the risk of congenital malformations or adverse developmental outcomes; 
-• AEDs should be continued during pregnancy at the lowest effective dose, and monotherapy should be used if appropriate as risk of congenital malformations or adverse developmental outcomes is greater in women taking combined medication; 
-• Adequate folic acid supplementation should be discussed as part of pre-pregnancy and pregnancy counselling; 
+It is recommended that:
+• Women on antiepileptic drugs (AEDs) receive pre-pregnancy counselling with regard to the risk of congenital malformations or adverse developmental outcomes;
+• AEDs should be continued during pregnancy at the lowest effective dose, and monotherapy should be used if appropriate as risk of congenital malformations or adverse developmental outcomes is greater in women taking combined medication;
+• Adequate folic acid supplementation should be discussed as part of pre-pregnancy and pregnancy counselling;
 • Specialist prenatal diagnosis including detailed mid-trimester ultrasound should be considered.",Central Nervous System,Anticonvulsants/antiepileptics,
 pholcodine,A,,Respiratory System,Antitussives,
 physostigmine,C,,Musculoskeletal System,Muscle relaxants,
@@ -1485,7 +1485,7 @@ piperacillin with tazobactam,B1,,Antimicrobials,Antibiotics,Penicillins
 piperazine oestrone sulfate (estropipate),B1,,Endocrine System,Oestrogens (see also oral contraceptives),
 piperonyl butoxide,B3,,Drugs used in Dermatology,Topical antiparasitics,
 pirfenidone,B3,,Respiratory System,,
-piroxicam,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+piroxicam,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1523,14 +1523,14 @@ prilocaine (with or without felypressin),A,,Drugs Used in Anaesthesia,Local anae
 primaquine phosphate,D,Avoid use in third trimester as primaquine may cause neonatal haemolysis and methaemoglobinaemia. The use of this drug in the treatment of malaria is accepted because the small risk to the fetus is outweighed by the benefits to the mother and fetus.  Prophylaxis in high risk situations is also justified.,Antimicrobials,Antimalarials,
 primidone,D,"Refer to the relevant texts in the Product Information of individual antiepileptics for more information regarding the suitability for use in pregnancy.
 
-Primidone therapy in pregnant women with epilepsy presents a risk to the fetus due to the major and minor congenital defects including congenital craniofacial and cardiac defects, digital abnormalities and, less commonly, cleft lip and palate associated with the phenobarbital metabolites produced from primidone. 
+Primidone therapy in pregnant women with epilepsy presents a risk to the fetus due to the major and minor congenital defects including congenital craniofacial and cardiac defects, digital abnormalities and, less commonly, cleft lip and palate associated with the phenobarbital metabolites produced from primidone.
 
 Haemorrhage at birth and addiction are also a risk. Prophylactic treatment with vitamin K1 for the mother before delivery (as well as the neonate) is recommended and the neonate should be monitored for signs of bleeding
 
-It is, recommended that: 
-• Women on antiepileptic drugs (AEDs) receive pre-pregnancy counselling with regard to the risk of congenital malformations and adverse developmental outcomes; 
-• AEDs should be continued during pregnancy at the lowest effective dose and monotherapy should be used if appropriate; 
-• Adequate folic acid supplementation should be discussed as part of pre-pregnancy and pregnancy counselling; 
+It is, recommended that:
+• Women on antiepileptic drugs (AEDs) receive pre-pregnancy counselling with regard to the risk of congenital malformations and adverse developmental outcomes;
+• AEDs should be continued during pregnancy at the lowest effective dose and monotherapy should be used if appropriate;
+• Adequate folic acid supplementation should be discussed as part of pre-pregnancy and pregnancy counselling;
 • Specialist prenatal diagnosis including detailed mid-trimester ultrasound should be considered.",Central Nervous System,Anticonvulsants/antiepileptics,
 probenecid,B2,,Musculoskeletal System,Agents used in gout and hyperuricaemia,
 probucol,B1,,Cardiovascular System,Hypolipidaemic agents,
@@ -1622,7 +1622,7 @@ rivaroxaban,C,All anticoagulants and thrombolytic agents can produce placental h
 rivastigmine,B2,,Cholinergic and Anticholinergic Agents,,
 rizatriptan,B1,,Cardiovascular System,Antimigraine preparations,
 rocuronium,B2,,Drugs Used in Anaesthesia,Neuromuscular blocking agents,
-rofecoxib,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+rofecoxib,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1670,7 +1670,7 @@ selpercatinib,D,"Based on data from animal reproduction studies and its mechanis
 selumetinib ,D,"Based on animal data (in pregnant mice given selumetinib during organogenesis caused a reduction in the number of live fetuses due to an increase in post-implantation loss, a reduction in fetal weights and malformations). Selumetinib may  cause fetal harm when administered to a pregnant woman.",Antineoplastic Agents,,
 semaglutide,D,This drug is embryotoxic and fetotoxic when administered to pregnant rats and rabbits,Endocrine System,Hypoglycaemic agents,
 senna,A,,Alimentary System,Laxatives,
-sepiapterin,B1,,Metabolism,Agents used for the treatment of metabolic disorders, 
+sepiapterin,B1,,Metabolism,Agents used for the treatment of metabolic disorders,
 sertindole,C,"Neonates exposed to antipsychotic drugs during the third trimester of pregnancy are at risk of experiencing extrapyramidal neurological disturbances and/or withdrawal symptoms following delivery. There have been reports of agitation, hypertonia, hypotonia, tremor, somnolence, respiratory distress and feeding disorder in these neonates.",Central Nervous System,Antipsychotic drugs,
 sertraline,C,Selective serotonin reuptake inhibitors (SSRIs) have had limited use in pregnancy without a reported increase in birth defects.  The use of SSRIs in the third trimester may result in a withdrawal state in the newborn infant.,Central Nervous System,Antidepressants,Selective serotonin reuptake inhibitors (SSRIs)
 sevelamer,B3,,"Detoxifying Agents, Antidotes ",,
@@ -1696,7 +1696,7 @@ sodium iodide [131I]  ,X,Sodium iodide [131I] is contraindicated in pregnancy. S
 sodium nitroprusside,C,Short term use for the control of hypertensive crises may be safe provided that the pH and cyanide concentrations in maternal blood are monitored.,Cardiovascular System,Antihypertensives,
 sodium phenylbutyrate,B3,,Metabolism,Agents used for the treatment of metabolic disorders,
 sodium phosphate [32P] ,X,"The use of this drug is absolutely contraindicated in women who are pregnant, or breast-feeding, and in children.",Diagnostic Agents,,
-sodium salicylate,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+sodium salicylate,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1741,7 +1741,7 @@ sulfamethizole,C,Sulfonamides may cause jaundice and haemolytic anaemia in the n
 sulfamethoxazole ,C,Sulfonamides may cause jaundice and haemolytic anaemia in the newborn.,Antimicrobials,Antibiotics,Sulfonamides
 sulfasalazine,A,,Alimentary System,Antidiarrhoeals,
 sulfinpyrazone,B2,,Musculoskeletal System,Agents used in gout and hyperuricaemia,
-sulindac,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+sulindac,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1788,7 +1788,7 @@ tenecteplase,C,,Cardiovascular System,Fibrinolytic agents,
 teniposide,D,"Cytotoxic agents can produce spontaneous abortion, fetal loss and birth defects.",Antineoplastic Agents,,
 tenofovir,B3,,Antimicrobials,Antiviral agents,
 tenofovir disoproxil fumarate / emtricitabine / elvitegravir / cobicistat,B3,,Antimicrobials,Antiviral agents,
-tenoxicam,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+tenoxicam,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1828,7 +1828,7 @@ thyrotrophin,B2,,Endocrine System,Pituitary hormones,
 thyrotropin alfa,B2,,Diagnostic Agents,Radiographic agents,
 thyroxine (levothyroxine),A,,Endocrine System,Thyroid hormones,
 tiagabine,B3,"Compared to conventional anticonvulsants, the extent of the risk of this drug is unknown.",Central Nervous System,Anticonvulsants/antiepileptics,
-tiaprofenic acid,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+tiaprofenic acid,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1912,7 +1912,7 @@ turoctocog alfa,B2,,Cardiovascular System,Haemostatic agents,
 "typhoid vaccine (live attenuated, oral)",B2,,Vaccines,Live attenuated vaccines,
 typhoid vaccine (polysaccharide),B2,,Vaccines,Subunit vaccines,Polysaccharide conjugate vaccines
 ublituximab  ,C,IgG antibodies are known to cross the placental barrier. This drug has the potential to affect embryofetal survival due to its pharmacological action.,Allergy and Immune System,Immunomodifiers,
-ublituximab  ,C,"Based on the pharmacological action, ublituximab has the potential to affect embryofetal survival. IgG antibodies are known to cross the placental barrier. 
+ublituximab  ,C,"Based on the pharmacological action, ublituximab has the potential to affect embryofetal survival. IgG antibodies are known to cross the placental barrier.
 ",Antineoplastic Agents,Monoclonal antibodies,
 umeclidinium bromide,B1,,Respiratory System,Inhalational agents,Preventative aerosols and inhalations
 umeclidinium bromide / fluticasone furoate / vilanterol trifenatate ,B3,,Respiratory System,Inhalational agents,Preventative aerosols and inhalations
@@ -1925,7 +1925,7 @@ ursodeoxycholic acid,B3,,Alimentary System,Cholelitholytics,
 ustekinumab,B1,,Allergy and immune system,Immunomodifiers,
 vadadustat,C,,Blood and Haemopoietic System,Haemopoietic agents,
 valaciclovir,B3,,Antimicrobials,Antiviral agents,
-valdecoxib,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy. 
+valdecoxib,C,"Non-steroidal anti-inflammatory (NSAIDs) agents inhibit prostaglandin synthesis which may adversely affect pregnancy. Refer to the relevant texts in the Product Information of individual NSAID products for information regarding the suitability for use in pregnancy.
 
 Epidemiological studies suggest an increased risk of spontaneous abortion after use of prostaglandin synthesis inhibitors in early pregnancy.
 
@@ -1938,7 +1938,7 @@ valsartan / hydrochlorothiazide,D,"When used in pregnancy during the second and 
 valsartan / sacubitril,D,"When used in pregnancy during the second and third trimesters, drugs that act directly on the renin-angiotensin system can cause injury and even death in the developing fetus. Although no adverse fetal effects have been linked to first trimester drug use of ARAs, the number of exposures reported is too small to determine conclusively that ARAs are safe in the first trimester. Pregnant women who are taking ARAs should be changed as quickly as possible to other antihypertensive medication to maintain normal blood pressure. It is generally advisable not to use ARAs for the management of hypertension in women who are likely to become pregnant.",Cardiovascular System,,
 vancomycin,B2,,Antimicrobials,Antibiotics,
 vandetanib,D,This drug is embryotoxic and embryolethal in pregnant animals.,Antineoplastic Agents,Tyrosine kinase inhibitors,
-vanzacaftor + tezacaftor + deutivacaftor,B3,,Respiratory System,Inhalational agents, 
+vanzacaftor + tezacaftor + deutivacaftor,B3,,Respiratory System,Inhalational agents,
 vardenafil,B3,,Cardiovascular System,Vasodilators,
 varenicline,B3,,Agents used in dependency states,,
 varicella vaccine,B2,"Currently available live virus vaccines have not caused teratogenic effects in humans. The ATAGI publication, “The Australian Immunisation Handbook”, should be consulted for more comprehensive information.",Vaccines,Live attenuated vaccines,
@@ -1947,7 +1947,7 @@ vasopressin,B2,,Endocrine System,Antidiuretics,
 vecuronium,C,There have been no demonstrated adverse effects in the fetus or the newborn infant.,Drugs Used in Anaesthesia,Neuromuscular blocking agents,
 vedolizumab (rch),B1,,Allergy and Immune System,Immunomodifiers,
 velaglucerase alfa,B2,,Metabolism,Agents used for the treatment of metabolic disorders,
-velmanase alfa ,D,"Based on animal studies, velmanase alfa may cause embryofetal malformations when administered to a pregnant woman.",Metabolism,Agents used for the treatment of metabolic disorders, 
+velmanase alfa ,D,"Based on animal studies, velmanase alfa may cause embryofetal malformations when administered to a pregnant woman.",Metabolism,Agents used for the treatment of metabolic disorders,
 vemurafenib,D,This drug inhibits multiple kinases (including BRAF) that may be important during embryofetal development.,Antineoplastic Agents,Tyrosine kinase inhibitors,
 venetoclax,C,Venetoclax is a Bcl-2 inhibitor. Bcl-2 plays a role in oocyte and embryonic development. Venetoclax may have effects on the fetus when administered to pregnant women.,Antineoplastic Agents,,
 venlafaxine,B2,,Central Nervous System,Antidepressants,
@@ -1987,9 +1987,9 @@ zoledronic acid,B3,,Endocrine System,Agents affecting calcium and bone metabolis
 zolmitriptan,B3,,Cardiovascular System,Antimigraine preparations,
 zolpidem tartrate,B3,,Central Nervous System,Hypnotics and sedatives,
 zonisamide,D,"Refer to the relevant texts in the Product Information of individual antiepileptics for more information regarding the suitability for use in pregnancy.
-There are limited data from the use of Zonegran in pregnant women. Data from a registry study suggest a higher proportion of babies born at a low birth weight (LBW), pre-term or small for gestational age (SGA) in mothers treated with zonisamide (n=98) compared to mothers treated with lamotrigine monotherapy (n=1581). 
-Zonisamide is teratogenic in mice, rats and dogs and embryolethal in monkeys when administered orally during the period of organogenesis. 
-The pre-clinical studies in various animals indicated increased incidences of fetal cardiovascular malformations (ventricular septal defects, cardiomegaly, valvular and arterial anomalies), embryofetal deaths, skeletal and/or craniofacial defects, delayed behavioural development. 
+There are limited data from the use of Zonegran in pregnant women. Data from a registry study suggest a higher proportion of babies born at a low birth weight (LBW), pre-term or small for gestational age (SGA) in mothers treated with zonisamide (n=98) compared to mothers treated with lamotrigine monotherapy (n=1581).
+Zonisamide is teratogenic in mice, rats and dogs and embryolethal in monkeys when administered orally during the period of organogenesis.
+The pre-clinical studies in various animals indicated increased incidences of fetal cardiovascular malformations (ventricular septal defects, cardiomegaly, valvular and arterial anomalies), embryofetal deaths, skeletal and/or craniofacial defects, delayed behavioural development.
 Zonisamide must not be used in pregnancy unless clearly necessary and only if the potential benefit is considered to justify the risk to the fetus. The need for antiepileptic treatment should be reviewed in patients planning to become pregnant. If zonisamide is prescribed, careful monitoring is recommended.
 Specialist advice should be given to women who are likely to become pregnant in order to consider the optimal treatment during pregnancy.
 ",Central Nervous System,Anticonvulsants/antiepileptics,
