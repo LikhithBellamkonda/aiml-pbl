@@ -34,20 +34,22 @@ def load_data_and_model():
     # Get metadata for the dashboard
     pubchem_df = pd.read_csv('data/real_pubchem.csv').set_index('drug_id')
     adr_df = pd.read_csv('data/real_faers_adr.csv').set_index('drug_id')
+    names_df = pd.read_csv('data/drug_names.csv')
 
-    return model, loader, pubchem_df, adr_df
+    return model, loader, pubchem_df, adr_df, names_df
 
 st.title("Pregnancy ADR Research Dashboard")
 st.markdown("Predicting potential pregnancy-related safety concerns and estimating uncertainty under sparse-evidence conditions.")
 
 try:
-    model, loader, pubchem_df, adr_df = load_data_and_model()
+    model, loader, pubchem_df, adr_df, names_df = load_data_and_model()
 
-    drug_ids = list(pubchem_df.index)
-    selected_drug = st.selectbox("Select a Drug ID", drug_ids)
+    drug_names = list(names_df['drug_name'].dropna())
+    selected_drug_name = st.selectbox("Select a Drug", drug_names)
 
-    if selected_drug:
-        st.subheader(f"Drug Analysis: {selected_drug}")
+    if selected_drug_name:
+        selected_drug = names_df[names_df['drug_name'] == selected_drug_name]['drug_id'].values[0]
+        st.subheader(f"Drug Analysis: {str(selected_drug_name).title()} ({selected_drug})")
 
         col1, col2 = st.columns(2)
         with col1:

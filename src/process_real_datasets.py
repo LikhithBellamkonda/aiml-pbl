@@ -15,6 +15,9 @@ def process_datasets():
     drug_to_cid = {name: f"CID999{str(i).zfill(5)}" for i, name in enumerate(unique_drugs)}
     preg_df['drug_id'] = preg_df['Name'].map(drug_to_cid)
 
+    # Save a mapping of drug names to IDs for the dashboard
+    name_mapping_df = pd.DataFrame(list(drug_to_cid.items()), columns=['drug_name', 'drug_id'])
+
     # 1. Process PubChem Data
     print("Processing PubChem data...")
     pubchem = pd.read_csv('datasets/CSV.csv')
@@ -28,6 +31,11 @@ def process_datasets():
 
     pubchem_df = pd.concat([pubchem_df_real, fake_pubchem_df], ignore_index=True)
     pubchem_df.to_csv('data/real_pubchem.csv', index=False)
+
+    # Let's add Aspirin (CID000002244) to the name mapping since it came from PubChem directly
+    aspirin_row = pd.DataFrame([{'drug_name': 'aspirin', 'drug_id': 'CID000002244'}])
+    name_mapping_df = pd.concat([name_mapping_df, aspirin_row], ignore_index=True)
+    name_mapping_df.to_csv('data/drug_names.csv', index=False)
 
     # Get a list of valid CIDs to filter other datasets
     valid_cids = set(pubchem_df['drug_id'])
