@@ -1,0 +1,2039 @@
+{
+  "generated_at": "2026-10-31T08:19:37.562032+00:00",
+  "sources": {
+    "mendeley_dermatology": {
+      "status": "present",
+      "files": [
+        "datasets/FAERS_JAAD_Mendeley Supplement.docx"
+      ],
+      "source_description": "Supplementary tables for a dermatology FAERS spontaneous-report analysis. The document describes 121 medications and says 118 were analyzed; the locally parsed report-total tables contain 116 unique drug names.",
+      "reported_target_medications": 121,
+      "reported_analyzed_medications": 118,
+      "parsed_report_total_unique_drugs": 116,
+      "unique_drugs_with_outcome_terms": 93,
+      "aggregate_outcome_term_rows": 2083,
+      "outcome_term_rows_with_reported_count": 2082,
+      "outcome_term_rows_with_positive_count": 2082,
+      "outcome_term_rows_with_zero_count": 0,
+      "unclassified_outcome_rows": 16,
+      "drug_level_binary_positive_labels": 0,
+      "drug_level_binary_negative_labels": 0,
+      "usable_binary_label_records": 0,
+      "evidence_granularity": "Drug-level aggregate reported-term counts in the supplied supplement; no patient-level records or exposure denominator.",
+      "outcomes": [
+        {
+          "outcome": "fetal_death",
+          "label": "Fetal death",
+          "aggregate_term_rows": 283,
+          "drugs_with_reported_terms": 87,
+          "reported_count_sum": 4819,
+          "reported_count_missing_percent": 0.0,
+          "verified_positive_labels": 0,
+          "verified_negative_labels": 0,
+          "decision": "not_trainable",
+          "reason": "Only aggregate spontaneous-report term counts are present; no exposed-pregnancy denominator or validated outcome-negative observations are supplied."
+        },
+        {
+          "outcome": "preterm_birth",
+          "label": "Preterm birth / prematurity",
+          "aggregate_term_rows": 64,
+          "drugs_with_reported_terms": 64,
+          "reported_count_sum": 1529,
+          "reported_count_missing_percent": 0.0,
+          "verified_positive_labels": 0,
+          "verified_negative_labels": 0,
+          "decision": "not_trainable",
+          "reason": "Only aggregate spontaneous-report term counts are present; no exposed-pregnancy denominator or validated outcome-negative observations are supplied."
+        },
+        {
+          "outcome": "fetal_growth_restriction",
+          "label": "Fetal growth restriction",
+          "aggregate_term_rows": 123,
+          "drugs_with_reported_terms": 56,
+          "reported_count_sum": 896,
+          "reported_count_missing_percent": 0.0,
+          "verified_positive_labels": 0,
+          "verified_negative_labels": 0,
+          "decision": "not_trainable",
+          "reason": "Only aggregate spontaneous-report term counts are present; no exposed-pregnancy denominator or validated outcome-negative observations are supplied."
+        },
+        {
+          "outcome": "congenital_anomaly",
+          "label": "Congenital anomaly",
+          "aggregate_term_rows": 1597,
+          "drugs_with_reported_terms": 84,
+          "reported_count_sum": 4546,
+          "reported_count_missing_percent": 0.06,
+          "verified_positive_labels": 0,
+          "verified_negative_labels": 0,
+          "decision": "not_trainable",
+          "reason": "Only aggregate spontaneous-report term counts are present; no exposed-pregnancy denominator or validated outcome-negative observations are supplied."
+        }
+      ],
+      "drug_identifier_matching": {
+        "unique_source_outcome_drugs": 93,
+        "matched_to_local_drug_mapping": 67,
+        "name_key_match_percent": 72.04,
+        "with_pubchem_cid": 51,
+        "pubchem_cid_match_percent_of_source_drugs": 54.84,
+        "outcome_rows_with_drug_id": 1556,
+        "outcome_rows_without_drug_id": 527,
+        "outcome_rows_missing_drug_id_percent": 25.3
+      },
+      "missing_value_percentages": {
+        "reported_count": 0.05,
+        "outcome_category": 0.0,
+        "processed_drug_id": 25.3,
+        "processed_outcome_category": 0.77
+      },
+      "parsed_drug_names": [
+        "Abrocitinib",
+        "Acyclovir",
+        "Adalimumab",
+        "Amoxicillin",
+        "Anakinra",
+        "Atovaquone-Proguanil",
+        "Azathioprine",
+        "Azithromycin",
+        "Baricitinib",
+        "Botulinum Toxin",
+        "Brodalumab",
+        "Calcipotriene",
+        "Canakinumab",
+        "Ceftriaxone",
+        "Certolizumab pegol",
+        "Cetirizine",
+        "Chlorpheniramine",
+        "Ciprofloxacin",
+        "Clarithromycin",
+        "Clindamycin",
+        "Clobetasol",
+        "Clotrimazole",
+        "Colchicine",
+        "Cyclosporine",
+        "Dexamethasone",
+        "Diphenhydramine",
+        "Doxepin",
+        "Doxycycline",
+        "Dupilumab",
+        "Epinepherine",
+        "Erythromycin",
+        "Etanercept",
+        "Fexofenadine",
+        "Fluconazole",
+        "Fluocinolone",
+        "Fluocinonide",
+        "Ganciclovir",
+        "Griseofulvin",
+        "Guselkumab",
+        "Hydrocortisone",
+        "Hydroquinone",
+        "Hydroxychloroquine",
+        "Hydroxyzine",
+        "Infliximab",
+        "Ipilimumab",
+        "Isoniazid and Rifampin",
+        "Isotretinoin",
+        "Itraconazole",
+        "Ixekizumab",
+        "Ketoconazole",
+        "Levocetirizine",
+        "Levofloxacin",
+        "Lidocaine",
+        "Loratadine and desloratadine",
+        "Methotrexate",
+        "Methylprednisolone",
+        "Metronidazole",
+        "Miconazole",
+        "Minoxidil",
+        "Moxifloxacin",
+        "Mycophenolate",
+        "Nivolumab and Relatlimab",
+        "Nystatin",
+        "Ocrelizumab",
+        "Omalizumab",
+        "Oxacillin",
+        "Permethrin",
+        "Pimecrolimus",
+        "Prednisolone",
+        "Prednisone",
+        "Risankizumab",
+        "Rituximab",
+        "Ruxolitinib",
+        "Secukinumab",
+        "Spironolactone",
+        "Sulfamethoxazole and Trimethoprim",
+        "Tacrolimus",
+        "Tazarotene",
+        "Terbinafine",
+        "Terconazole",
+        "Tetracycline",
+        "Tildrakizumab",
+        "Tioconazole",
+        "Tofacitinib",
+        "Tralokinumab",
+        "Tranexamic acid",
+        "Tretinoin",
+        "Triamcinolone",
+        "Upadacitinib",
+        "Ustekinumab",
+        "Valganciclovir",
+        "Vancomycin",
+        "Vismodegib"
+      ],
+      "parsed_report_total_drug_names": [
+        "Abrocitinib",
+        "Acyclovir",
+        "Adalimumab",
+        "Aluminum chloride",
+        "Amoxicillin",
+        "Anakinra",
+        "Atovaquone-Proguanil",
+        "Azathioprine",
+        "Azithromycin",
+        "Baricitinib",
+        "Beclomethasone",
+        "Betamethasone",
+        "Botulinum Toxin",
+        "Brodalumab",
+        "Calcipotriene",
+        "Canakinumab",
+        "Ceftriaxone",
+        "Cemiplimab",
+        "Certolizumab pegol",
+        "Cetirizine",
+        "Chlorpheniramine",
+        "Ciprofloxacin",
+        "Clarithromycin",
+        "Clascoterone",
+        "Clindamycin",
+        "Clobetasol",
+        "Clotrimazole",
+        "Coal Tar",
+        "Colchicine",
+        "Corticosteroid Nos",
+        "Cortisone",
+        "Crisaborole",
+        "Cyclosporine",
+        "Dapsone",
+        "Deucravacitinib",
+        "Dexamethasone",
+        "Dinitrochlorobenzene",
+        "Diphenhydramine",
+        "Doxepin",
+        "Doxycycline",
+        "Dupilumab",
+        "Epinepherine",
+        "Erythromycin",
+        "Etanercept",
+        "Fenticonazole",
+        "Fexofenadine",
+        "Fluconazole",
+        "Fluocinolone",
+        "Fluocinonide",
+        "Ganciclovir",
+        "Glycolic acid",
+        "Glycopyrronium",
+        "Griseofulvin",
+        "Guselkumab",
+        "Hyaluronate andderivatives",
+        "Hydrocortisone",
+        "Hydroquinone",
+        "Hydroxychloroquine",
+        "Hydroxyzine",
+        "Infliximab",
+        "Ipilimumab",
+        "Isoniazid and Rifampin",
+        "Isotretinoin",
+        "Itraconazole",
+        "Ixekizumab",
+        "Ketoconazole",
+        "Levocetirizine",
+        "Levofloxacin",
+        "Lidocaine",
+        "Loratadine and desloratadine",
+        "Methotrexate",
+        "Methylprednisolone",
+        "Metronidazole",
+        "Miconazole",
+        "Minoxidil",
+        "Moxifloxacin",
+        "Mycophenolate",
+        "Nivolumab and Relatlimab",
+        "Nystatin",
+        "Ocrelizumab",
+        "Omalizumab",
+        "Oxacillin",
+        "Penicillin",
+        "Permethrin",
+        "Pimecrolimus",
+        "Prednisolone",
+        "Prednisone",
+        "Psoralen (PUVA)",
+        "Risankizumab",
+        "Rituximab",
+        "Roflumilast",
+        "Ruxolitinib",
+        "Secukinumab",
+        "Sirukumab",
+        "Spironolactone",
+        "Squaric acid dibutylester",
+        "Sulfamethoxazole and Trimethoprim",
+        "Tacrolimus",
+        "Tapinarof",
+        "Tazarotene",
+        "Terbinafine",
+        "Terconazole",
+        "Tetracycline",
+        "Tildrakizumab",
+        "Tioconazole",
+        "Tirbanibulin",
+        "Tofacitinib",
+        "Tralokinumab",
+        "Tranexamic acid",
+        "Tretinoin",
+        "Triamcinolone",
+        "Upadacitinib",
+        "Ustekinumab",
+        "Valganciclovir",
+        "Vancomycin",
+        "Vismodegib"
+      ],
+      "drug_mapping": [
+        {
+          "drug_name": "Abrocitinib",
+          "has_outcome_terms": true,
+          "drug_id": "CID078323835",
+          "pubchem_cid": "78323835",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Acyclovir",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Adalimumab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:adalimumab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Aluminum chloride",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Amoxicillin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000033613",
+          "pubchem_cid": "33613",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Anakinra",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:anakinra",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Atovaquone-Proguanil",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Azathioprine",
+          "has_outcome_terms": true,
+          "drug_id": "CID000002265",
+          "pubchem_cid": "2265",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Azithromycin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000447043",
+          "pubchem_cid": "447043",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Baricitinib",
+          "has_outcome_terms": true,
+          "drug_id": "CID044205240",
+          "pubchem_cid": "44205240",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Beclomethasone",
+          "has_outcome_terms": false,
+          "drug_id": "CID000020469",
+          "pubchem_cid": "20469",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Betamethasone",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Botulinum Toxin",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Brodalumab",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Calcipotriene",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Canakinumab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:canakinumab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Ceftriaxone",
+          "has_outcome_terms": true,
+          "drug_id": "CID005479530",
+          "pubchem_cid": "5479530",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Cemiplimab",
+          "has_outcome_terms": false,
+          "drug_id": "NAME:cemiplimab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Certolizumab pegol",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Cetirizine",
+          "has_outcome_terms": true,
+          "drug_id": "CID000002678",
+          "pubchem_cid": "2678",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Chlorpheniramine",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Ciprofloxacin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000002764",
+          "pubchem_cid": "2764",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Clarithromycin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000084029",
+          "pubchem_cid": "84029",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Clascoterone",
+          "has_outcome_terms": false,
+          "drug_id": "CID011750009",
+          "pubchem_cid": "11750009",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Clindamycin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000446598",
+          "pubchem_cid": "446598",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Clobetasol",
+          "has_outcome_terms": true,
+          "drug_id": "CID005311051",
+          "pubchem_cid": "5311051",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Clotrimazole",
+          "has_outcome_terms": true,
+          "drug_id": "CID000002812",
+          "pubchem_cid": "2812",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Coal Tar",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Colchicine",
+          "has_outcome_terms": true,
+          "drug_id": "CID000006167",
+          "pubchem_cid": "6167",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Corticosteroid Nos",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Cortisone",
+          "has_outcome_terms": false,
+          "drug_id": "CID000222786",
+          "pubchem_cid": "222786",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Crisaborole",
+          "has_outcome_terms": false,
+          "drug_id": "CID044591583",
+          "pubchem_cid": "44591583",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Cyclosporine",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Dapsone",
+          "has_outcome_terms": false,
+          "drug_id": "CID000002955",
+          "pubchem_cid": "2955",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Deucravacitinib",
+          "has_outcome_terms": false,
+          "drug_id": "CID134821691",
+          "pubchem_cid": "134821691",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Dexamethasone",
+          "has_outcome_terms": true,
+          "drug_id": "CID000005743",
+          "pubchem_cid": "5743",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Dinitrochlorobenzene",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Diphenhydramine",
+          "has_outcome_terms": true,
+          "drug_id": "CID000003100",
+          "pubchem_cid": "3100",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Doxepin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000003158",
+          "pubchem_cid": "3158",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Doxycycline",
+          "has_outcome_terms": true,
+          "drug_id": "CID054671203",
+          "pubchem_cid": "54671203",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Dupilumab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:dupilumab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Epinepherine",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Erythromycin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000012560",
+          "pubchem_cid": "12560",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Etanercept",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:etanercept",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Fenticonazole",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Fexofenadine",
+          "has_outcome_terms": true,
+          "drug_id": "CID000003348",
+          "pubchem_cid": "3348",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Fluconazole",
+          "has_outcome_terms": true,
+          "drug_id": "CID000003365",
+          "pubchem_cid": "3365",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Fluocinolone",
+          "has_outcome_terms": true,
+          "drug_id": "CID000091488",
+          "pubchem_cid": "91488",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Fluocinonide",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Ganciclovir",
+          "has_outcome_terms": true,
+          "drug_id": "CID135398740",
+          "pubchem_cid": "135398740",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Glycolic acid",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Glycopyrronium",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Griseofulvin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000441140",
+          "pubchem_cid": "441140",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Guselkumab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:guselkumab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Hyaluronate andderivatives",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Hydrocortisone",
+          "has_outcome_terms": true,
+          "drug_id": "CID000005754",
+          "pubchem_cid": "5754",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Hydroquinone",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Hydroxychloroquine",
+          "has_outcome_terms": true,
+          "drug_id": "CID000003652",
+          "pubchem_cid": "3652",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Hydroxyzine",
+          "has_outcome_terms": true,
+          "drug_id": "CID000003658",
+          "pubchem_cid": "3658",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Infliximab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:infliximab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Ipilimumab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:ipilimumab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Isoniazid and Rifampin",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Isotretinoin",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Itraconazole",
+          "has_outcome_terms": true,
+          "drug_id": "CID000055283",
+          "pubchem_cid": "55283",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Ixekizumab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:ixekizumab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Ketoconazole",
+          "has_outcome_terms": true,
+          "drug_id": "CID000047576",
+          "pubchem_cid": "47576",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Levocetirizine",
+          "has_outcome_terms": true,
+          "drug_id": "CID001549000",
+          "pubchem_cid": "1549000",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Levofloxacin",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Lidocaine",
+          "has_outcome_terms": true,
+          "drug_id": "CID000003676",
+          "pubchem_cid": "3676",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Loratadine and desloratadine",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Methotrexate",
+          "has_outcome_terms": true,
+          "drug_id": "CID000126941",
+          "pubchem_cid": "126941",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Methylprednisolone",
+          "has_outcome_terms": true,
+          "drug_id": "CID000006741",
+          "pubchem_cid": "6741",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Metronidazole",
+          "has_outcome_terms": true,
+          "drug_id": "CID000004173",
+          "pubchem_cid": "4173",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Miconazole",
+          "has_outcome_terms": true,
+          "drug_id": "CID000004189",
+          "pubchem_cid": "4189",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Minoxidil",
+          "has_outcome_terms": true,
+          "drug_id": "CID000004201",
+          "pubchem_cid": "4201",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Moxifloxacin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000152946",
+          "pubchem_cid": "152946",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Mycophenolate",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Nivolumab and Relatlimab",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Nystatin",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:nystatin",
+          "pubchem_cid": "",
+          "resolution_status": "ambiguous"
+        },
+        {
+          "drug_name": "Ocrelizumab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:ocrelizumab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Omalizumab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:omalizumab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Oxacillin",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Penicillin",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Permethrin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000040326",
+          "pubchem_cid": "40326",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Pimecrolimus",
+          "has_outcome_terms": true,
+          "drug_id": "CID006509979",
+          "pubchem_cid": "6509979",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Prednisolone",
+          "has_outcome_terms": true,
+          "drug_id": "CID000005755",
+          "pubchem_cid": "5755",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Prednisone",
+          "has_outcome_terms": true,
+          "drug_id": "CID000005865",
+          "pubchem_cid": "5865",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Psoralen (PUVA)",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Risankizumab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:risankizumab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Rituximab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:rituximab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Roflumilast",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Ruxolitinib",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Secukinumab",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Sirukumab",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Spironolactone",
+          "has_outcome_terms": true,
+          "drug_id": "CID000005833",
+          "pubchem_cid": "5833",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Squaric acid dibutylester",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Sulfamethoxazole and Trimethoprim",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Tacrolimus",
+          "has_outcome_terms": true,
+          "drug_id": "CID000445643",
+          "pubchem_cid": "445643",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Tapinarof",
+          "has_outcome_terms": false,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Tazarotene",
+          "has_outcome_terms": true,
+          "drug_id": "CID000005381",
+          "pubchem_cid": "5381",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Terbinafine",
+          "has_outcome_terms": true,
+          "drug_id": "CID001549008",
+          "pubchem_cid": "1549008",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Terconazole",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Tetracycline",
+          "has_outcome_terms": true,
+          "drug_id": "CID054675776",
+          "pubchem_cid": "54675776",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Tildrakizumab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:tildrakizumab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Tioconazole",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Tirbanibulin",
+          "has_outcome_terms": false,
+          "drug_id": "CID023635314",
+          "pubchem_cid": "23635314",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Tofacitinib",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Tralokinumab",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Tranexamic acid",
+          "has_outcome_terms": true,
+          "drug_id": "CID000005526",
+          "pubchem_cid": "5526",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Tretinoin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000444795",
+          "pubchem_cid": "444795",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Triamcinolone",
+          "has_outcome_terms": true,
+          "drug_id": "",
+          "pubchem_cid": "",
+          "resolution_status": "not_matched"
+        },
+        {
+          "drug_name": "Upadacitinib",
+          "has_outcome_terms": true,
+          "drug_id": "CID058557659",
+          "pubchem_cid": "58557659",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Ustekinumab",
+          "has_outcome_terms": true,
+          "drug_id": "NAME:ustekinumab",
+          "pubchem_cid": "",
+          "resolution_status": "unresolved"
+        },
+        {
+          "drug_name": "Valganciclovir",
+          "has_outcome_terms": true,
+          "drug_id": "CID135413535",
+          "pubchem_cid": "135413535",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Vancomycin",
+          "has_outcome_terms": true,
+          "drug_id": "CID000014969",
+          "pubchem_cid": "14969",
+          "resolution_status": "resolved"
+        },
+        {
+          "drug_name": "Vismodegib",
+          "has_outcome_terms": true,
+          "drug_id": "CID024776445",
+          "pubchem_cid": "24776445",
+          "resolution_status": "resolved"
+        }
+      ]
+    },
+    "dryad_antiepileptic": {
+      "status": "not_found",
+      "files": [],
+      "unique_drugs": null,
+      "outcome_records": 0,
+      "usable_binary_label_records": 0,
+      "positive_labels": null,
+      "negative_labels": null,
+      "drug_identifier_match_success": null,
+      "missing_value_percentages": null,
+      "evidence_granularity": "Not assessable: no Dryad antiepileptic outcome file was found in datasets/."
+    },
+    "pregnancy_classification_catalog": {
+      "status": "present",
+      "files": [
+        "datasets/medicines-pregnancy-current-database-2026-10-21.csv"
+      ],
+      "rows": 1778,
+      "unique_drug_names": 1725,
+      "antiepileptic_category_rows": 30,
+      "unique_antiepileptic_names": 30,
+      "outcome_records": 0,
+      "usable_binary_label_records": 0,
+      "missing_value_percentages": {
+        "Category": 0.0,
+        "Safety statement": 55.12,
+        "Classification 1": 0.11,
+        "Classification 2": 15.58,
+        "Classification 3": 85.55
+      },
+      "interpretation": "Drug pregnancy classifications and narrative statements, not patient-level or drug-level observed pregnancy-outcome labels.",
+      "antiepileptic_names": [
+        "brivaracetam",
+        "cannabidiol ",
+        "carbamazepine",
+        "clonazepam",
+        "eslicarbazepine acetate",
+        "ethosuximide",
+        "fenfluramine",
+        "gabapentin",
+        "lacosamide",
+        "lamotrigine",
+        "levetiracetam",
+        "methsuximide",
+        "methylphenobarbital",
+        "methylphenobarbitone (methylphenobarbital)",
+        "oxcarbazepine",
+        "perampanel hemisesquihydrate",
+        "phenobarbital",
+        "phenobarbitone (phenobarbital)",
+        "phensuximide",
+        "phenytoin sodium",
+        "pregabalin",
+        "primidone",
+        "retigabine",
+        "rufinamide",
+        "sodium valproate (valproic acid)",
+        "sulthiame",
+        "tiagabine",
+        "topiramate",
+        "vigabatrin",
+        "zonisamide"
+      ]
+    },
+    "other_supplement": {
+      "status": "present_but_not_dryad_outcome_data",
+      "files": [
+        "datasets/supplemental_data.docx"
+      ],
+      "interpretation": "The document's tables define hospital discharge diagnoses and drugs used to identify teratogenic infections; it is not an antiepileptic pregnancy-outcome cohort."
+    },
+    "antiepileptic_study_supplement": {
+      "status": "aggregate_study_supplement_only",
+      "file": "datasets/Supplemental_tables.docx",
+      "study_title": "Anti-seizure medication use during pregnancy and risk of ASD and ADHD in children",
+      "overall_children": 16205,
+      "no_asm_children": 12661,
+      "asm_children": 12661,
+      "epilepsy_subgroup_children": 5637,
+      "outcome_names": [
+        "autism spectrum disorder",
+        "ADHD"
+      ],
+      "medication_groups": [
+        "Any ASM",
+        "Valproic Acid",
+        "Lamotrigine",
+        "Carbamazepine"
+      ],
+      "outcome_event_counts_available": false,
+      "patient_level_records_available": false,
+      "drug_level_binary_labels_available": false,
+      "available_effect_measures": "Hazard ratios and 95% confidence intervals in aggregate tables",
+      "reason_not_trainable": "The supplied tables provide aggregate hazard ratios and exposed-subgroup sizes, not patient-level outcomes, outcome event counts, or per-drug positive/negative labels."
+    },
+    "nonclinical_toxicity_assay": {
+      "status": "present",
+      "file": "datasets/Supplementary_S3_Raw data.xlsx",
+      "sheets": 10,
+      "sheet_variants": "Each TG endpoint has a *_smiles3 and *_smiles4 variant. Modeling uses the *_smiles4 version because it contains binary target columns; the source does not document the binary-label derivation.",
+      "unique_structures_across_endpoints": 2244,
+      "structures_matching_local_pubchem_smiles": 11,
+      "local_drug_ids_matching_assay_structures": 11,
+      "outcomes_are_human_pregnancy_outcomes": false,
+      "endpoint_granularity": "Chemical-structure level",
+      "endpoint_decisions": [
+        {
+          "endpoint": "TG414",
+          "sheet": "414smiles4",
+          "records": 1242,
+          "positive": 370,
+          "negative": 872,
+          "positive_percent": 29.79,
+          "scaffold_groups": 927,
+          "excluded_invalid_or_duplicate_rows": 0,
+          "label_values_are_binary": true,
+          "decision": "limited",
+          "decision_reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
+        },
+        {
+          "endpoint": "TG416",
+          "sheet": "416smiles4",
+          "records": 264,
+          "positive": 74,
+          "negative": 190,
+          "positive_percent": 28.03,
+          "scaffold_groups": 215,
+          "excluded_invalid_or_duplicate_rows": 0,
+          "label_values_are_binary": true,
+          "decision": "limited",
+          "decision_reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
+        },
+        {
+          "endpoint": "TG421t",
+          "sheet": "421smiles4",
+          "records": 510,
+          "positive": 95,
+          "negative": 415,
+          "positive_percent": 18.63,
+          "scaffold_groups": 399,
+          "excluded_invalid_or_duplicate_rows": 0,
+          "label_values_are_binary": true,
+          "decision": "limited",
+          "decision_reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
+        },
+        {
+          "endpoint": "TG422t",
+          "sheet": "422smiles4",
+          "records": 946,
+          "positive": 191,
+          "negative": 755,
+          "positive_percent": 20.19,
+          "scaffold_groups": 677,
+          "excluded_invalid_or_duplicate_rows": 0,
+          "label_values_are_binary": true,
+          "decision": "limited",
+          "decision_reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
+        },
+        {
+          "endpoint": "TG443t",
+          "sheet": "443smiles4",
+          "records": 144,
+          "positive": 29,
+          "negative": 115,
+          "positive_percent": 20.14,
+          "scaffold_groups": 117,
+          "excluded_invalid_or_duplicate_rows": 1,
+          "label_values_are_binary": true,
+          "decision": "limited",
+          "decision_reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
+        }
+      ],
+      "variant_consistency": [
+        {
+          "endpoint": "TG414",
+          "paired_structures": 1242,
+          "label_disagreements": 17,
+          "nonbinary_smiles3_labels": 17,
+          "missing_smiles4_label_percent": 0.0,
+          "missing_smiles_percent": 0.0
+        },
+        {
+          "endpoint": "TG416",
+          "paired_structures": 264,
+          "label_disagreements": 2,
+          "nonbinary_smiles3_labels": 2,
+          "missing_smiles4_label_percent": 0.0,
+          "missing_smiles_percent": 0.0
+        },
+        {
+          "endpoint": "TG421t",
+          "paired_structures": 510,
+          "label_disagreements": 0,
+          "nonbinary_smiles3_labels": 0,
+          "missing_smiles4_label_percent": 0.0,
+          "missing_smiles_percent": 0.0
+        },
+        {
+          "endpoint": "TG422t",
+          "paired_structures": 946,
+          "label_disagreements": 0,
+          "nonbinary_smiles3_labels": 0,
+          "missing_smiles4_label_percent": 0.0,
+          "missing_smiles_percent": 0.0
+        },
+        {
+          "endpoint": "TG443t",
+          "paired_structures": 145,
+          "label_disagreements": 0,
+          "nonbinary_smiles3_labels": 0,
+          "missing_smiles4_label_percent": 0.0,
+          "missing_smiles_percent": 0.0
+        }
+      ],
+      "source_definition_status": "No dataset citation or codebook/label definition was found in the workbook or accompanying files."
+    },
+    "drug_target_interactions": {
+      "status": "present",
+      "file": "datasets/drug.target.interaction.tsv.gz",
+      "records": 19378,
+      "unique_drug_names": 2587,
+      "unique_targets": 2167,
+      "drug_names_matching_local_mapping": 1054,
+      "drug_name_match_percent": 40.74,
+      "interpretation": "Pharmacology interaction evidence, not pregnancy outcome labels."
+    }
+  },
+  "compatibility": {
+    "mendeley_outcome_drugs_vs_classification_catalog_exact_name_overlap": 67,
+    "mendeley_outcome_drugs_vs_classification_catalog_overlap_percent": 72.04,
+    "mendeley_vs_dryad_overlap": null,
+    "mendeley_vs_dryad_overlap_status": "Not calculable: the Dryad antiepileptic outcome dataset is absent."
+  },
+  "target_decisions": [
+    {
+      "outcome": "fetal_death",
+      "label": "Fetal death",
+      "aggregate_term_rows": 283,
+      "drugs_with_reported_terms": 87,
+      "reported_count_sum": 4819,
+      "reported_count_missing_percent": 0.0,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "not_trainable",
+      "reason": "Only aggregate spontaneous-report term counts are present; no exposed-pregnancy denominator or validated outcome-negative observations are supplied."
+    },
+    {
+      "outcome": "preterm_birth",
+      "label": "Preterm birth / prematurity",
+      "aggregate_term_rows": 64,
+      "drugs_with_reported_terms": 64,
+      "reported_count_sum": 1529,
+      "reported_count_missing_percent": 0.0,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "not_trainable",
+      "reason": "Only aggregate spontaneous-report term counts are present; no exposed-pregnancy denominator or validated outcome-negative observations are supplied."
+    },
+    {
+      "outcome": "fetal_growth_restriction",
+      "label": "Fetal growth restriction",
+      "aggregate_term_rows": 123,
+      "drugs_with_reported_terms": 56,
+      "reported_count_sum": 896,
+      "reported_count_missing_percent": 0.0,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "not_trainable",
+      "reason": "Only aggregate spontaneous-report term counts are present; no exposed-pregnancy denominator or validated outcome-negative observations are supplied."
+    },
+    {
+      "outcome": "congenital_anomaly",
+      "label": "Congenital anomaly",
+      "aggregate_term_rows": 1597,
+      "drugs_with_reported_terms": 84,
+      "reported_count_sum": 4546,
+      "reported_count_missing_percent": 0.06,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "not_trainable",
+      "reason": "Only aggregate spontaneous-report term counts are present; no exposed-pregnancy denominator or validated outcome-negative observations are supplied."
+    },
+    {
+      "outcome": "nonclinical TG414 chemical assay label",
+      "label": "TG414 encoded assay class",
+      "aggregate_term_rows": 1242,
+      "drugs_with_reported_terms": 0,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "limited",
+      "reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
+    },
+    {
+      "outcome": "nonclinical TG416 chemical assay label",
+      "label": "TG416 encoded assay class",
+      "aggregate_term_rows": 264,
+      "drugs_with_reported_terms": 0,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "limited",
+      "reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
+    },
+    {
+      "outcome": "nonclinical TG421t chemical assay label",
+      "label": "TG421t encoded assay class",
+      "aggregate_term_rows": 510,
+      "drugs_with_reported_terms": 0,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "limited",
+      "reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
+    },
+    {
+      "outcome": "nonclinical TG422t chemical assay label",
+      "label": "TG422t encoded assay class",
+      "aggregate_term_rows": 946,
+      "drugs_with_reported_terms": 0,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "limited",
+      "reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
+    },
+    {
+      "outcome": "nonclinical TG443t chemical assay label",
+      "label": "TG443t encoded assay class",
+      "aggregate_term_rows": 144,
+      "drugs_with_reported_terms": 0,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "limited",
+      "reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
+    },
+    {
+      "outcome": "ASD among offspring in the anti-seizure medication study",
+      "label": "Autism spectrum disorder",
+      "aggregate_term_rows": 0,
+      "drugs_with_reported_terms": 0,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "not_trainable",
+      "reason": "The supplied tables provide aggregate hazard ratios and exposed-subgroup sizes, not patient-level outcomes, outcome event counts, or per-drug positive/negative labels."
+    },
+    {
+      "outcome": "ADHD among offspring in the anti-seizure medication study",
+      "label": "ADHD",
+      "aggregate_term_rows": 0,
+      "drugs_with_reported_terms": 0,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "not_trainable",
+      "reason": "The supplied tables provide aggregate hazard ratios and exposed-subgroup sizes, not patient-level outcomes, outcome event counts, or per-drug positive/negative labels."
+    },
+    {
+      "outcome": "antiepileptic-study outcomes",
+      "label": "Dryad antiepileptic study endpoints",
+      "aggregate_term_rows": 0,
+      "drugs_with_reported_terms": 0,
+      "reported_count_sum": null,
+      "verified_positive_labels": 0,
+      "verified_negative_labels": 0,
+      "decision": "not_trainable",
+      "reason": "No Dryad study outcome data file is present in the local datasets directory; the pregnancy-classification catalog is not an outcome dataset."
+    }
+  ],
+  "leakage_assessment": {
+    "cross_dataset_overlap": "Cannot assess the requested Mendeley-versus-Dryad overlap because the Dryad dataset was not found. Mendeley outcome drugs share 67 exact normalized names with the pregnancy classification catalog.",
+    "target_feature_leakage": "The current model inputs include pregnancy/FAERS aggregate report features. Deriving targets from the same Mendeley report counts and feeding those counts to the model would leak target information.",
+    "split_requirement": "If valid external labels are later added, keep every record for a drug together and use scaffold-grouped separation where structures are available; do not randomly split rows across datasets."
+  },
+  "training_readiness": {
+    "status": "pregnancy_model_blocked_nonclinical_experiment_available",
+    "reason": "No supplied source provides compatible, validated binary human outcome labels with defensible negatives.",
+    "evaluation_results": null,
+    "prediction_uncertainty": null,
+    "nonclinical_toxicity_training": "Exploratory scaffold-held-out models were trained for the supplied binary TG assay columns; see data/reproductive_tox_training_metrics.json.",
+    "nonclinical_toxicity_metrics": {
+      "TG414": {
+        "records": 1242,
+        "excluded_invalid_or_duplicate_rows": 0,
+        "positive": 370,
+        "negative": 872,
+        "positive_percent": 29.790660225442835,
+        "scaffold_groups": 927,
+        "split_method": "5-fold GroupKFold by Bemis-Murcko scaffold",
+        "features": "RDKit Morgan radius 2, 1024 bits from SMILES only",
+        "label_semantics": "Binary labels read as provided from TG414 in the *_smiles4 workbook sheet; independent source definitions were not included.",
+        "metrics_are": "pooled out-of-fold estimates, not an external validation result",
+        "folds": [
+          {
+            "fold": 1,
+            "train_records": 993,
+            "test_records": 249,
+            "train_positive": 299,
+            "train_negative": 694,
+            "test_positive": 71,
+            "test_negative": 178,
+            "test_scaffolds": 98
+          },
+          {
+            "fold": 2,
+            "train_records": 993,
+            "test_records": 249,
+            "train_positive": 321,
+            "train_negative": 672,
+            "test_positive": 49,
+            "test_negative": 200,
+            "test_scaffolds": 205
+          },
+          {
+            "fold": 3,
+            "train_records": 994,
+            "test_records": 248,
+            "train_positive": 295,
+            "train_negative": 699,
+            "test_positive": 75,
+            "test_negative": 173,
+            "test_scaffolds": 207
+          },
+          {
+            "fold": 4,
+            "train_records": 994,
+            "test_records": 248,
+            "train_positive": 286,
+            "train_negative": 708,
+            "test_positive": 84,
+            "test_negative": 164,
+            "test_scaffolds": 208
+          },
+          {
+            "fold": 5,
+            "train_records": 994,
+            "test_records": 248,
+            "train_positive": 279,
+            "train_negative": 715,
+            "test_positive": 91,
+            "test_negative": 157,
+            "test_scaffolds": 209
+          }
+        ],
+        "models": {
+          "logistic_regression": {
+            "n": 1242,
+            "accuracy": 0.6272141706924316,
+            "balanced_accuracy": 0.5843726754277213,
+            "auroc": 0.61167710141334,
+            "auprc": 0.40043979483798253,
+            "precision": 0.3959731543624161,
+            "recall": 0.4783783783783784,
+            "f1": 0.43329253365973075,
+            "brier_score": 0.24981713531384125,
+            "ece": 0.18430166122500252,
+            "majority_class_accuracy": 0.7020933977455717
+          },
+          "random_forest": {
+            "n": 1242,
+            "accuracy": 0.6473429951690821,
+            "balanced_accuracy": 0.5699231341433176,
+            "auroc": 0.6414099305727746,
+            "auprc": 0.42180705955081943,
+            "precision": 0.40229885057471265,
+            "recall": 0.3783783783783784,
+            "f1": 0.38997214484679665,
+            "brier_score": 0.21093774283962657,
+            "ece": 0.107599089398525,
+            "majority_class_accuracy": 0.7020933977455717
+          },
+          "xgboost": {
+            "n": 1242,
+            "accuracy": 0.5909822866344605,
+            "balanced_accuracy": 0.5928000247954377,
+            "auroc": 0.6354094346640218,
+            "auprc": 0.40470088362441414,
+            "precision": 0.3810344827586207,
+            "recall": 0.5972972972972973,
+            "f1": 0.4652631578947368,
+            "brier_score": 0.2286989972420506,
+            "ece": 0.15967446852898326,
+            "majority_class_accuracy": 0.7020933977455717
+          }
+        },
+        "source_file": "datasets/Supplementary_S3_Raw data.xlsx"
+      },
+      "TG416": {
+        "records": 264,
+        "excluded_invalid_or_duplicate_rows": 0,
+        "positive": 74,
+        "negative": 190,
+        "positive_percent": 28.030303030303028,
+        "scaffold_groups": 215,
+        "split_method": "5-fold GroupKFold by Bemis-Murcko scaffold",
+        "features": "RDKit Morgan radius 2, 1024 bits from SMILES only",
+        "label_semantics": "Binary labels read as provided from TG416 in the *_smiles4 workbook sheet; independent source definitions were not included.",
+        "metrics_are": "pooled out-of-fold estimates, not an external validation result",
+        "folds": [
+          {
+            "fold": 1,
+            "train_records": 211,
+            "test_records": 53,
+            "train_positive": 65,
+            "train_negative": 146,
+            "test_positive": 9,
+            "test_negative": 44,
+            "test_scaffolds": 15
+          },
+          {
+            "fold": 2,
+            "train_records": 211,
+            "test_records": 53,
+            "train_positive": 55,
+            "train_negative": 156,
+            "test_positive": 19,
+            "test_negative": 34,
+            "test_scaffolds": 49
+          },
+          {
+            "fold": 3,
+            "train_records": 211,
+            "test_records": 53,
+            "train_positive": 58,
+            "train_negative": 153,
+            "test_positive": 16,
+            "test_negative": 37,
+            "test_scaffolds": 50
+          },
+          {
+            "fold": 4,
+            "train_records": 211,
+            "test_records": 53,
+            "train_positive": 54,
+            "train_negative": 157,
+            "test_positive": 20,
+            "test_negative": 33,
+            "test_scaffolds": 51
+          },
+          {
+            "fold": 5,
+            "train_records": 212,
+            "test_records": 52,
+            "train_positive": 64,
+            "train_negative": 148,
+            "test_positive": 10,
+            "test_negative": 42,
+            "test_scaffolds": 50
+          }
+        ],
+        "models": {
+          "logistic_regression": {
+            "n": 264,
+            "accuracy": 0.7007575757575758,
+            "balanced_accuracy": 0.6353485064011379,
+            "auroc": 0.6715860597439545,
+            "auprc": 0.4567288512722015,
+            "precision": 0.4675324675324675,
+            "recall": 0.4864864864864865,
+            "f1": 0.4768211920529801,
+            "brier_score": 0.2091017388120061,
+            "ece": 0.12615901873858187,
+            "majority_class_accuracy": 0.7196969696969697
+          },
+          "random_forest": {
+            "n": 264,
+            "accuracy": 0.7121212121212122,
+            "balanced_accuracy": 0.6143669985775249,
+            "auroc": 0.7067211948790896,
+            "auprc": 0.47154704761843425,
+            "precision": 0.48333333333333334,
+            "recall": 0.3918918918918919,
+            "f1": 0.43283582089552236,
+            "brier_score": 0.19112909570163852,
+            "ece": 0.10260141189521556,
+            "majority_class_accuracy": 0.7196969696969697
+          },
+          "xgboost": {
+            "n": 264,
+            "accuracy": 0.7083333333333334,
+            "balanced_accuracy": 0.6571123755334282,
+            "auroc": 0.7014580369843528,
+            "auprc": 0.5246999672151444,
+            "precision": 0.4819277108433735,
+            "recall": 0.5405405405405406,
+            "f1": 0.5095541401273885,
+            "brier_score": 0.19966590279645155,
+            "ece": 0.12214223978067325,
+            "majority_class_accuracy": 0.7196969696969697
+          }
+        },
+        "source_file": "datasets/Supplementary_S3_Raw data.xlsx"
+      },
+      "TG421t": {
+        "records": 510,
+        "excluded_invalid_or_duplicate_rows": 0,
+        "positive": 95,
+        "negative": 415,
+        "positive_percent": 18.627450980392158,
+        "scaffold_groups": 399,
+        "split_method": "5-fold GroupKFold by Bemis-Murcko scaffold",
+        "features": "RDKit Morgan radius 2, 1024 bits from SMILES only",
+        "label_semantics": "Binary labels read as provided from TG421t in the *_smiles4 workbook sheet; independent source definitions were not included.",
+        "metrics_are": "pooled out-of-fold estimates, not an external validation result",
+        "folds": [
+          {
+            "fold": 1,
+            "train_records": 408,
+            "test_records": 102,
+            "train_positive": 74,
+            "train_negative": 334,
+            "test_positive": 21,
+            "test_negative": 81,
+            "test_scaffolds": 50
+          },
+          {
+            "fold": 2,
+            "train_records": 408,
+            "test_records": 102,
+            "train_positive": 71,
+            "train_negative": 337,
+            "test_positive": 24,
+            "test_negative": 78,
+            "test_scaffolds": 86
+          },
+          {
+            "fold": 3,
+            "train_records": 408,
+            "test_records": 102,
+            "train_positive": 77,
+            "train_negative": 331,
+            "test_positive": 18,
+            "test_negative": 84,
+            "test_scaffolds": 87
+          },
+          {
+            "fold": 4,
+            "train_records": 408,
+            "test_records": 102,
+            "train_positive": 77,
+            "train_negative": 331,
+            "test_positive": 18,
+            "test_negative": 84,
+            "test_scaffolds": 88
+          },
+          {
+            "fold": 5,
+            "train_records": 408,
+            "test_records": 102,
+            "train_positive": 81,
+            "train_negative": 327,
+            "test_positive": 14,
+            "test_negative": 88,
+            "test_scaffolds": 88
+          }
+        ],
+        "models": {
+          "logistic_regression": {
+            "n": 510,
+            "accuracy": 0.7176470588235294,
+            "balanced_accuracy": 0.5464806594800253,
+            "auroc": 0.6062396956246037,
+            "auprc": 0.27138272285735754,
+            "precision": 0.25742574257425743,
+            "recall": 0.2736842105263158,
+            "f1": 0.2653061224489796,
+            "brier_score": 0.19890610006046913,
+            "ece": 0.1506842716061086,
+            "majority_class_accuracy": 0.8137254901960784
+          },
+          "random_forest": {
+            "n": 510,
+            "accuracy": 0.7725490196078432,
+            "balanced_accuracy": 0.5599239061509195,
+            "auroc": 0.6611540900443881,
+            "auprc": 0.3332718406335341,
+            "precision": 0.3333333333333333,
+            "recall": 0.22105263157894736,
+            "f1": 0.26582278481012656,
+            "brier_score": 0.16424560361223162,
+            "ece": 0.13105466852326367,
+            "majority_class_accuracy": 0.8137254901960784
+          },
+          "xgboost": {
+            "n": 510,
+            "accuracy": 0.6784313725490196,
+            "balanced_accuracy": 0.5913760304375396,
+            "auroc": 0.628129359543437,
+            "auprc": 0.25690664651907963,
+            "precision": 0.27741935483870966,
+            "recall": 0.45263157894736844,
+            "f1": 0.344,
+            "brier_score": 0.20249109998543338,
+            "ece": 0.18326256679297953,
+            "majority_class_accuracy": 0.8137254901960784
+          }
+        },
+        "source_file": "datasets/Supplementary_S3_Raw data.xlsx"
+      },
+      "TG422t": {
+        "records": 946,
+        "excluded_invalid_or_duplicate_rows": 0,
+        "positive": 191,
+        "negative": 755,
+        "positive_percent": 20.190274841437635,
+        "scaffold_groups": 677,
+        "split_method": "5-fold GroupKFold by Bemis-Murcko scaffold",
+        "features": "RDKit Morgan radius 2, 1024 bits from SMILES only",
+        "label_semantics": "Binary labels read as provided from TG422t in the *_smiles4 workbook sheet; independent source definitions were not included.",
+        "metrics_are": "pooled out-of-fold estimates, not an external validation result",
+        "folds": [
+          {
+            "fold": 1,
+            "train_records": 756,
+            "test_records": 190,
+            "train_positive": 141,
+            "train_negative": 615,
+            "test_positive": 50,
+            "test_negative": 140,
+            "test_scaffolds": 74
+          },
+          {
+            "fold": 2,
+            "train_records": 757,
+            "test_records": 189,
+            "train_positive": 156,
+            "train_negative": 601,
+            "test_positive": 35,
+            "test_negative": 154,
+            "test_scaffolds": 147
+          },
+          {
+            "fold": 3,
+            "train_records": 757,
+            "test_records": 189,
+            "train_positive": 160,
+            "train_negative": 597,
+            "test_positive": 31,
+            "test_negative": 158,
+            "test_scaffolds": 152
+          },
+          {
+            "fold": 4,
+            "train_records": 757,
+            "test_records": 189,
+            "train_positive": 158,
+            "train_negative": 599,
+            "test_positive": 33,
+            "test_negative": 156,
+            "test_scaffolds": 152
+          },
+          {
+            "fold": 5,
+            "train_records": 757,
+            "test_records": 189,
+            "train_positive": 149,
+            "train_negative": 608,
+            "test_positive": 42,
+            "test_negative": 147,
+            "test_scaffolds": 152
+          }
+        ],
+        "models": {
+          "logistic_regression": {
+            "n": 946,
+            "accuracy": 0.7346723044397463,
+            "balanced_accuracy": 0.6030200062411151,
+            "auroc": 0.6459450088415797,
+            "auprc": 0.3314083316398453,
+            "precision": 0.35436893203883496,
+            "recall": 0.38219895287958117,
+            "f1": 0.3677581863979849,
+            "brier_score": 0.1933379306447681,
+            "ece": 0.15264929171069896,
+            "majority_class_accuracy": 0.7980972515856237
+          },
+          "random_forest": {
+            "n": 946,
+            "accuracy": 0.7748414376321353,
+            "balanced_accuracy": 0.5480080441038799,
+            "auroc": 0.6701605353489823,
+            "auprc": 0.3688445045700768,
+            "precision": 0.37209302325581395,
+            "recall": 0.16753926701570682,
+            "f1": 0.23104693140794225,
+            "brier_score": 0.162516676483511,
+            "ece": 0.10963781316547555,
+            "majority_class_accuracy": 0.7980972515856237
+          },
+          "xgboost": {
+            "n": 946,
+            "accuracy": 0.6955602536997886,
+            "balanced_accuracy": 0.5922055407232759,
+            "auroc": 0.6717554869803406,
+            "auprc": 0.35627912309954624,
+            "precision": 0.311284046692607,
+            "recall": 0.418848167539267,
+            "f1": 0.35714285714285715,
+            "brier_score": 0.19103001667643357,
+            "ece": 0.17513241687194928,
+            "majority_class_accuracy": 0.7980972515856237
+          }
+        },
+        "source_file": "datasets/Supplementary_S3_Raw data.xlsx"
+      },
+      "TG443t": {
+        "records": 144,
+        "excluded_invalid_or_duplicate_rows": 1,
+        "positive": 29,
+        "negative": 115,
+        "positive_percent": 20.13888888888889,
+        "scaffold_groups": 117,
+        "split_method": "5-fold GroupKFold by Bemis-Murcko scaffold",
+        "features": "RDKit Morgan radius 2, 1024 bits from SMILES only",
+        "label_semantics": "Binary labels read as provided from TG443t in the *_smiles4 workbook sheet; independent source definitions were not included.",
+        "metrics_are": "pooled out-of-fold estimates, not an external validation result",
+        "folds": [
+          {
+            "fold": 1,
+            "train_records": 115,
+            "test_records": 29,
+            "train_positive": 27,
+            "train_negative": 88,
+            "test_positive": 2,
+            "test_negative": 27,
+            "test_scaffolds": 16
+          },
+          {
+            "fold": 2,
+            "train_records": 115,
+            "test_records": 29,
+            "train_positive": 22,
+            "train_negative": 93,
+            "test_positive": 7,
+            "test_negative": 22,
+            "test_scaffolds": 25
+          },
+          {
+            "fold": 3,
+            "train_records": 115,
+            "test_records": 29,
+            "train_positive": 17,
+            "train_negative": 98,
+            "test_positive": 12,
+            "test_negative": 17,
+            "test_scaffolds": 25
+          },
+          {
+            "fold": 4,
+            "train_records": 115,
+            "test_records": 29,
+            "train_positive": 26,
+            "train_negative": 89,
+            "test_positive": 3,
+            "test_negative": 26,
+            "test_scaffolds": 26
+          },
+          {
+            "fold": 5,
+            "train_records": 116,
+            "test_records": 28,
+            "train_positive": 24,
+            "train_negative": 92,
+            "test_positive": 5,
+            "test_negative": 23,
+            "test_scaffolds": 25
+          }
+        ],
+        "models": {
+          "logistic_regression": {
+            "n": 144,
+            "accuracy": 0.6805555555555556,
+            "balanced_accuracy": 0.47766116941529235,
+            "auroc": 0.5139430284857571,
+            "auprc": 0.20627109710702984,
+            "precision": 0.16,
+            "recall": 0.13793103448275862,
+            "f1": 0.14814814814814814,
+            "brier_score": 0.22012411527947404,
+            "ece": 0.18300076386612005,
+            "majority_class_accuracy": 0.7986111111111112
+          },
+          "random_forest": {
+            "n": 144,
+            "accuracy": 0.7083333333333334,
+            "balanced_accuracy": 0.48215892053973014,
+            "auroc": 0.5610194902548725,
+            "auprc": 0.2261109896539813,
+            "precision": 0.15789473684210525,
+            "recall": 0.10344827586206896,
+            "f1": 0.125,
+            "brier_score": 0.1925053647259489,
+            "ece": 0.17902190635122522,
+            "majority_class_accuracy": 0.7986111111111112
+          },
+          "xgboost": {
+            "n": 144,
+            "accuracy": 0.6597222222222222,
+            "balanced_accuracy": 0.4517241379310345,
+            "auroc": 0.5343328335832084,
+            "auprc": 0.2299959632149311,
+            "precision": 0.11538461538461539,
+            "recall": 0.10344827586206896,
+            "f1": 0.10909090909090909,
+            "brier_score": 0.21645029931243642,
+            "ece": 0.18143586017605334,
+            "majority_class_accuracy": 0.7986111111111112
+          }
+        },
+        "source_file": "datasets/Supplementary_S3_Raw data.xlsx"
+      }
+    },
+    "model_artifacts": {
+      "checkpoint_present": true,
+      "metadata_present": false,
+      "evaluation_metrics_present": false,
+      "compatible_evaluated_model_available": false
+    },
+    "required_data": [
+      "A documented, outcome-specific human pregnancy cohort or controlled study.",
+      "Per-drug (or patient-level with a defensible drug-level aggregation) outcome and non-outcome observations.",
+      "Exposure denominators or a suitable comparator cohort so absence of reports is never treated as a negative.",
+      "Outcome definitions, follow-up window, pregnancy timing, source references, and a validated drug identifier such as PubChem CID/InChIKey.",
+      "Separate labels and masks for each endpoint; unknown outcomes remain missing.",
+      "Enough independent drugs/scaffolds and both classes in train, validation, and held-out test sets."
+    ]
+  }
+}

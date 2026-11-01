@@ -1,0 +1,545 @@
+{
+  "generated_at": "2026-10-31T08:18:43.954032+00:00",
+  "status": "exploratory_nonclinical_toxicity_only",
+  "clinical_pregnancy_model_trained": false,
+  "source_file": "datasets/Supplementary_S3_Raw data.xlsx",
+  "important_limitations": [
+    "This workbook's label definitions and source citation were not included; verify them before scientific use.",
+    "OECD test-guideline endpoints are nonclinical toxicity labels, not observed human pregnancy outcomes.",
+    "Do not interpret these models as pregnancy risk predictions or as clinical safety evidence.",
+    "Metrics are scaffold-held-out cross-validation estimates; there is no independent external test cohort.",
+    "Brier score and ECE are descriptive and do not establish calibration."
+  ],
+  "endpoints": {
+    "TG414": {
+      "records": 1242,
+      "excluded_invalid_or_duplicate_rows": 0,
+      "positive": 370,
+      "negative": 872,
+      "positive_percent": 29.790660225442835,
+      "scaffold_groups": 927,
+      "split_method": "5-fold GroupKFold by Bemis-Murcko scaffold",
+      "features": "RDKit Morgan radius 2, 1024 bits from SMILES only",
+      "label_semantics": "Binary labels read as provided from TG414 in the *_smiles4 workbook sheet; independent source definitions were not included.",
+      "metrics_are": "pooled out-of-fold estimates, not an external validation result",
+      "folds": [
+        {
+          "fold": 1,
+          "train_records": 993,
+          "test_records": 249,
+          "train_positive": 299,
+          "train_negative": 694,
+          "test_positive": 71,
+          "test_negative": 178,
+          "test_scaffolds": 98
+        },
+        {
+          "fold": 2,
+          "train_records": 993,
+          "test_records": 249,
+          "train_positive": 321,
+          "train_negative": 672,
+          "test_positive": 49,
+          "test_negative": 200,
+          "test_scaffolds": 205
+        },
+        {
+          "fold": 3,
+          "train_records": 994,
+          "test_records": 248,
+          "train_positive": 295,
+          "train_negative": 699,
+          "test_positive": 75,
+          "test_negative": 173,
+          "test_scaffolds": 207
+        },
+        {
+          "fold": 4,
+          "train_records": 994,
+          "test_records": 248,
+          "train_positive": 286,
+          "train_negative": 708,
+          "test_positive": 84,
+          "test_negative": 164,
+          "test_scaffolds": 208
+        },
+        {
+          "fold": 5,
+          "train_records": 994,
+          "test_records": 248,
+          "train_positive": 279,
+          "train_negative": 715,
+          "test_positive": 91,
+          "test_negative": 157,
+          "test_scaffolds": 209
+        }
+      ],
+      "models": {
+        "logistic_regression": {
+          "n": 1242,
+          "accuracy": 0.6272141706924316,
+          "balanced_accuracy": 0.5843726754277213,
+          "auroc": 0.61167710141334,
+          "auprc": 0.40043979483798253,
+          "precision": 0.3959731543624161,
+          "recall": 0.4783783783783784,
+          "f1": 0.43329253365973075,
+          "brier_score": 0.24981713531384125,
+          "ece": 0.18430166122500252,
+          "majority_class_accuracy": 0.7020933977455717
+        },
+        "random_forest": {
+          "n": 1242,
+          "accuracy": 0.6473429951690821,
+          "balanced_accuracy": 0.5699231341433176,
+          "auroc": 0.6414099305727746,
+          "auprc": 0.42180705955081943,
+          "precision": 0.40229885057471265,
+          "recall": 0.3783783783783784,
+          "f1": 0.38997214484679665,
+          "brier_score": 0.21093774283962657,
+          "ece": 0.107599089398525,
+          "majority_class_accuracy": 0.7020933977455717
+        },
+        "xgboost": {
+          "n": 1242,
+          "accuracy": 0.5909822866344605,
+          "balanced_accuracy": 0.5928000247954377,
+          "auroc": 0.6354094346640218,
+          "auprc": 0.40470088362441414,
+          "precision": 0.3810344827586207,
+          "recall": 0.5972972972972973,
+          "f1": 0.4652631578947368,
+          "brier_score": 0.2286989972420506,
+          "ece": 0.15967446852898326,
+          "majority_class_accuracy": 0.7020933977455717
+        }
+      },
+      "source_file": "datasets/Supplementary_S3_Raw data.xlsx"
+    },
+    "TG416": {
+      "records": 264,
+      "excluded_invalid_or_duplicate_rows": 0,
+      "positive": 74,
+      "negative": 190,
+      "positive_percent": 28.030303030303028,
+      "scaffold_groups": 215,
+      "split_method": "5-fold GroupKFold by Bemis-Murcko scaffold",
+      "features": "RDKit Morgan radius 2, 1024 bits from SMILES only",
+      "label_semantics": "Binary labels read as provided from TG416 in the *_smiles4 workbook sheet; independent source definitions were not included.",
+      "metrics_are": "pooled out-of-fold estimates, not an external validation result",
+      "folds": [
+        {
+          "fold": 1,
+          "train_records": 211,
+          "test_records": 53,
+          "train_positive": 65,
+          "train_negative": 146,
+          "test_positive": 9,
+          "test_negative": 44,
+          "test_scaffolds": 15
+        },
+        {
+          "fold": 2,
+          "train_records": 211,
+          "test_records": 53,
+          "train_positive": 55,
+          "train_negative": 156,
+          "test_positive": 19,
+          "test_negative": 34,
+          "test_scaffolds": 49
+        },
+        {
+          "fold": 3,
+          "train_records": 211,
+          "test_records": 53,
+          "train_positive": 58,
+          "train_negative": 153,
+          "test_positive": 16,
+          "test_negative": 37,
+          "test_scaffolds": 50
+        },
+        {
+          "fold": 4,
+          "train_records": 211,
+          "test_records": 53,
+          "train_positive": 54,
+          "train_negative": 157,
+          "test_positive": 20,
+          "test_negative": 33,
+          "test_scaffolds": 51
+        },
+        {
+          "fold": 5,
+          "train_records": 212,
+          "test_records": 52,
+          "train_positive": 64,
+          "train_negative": 148,
+          "test_positive": 10,
+          "test_negative": 42,
+          "test_scaffolds": 50
+        }
+      ],
+      "models": {
+        "logistic_regression": {
+          "n": 264,
+          "accuracy": 0.7007575757575758,
+          "balanced_accuracy": 0.6353485064011379,
+          "auroc": 0.6715860597439545,
+          "auprc": 0.4567288512722015,
+          "precision": 0.4675324675324675,
+          "recall": 0.4864864864864865,
+          "f1": 0.4768211920529801,
+          "brier_score": 0.2091017388120061,
+          "ece": 0.12615901873858187,
+          "majority_class_accuracy": 0.7196969696969697
+        },
+        "random_forest": {
+          "n": 264,
+          "accuracy": 0.7121212121212122,
+          "balanced_accuracy": 0.6143669985775249,
+          "auroc": 0.7067211948790896,
+          "auprc": 0.47154704761843425,
+          "precision": 0.48333333333333334,
+          "recall": 0.3918918918918919,
+          "f1": 0.43283582089552236,
+          "brier_score": 0.19112909570163852,
+          "ece": 0.10260141189521556,
+          "majority_class_accuracy": 0.7196969696969697
+        },
+        "xgboost": {
+          "n": 264,
+          "accuracy": 0.7083333333333334,
+          "balanced_accuracy": 0.6571123755334282,
+          "auroc": 0.7014580369843528,
+          "auprc": 0.5246999672151444,
+          "precision": 0.4819277108433735,
+          "recall": 0.5405405405405406,
+          "f1": 0.5095541401273885,
+          "brier_score": 0.19966590279645155,
+          "ece": 0.12214223978067325,
+          "majority_class_accuracy": 0.7196969696969697
+        }
+      },
+      "source_file": "datasets/Supplementary_S3_Raw data.xlsx"
+    },
+    "TG421t": {
+      "records": 510,
+      "excluded_invalid_or_duplicate_rows": 0,
+      "positive": 95,
+      "negative": 415,
+      "positive_percent": 18.627450980392158,
+      "scaffold_groups": 399,
+      "split_method": "5-fold GroupKFold by Bemis-Murcko scaffold",
+      "features": "RDKit Morgan radius 2, 1024 bits from SMILES only",
+      "label_semantics": "Binary labels read as provided from TG421t in the *_smiles4 workbook sheet; independent source definitions were not included.",
+      "metrics_are": "pooled out-of-fold estimates, not an external validation result",
+      "folds": [
+        {
+          "fold": 1,
+          "train_records": 408,
+          "test_records": 102,
+          "train_positive": 74,
+          "train_negative": 334,
+          "test_positive": 21,
+          "test_negative": 81,
+          "test_scaffolds": 50
+        },
+        {
+          "fold": 2,
+          "train_records": 408,
+          "test_records": 102,
+          "train_positive": 71,
+          "train_negative": 337,
+          "test_positive": 24,
+          "test_negative": 78,
+          "test_scaffolds": 86
+        },
+        {
+          "fold": 3,
+          "train_records": 408,
+          "test_records": 102,
+          "train_positive": 77,
+          "train_negative": 331,
+          "test_positive": 18,
+          "test_negative": 84,
+          "test_scaffolds": 87
+        },
+        {
+          "fold": 4,
+          "train_records": 408,
+          "test_records": 102,
+          "train_positive": 77,
+          "train_negative": 331,
+          "test_positive": 18,
+          "test_negative": 84,
+          "test_scaffolds": 88
+        },
+        {
+          "fold": 5,
+          "train_records": 408,
+          "test_records": 102,
+          "train_positive": 81,
+          "train_negative": 327,
+          "test_positive": 14,
+          "test_negative": 88,
+          "test_scaffolds": 88
+        }
+      ],
+      "models": {
+        "logistic_regression": {
+          "n": 510,
+          "accuracy": 0.7176470588235294,
+          "balanced_accuracy": 0.5464806594800253,
+          "auroc": 0.6062396956246037,
+          "auprc": 0.27138272285735754,
+          "precision": 0.25742574257425743,
+          "recall": 0.2736842105263158,
+          "f1": 0.2653061224489796,
+          "brier_score": 0.19890610006046913,
+          "ece": 0.1506842716061086,
+          "majority_class_accuracy": 0.8137254901960784
+        },
+        "random_forest": {
+          "n": 510,
+          "accuracy": 0.7725490196078432,
+          "balanced_accuracy": 0.5599239061509195,
+          "auroc": 0.6611540900443881,
+          "auprc": 0.3332718406335341,
+          "precision": 0.3333333333333333,
+          "recall": 0.22105263157894736,
+          "f1": 0.26582278481012656,
+          "brier_score": 0.16424560361223162,
+          "ece": 0.13105466852326367,
+          "majority_class_accuracy": 0.8137254901960784
+        },
+        "xgboost": {
+          "n": 510,
+          "accuracy": 0.6784313725490196,
+          "balanced_accuracy": 0.5913760304375396,
+          "auroc": 0.628129359543437,
+          "auprc": 0.25690664651907963,
+          "precision": 0.27741935483870966,
+          "recall": 0.45263157894736844,
+          "f1": 0.344,
+          "brier_score": 0.20249109998543338,
+          "ece": 0.18326256679297953,
+          "majority_class_accuracy": 0.8137254901960784
+        }
+      },
+      "source_file": "datasets/Supplementary_S3_Raw data.xlsx"
+    },
+    "TG422t": {
+      "records": 946,
+      "excluded_invalid_or_duplicate_rows": 0,
+      "positive": 191,
+      "negative": 755,
+      "positive_percent": 20.190274841437635,
+      "scaffold_groups": 677,
+      "split_method": "5-fold GroupKFold by Bemis-Murcko scaffold",
+      "features": "RDKit Morgan radius 2, 1024 bits from SMILES only",
+      "label_semantics": "Binary labels read as provided from TG422t in the *_smiles4 workbook sheet; independent source definitions were not included.",
+      "metrics_are": "pooled out-of-fold estimates, not an external validation result",
+      "folds": [
+        {
+          "fold": 1,
+          "train_records": 756,
+          "test_records": 190,
+          "train_positive": 141,
+          "train_negative": 615,
+          "test_positive": 50,
+          "test_negative": 140,
+          "test_scaffolds": 74
+        },
+        {
+          "fold": 2,
+          "train_records": 757,
+          "test_records": 189,
+          "train_positive": 156,
+          "train_negative": 601,
+          "test_positive": 35,
+          "test_negative": 154,
+          "test_scaffolds": 147
+        },
+        {
+          "fold": 3,
+          "train_records": 757,
+          "test_records": 189,
+          "train_positive": 160,
+          "train_negative": 597,
+          "test_positive": 31,
+          "test_negative": 158,
+          "test_scaffolds": 152
+        },
+        {
+          "fold": 4,
+          "train_records": 757,
+          "test_records": 189,
+          "train_positive": 158,
+          "train_negative": 599,
+          "test_positive": 33,
+          "test_negative": 156,
+          "test_scaffolds": 152
+        },
+        {
+          "fold": 5,
+          "train_records": 757,
+          "test_records": 189,
+          "train_positive": 149,
+          "train_negative": 608,
+          "test_positive": 42,
+          "test_negative": 147,
+          "test_scaffolds": 152
+        }
+      ],
+      "models": {
+        "logistic_regression": {
+          "n": 946,
+          "accuracy": 0.7346723044397463,
+          "balanced_accuracy": 0.6030200062411151,
+          "auroc": 0.6459450088415797,
+          "auprc": 0.3314083316398453,
+          "precision": 0.35436893203883496,
+          "recall": 0.38219895287958117,
+          "f1": 0.3677581863979849,
+          "brier_score": 0.1933379306447681,
+          "ece": 0.15264929171069896,
+          "majority_class_accuracy": 0.7980972515856237
+        },
+        "random_forest": {
+          "n": 946,
+          "accuracy": 0.7748414376321353,
+          "balanced_accuracy": 0.5480080441038799,
+          "auroc": 0.6701605353489823,
+          "auprc": 0.3688445045700768,
+          "precision": 0.37209302325581395,
+          "recall": 0.16753926701570682,
+          "f1": 0.23104693140794225,
+          "brier_score": 0.162516676483511,
+          "ece": 0.10963781316547555,
+          "majority_class_accuracy": 0.7980972515856237
+        },
+        "xgboost": {
+          "n": 946,
+          "accuracy": 0.6955602536997886,
+          "balanced_accuracy": 0.5922055407232759,
+          "auroc": 0.6717554869803406,
+          "auprc": 0.35627912309954624,
+          "precision": 0.311284046692607,
+          "recall": 0.418848167539267,
+          "f1": 0.35714285714285715,
+          "brier_score": 0.19103001667643357,
+          "ece": 0.17513241687194928,
+          "majority_class_accuracy": 0.7980972515856237
+        }
+      },
+      "source_file": "datasets/Supplementary_S3_Raw data.xlsx"
+    },
+    "TG443t": {
+      "records": 144,
+      "excluded_invalid_or_duplicate_rows": 1,
+      "positive": 29,
+      "negative": 115,
+      "positive_percent": 20.13888888888889,
+      "scaffold_groups": 117,
+      "split_method": "5-fold GroupKFold by Bemis-Murcko scaffold",
+      "features": "RDKit Morgan radius 2, 1024 bits from SMILES only",
+      "label_semantics": "Binary labels read as provided from TG443t in the *_smiles4 workbook sheet; independent source definitions were not included.",
+      "metrics_are": "pooled out-of-fold estimates, not an external validation result",
+      "folds": [
+        {
+          "fold": 1,
+          "train_records": 115,
+          "test_records": 29,
+          "train_positive": 27,
+          "train_negative": 88,
+          "test_positive": 2,
+          "test_negative": 27,
+          "test_scaffolds": 16
+        },
+        {
+          "fold": 2,
+          "train_records": 115,
+          "test_records": 29,
+          "train_positive": 22,
+          "train_negative": 93,
+          "test_positive": 7,
+          "test_negative": 22,
+          "test_scaffolds": 25
+        },
+        {
+          "fold": 3,
+          "train_records": 115,
+          "test_records": 29,
+          "train_positive": 17,
+          "train_negative": 98,
+          "test_positive": 12,
+          "test_negative": 17,
+          "test_scaffolds": 25
+        },
+        {
+          "fold": 4,
+          "train_records": 115,
+          "test_records": 29,
+          "train_positive": 26,
+          "train_negative": 89,
+          "test_positive": 3,
+          "test_negative": 26,
+          "test_scaffolds": 26
+        },
+        {
+          "fold": 5,
+          "train_records": 116,
+          "test_records": 28,
+          "train_positive": 24,
+          "train_negative": 92,
+          "test_positive": 5,
+          "test_negative": 23,
+          "test_scaffolds": 25
+        }
+      ],
+      "models": {
+        "logistic_regression": {
+          "n": 144,
+          "accuracy": 0.6805555555555556,
+          "balanced_accuracy": 0.47766116941529235,
+          "auroc": 0.5139430284857571,
+          "auprc": 0.20627109710702984,
+          "precision": 0.16,
+          "recall": 0.13793103448275862,
+          "f1": 0.14814814814814814,
+          "brier_score": 0.22012411527947404,
+          "ece": 0.18300076386612005,
+          "majority_class_accuracy": 0.7986111111111112
+        },
+        "random_forest": {
+          "n": 144,
+          "accuracy": 0.7083333333333334,
+          "balanced_accuracy": 0.48215892053973014,
+          "auroc": 0.5610194902548725,
+          "auprc": 0.2261109896539813,
+          "precision": 0.15789473684210525,
+          "recall": 0.10344827586206896,
+          "f1": 0.125,
+          "brier_score": 0.1925053647259489,
+          "ece": 0.17902190635122522,
+          "majority_class_accuracy": 0.7986111111111112
+        },
+        "xgboost": {
+          "n": 144,
+          "accuracy": 0.6597222222222222,
+          "balanced_accuracy": 0.4517241379310345,
+          "auroc": 0.5343328335832084,
+          "auprc": 0.2299959632149311,
+          "precision": 0.11538461538461539,
+          "recall": 0.10344827586206896,
+          "f1": 0.10909090909090909,
+          "brier_score": 0.21645029931243642,
+          "ece": 0.18143586017605334,
+          "majority_class_accuracy": 0.7986111111111112
+        }
+      },
+      "source_file": "datasets/Supplementary_S3_Raw data.xlsx"
+    }
+  }
+}

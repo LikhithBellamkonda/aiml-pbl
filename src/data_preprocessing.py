@@ -1,135 +1,370 @@
-import pandas as pd
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
 import numpy as np
+import pandas as pd
 import torch
-from torch.utils.data import Dataset, DataLoader
-from torch_geometric.data import Data
-from rdkit import Chem
-from rdkit.Chem import Descriptors, AllChem
-import os
+from torch.utils.data import DataLoader, Dataset
 
-class PregnancyDataset(Dataset):
-    def __init__(self, adr_path, pubchem_path, tox_path):
-        # Load datasets
-        self.adr_df = pd.read_csv(adr_path).set_index('drug_id')
-        self.pubchem_df = pd.read_csv(pubchem_path).set_index('drug_id')
-        self.tox_df = pd.read_csv(tox_path).set_index('drug_id')
 
-        # Merge all on drug_id
-        self.merged_df = self.adr_df.join(self.pubchem_df).join(self.tox_df)
-        self.drug_ids = self.merged_df.index.tolist()
+ATOM_FEATURES = 29
+BOND_FEATURES = 6
+DESCRIPTOR_FEATURES = 6
+TOXICITY_FEATURES = 5
+PREGNANCY_FEATURES = 4
+FAERS_FEATURES = 1
+OUTCOME_NAMES = (
+    "fetal_death",
+    "preterm_birth",
+    "fetal_growth_restriction",
+    "congenital_anomaly",
+)
+LABEL_PROVENANCE_COLUMNS = (
+    "source_dataset",
+    "source_reference",
+    "outcome_definition",
+    "evidence_type",
+)
 
-        # Define target outcomes (using toxicity endpoints as proxies for pregnancy outcomes)
-        self.target_cols = ['Tox_Dev', 'Tox_Repro', 'Tox_Teratogen']
 
-    def _smiles_to_graph(self, smiles):
-        if pd.isna(smiles) or not isinstance(smiles, str):
-            return None, None
+@dataclass
+class DrugSample:
+    drug_id: str
+    x: torch.Tensor
+    edge_index: torch.Tensor
+    edge_attr: torch.Tensor
+    mol_desc: torch.Tensor
+    adr_features: torch.Tensor
+    tox_features: torch.Tensor
+    pregnancy_features: torch.Tensor
+    faers_features: torch.Tensor
+    availability_mask: torch.Tensor
+    evidence_quality: torch.Tensor
+    y: torch.Tensor
+    y_mask: torch.Tensor
 
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            return None, None
+    def to(self, device: torch.device | str) -> "DrugSample":
+        for field in self.__dataclass_fields__:
+            value = getattr(self, field)
+            if isinstance(value, torch.Tensor):
+                setattr(self, field, value.to(device))
+        return self
 
-        # 1. 2D Descriptors
-        desc_list = [
-            Descriptors.MolWt(mol),
-            Descriptors.MolLogP(mol),
-            Descriptors.TPSA(mol),
-            Descriptors.NumHDonors(mol),
-            Descriptors.NumHAcceptors(mol),
-            Descriptors.NumRotatableBonds(mol)
+
+@dataclass
+class DrugBatch:
+    drug_ids: list[str]
+    x: torch.Tensor
+    edge_index: torch.Tensor
+    edge_attr: torch.Tensor
+    batch: torch.Tensor
+    mol_desc: torch.Tensor
+    adr_features: torch.Tensor
+    tox_features: torch.Tensor
+    pregnancy_features: torch.Tensor
+    faers_features: torch.Tensor
+    availability_mask: torch.Tensor
+    evidence_quality: torch.Tensor
+    y: torch.Tensor
+    y_mask: torch.Tensor
+
+    def to(self, device: torch.device | str) -> "DrugBatch":
+        for field in self.__dataclass_fields__:
+            value = getattr(self, field)
+            if isinstance(value, torch.Tensor):
+                setattr(self, field, value.to(device))
+        return self
+
+
+def _read_indexed(path: str | Path, source: str) -> pd.DataFrame:
+    frame = pd.read_csv(path)
+    if "drug_id" not in frame.columns:
+        raise ValueError(f"{source} dataset must contain a 'drug_id' column: {path}")
+    frame["drug_id"] = frame["drug_id"].astype(str)
+    if frame["drug_id"].duplicated().any():
+        duplicates = frame.loc[frame["drug_id"].duplicated(), "drug_id"].head(5).tolist()
+        raise ValueError(f"{source} dataset has duplicate drug_id values: {duplicates}")
+    return frame.set_index("drug_id")
+
+
+def _flag(row: pd.Series, column: str) -> bool:
+    value = row.get(column, False)
+    return False if pd.isna(value) else bool(value)
+
+
+def _smiles_to_graph(smiles: Any) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor] | None:
+    if not isinstance(smiles, str) or not smiles.strip():
+        return None
+
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import Descriptors
+    except ImportError:
+        return None
+
+    molecule = Chem.MolFromSmiles(smiles)
+    if molecule is None or molecule.GetNumAtoms() == 0:
+        return None
+
+    atom_numbers = (1, 6, 7, 8, 9, 15, 16, 17, 35, 53)
+    atom_rows: list[list[float]] = []
+    for atom in molecule.GetAtoms():
+        atomic_number = atom.GetAtomicNum()
+        features = [float(atomic_number == number) for number in atom_numbers]
+        features.append(float(atomic_number not in atom_numbers))
+        features.extend(float(atom.GetDegree() == degree) for degree in range(6))
+        features.extend(float(atom.GetFormalCharge() == charge) for charge in range(-2, 3))
+        features.append(float(atom.GetIsAromatic()))
+        features.append(float(atom.IsInRing()))
+        features.extend(
+            float(atom.GetHybridization() == hybridization)
+            for hybridization in (
+                Chem.HybridizationType.SP,
+                Chem.HybridizationType.SP2,
+                Chem.HybridizationType.SP3,
+                Chem.HybridizationType.SP3D,
+                Chem.HybridizationType.SP3D2,
+            )
+        )
+        atom_rows.append(features)
+
+    bond_rows: list[list[float]] = []
+    edge_pairs: list[list[int]] = []
+    bond_types = (
+        Chem.BondType.SINGLE,
+        Chem.BondType.DOUBLE,
+        Chem.BondType.TRIPLE,
+        Chem.BondType.AROMATIC,
+    )
+    for bond in molecule.GetBonds():
+        bond_features = [float(bond.GetBondType() == kind) for kind in bond_types]
+        bond_features.extend((float(bond.GetIsConjugated()), float(bond.IsInRing())))
+        start, end = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
+        edge_pairs.extend(([start, end], [end, start]))
+        bond_rows.extend((bond_features, bond_features))
+
+    descriptors = torch.tensor(
+        [
+            Descriptors.MolWt(molecule) / 500.0,
+            Descriptors.MolLogP(molecule) / 10.0,
+            Descriptors.TPSA(molecule) / 200.0,
+            Descriptors.NumHDonors(molecule) / 10.0,
+            Descriptors.NumHAcceptors(molecule) / 15.0,
+            Descriptors.NumRotatableBonds(molecule) / 20.0,
+        ],
+        dtype=torch.float32,
+    )
+    x = torch.tensor(atom_rows, dtype=torch.float32)
+    edge_index = (
+        torch.tensor(edge_pairs, dtype=torch.long).t().contiguous()
+        if edge_pairs
+        else torch.empty((2, 0), dtype=torch.long)
+    )
+    edge_attr = (
+        torch.tensor(bond_rows, dtype=torch.float32)
+        if bond_rows
+        else torch.empty((0, BOND_FEATURES), dtype=torch.float32)
+    )
+    return x, edge_index, edge_attr, descriptors
+
+
+class PregnancyDataset(Dataset[DrugSample]):
+    """Loads source evidence without treating missing outcomes as negative labels."""
+
+    def __init__(
+        self,
+        adr_path: str | Path,
+        pubchem_path: str | Path,
+        tox_path: str | Path,
+        pregnancy_path: str | Path | None = None,
+        labels_path: str | Path | None = None,
+        faers_path: str | Path | None = None,
+    ) -> None:
+        self.adr_df = _read_indexed(adr_path, "ADR")
+        self.pubchem_df = _read_indexed(pubchem_path, "PubChem")
+        self.tox_df = _read_indexed(tox_path, "toxicity")
+        self.pregnancy_df = (
+            _read_indexed(pregnancy_path, "pregnancy evidence")
+            if pregnancy_path and Path(pregnancy_path).exists()
+            else pd.DataFrame()
+        )
+        self.labels_df = (
+            _read_indexed(labels_path, "pregnancy labels")
+            if labels_path and Path(labels_path).exists()
+            else pd.DataFrame()
+        )
+        self.faers_df = (
+            _read_indexed(faers_path, "FAERS evidence")
+            if faers_path and Path(faers_path).exists()
+            else pd.DataFrame()
+        )
+
+        self.merged_df = self.adr_df.join(self.pubchem_df, how="outer", rsuffix="_pubchem")
+        self.merged_df = self.merged_df.join(self.tox_df, how="outer", rsuffix="_tox")
+        if not self.pregnancy_df.empty:
+            self.merged_df = self.merged_df.join(
+                self.pregnancy_df, how="outer", rsuffix="_pregnancy"
+            )
+        if not self.faers_df.empty:
+            self.merged_df = self.merged_df.join(self.faers_df, how="outer", rsuffix="_faers")
+        if not self.labels_df.empty:
+            self.merged_df = self.merged_df.join(self.labels_df, how="outer", rsuffix="_labels")
+        self.drug_ids = self.merged_df.index.astype(str).tolist()
+        self.adr_cols = sorted(
+            (column for column in self.merged_df if column.startswith("ADR_")),
+            key=lambda name: int(name.rsplit("_", 1)[1]),
+        )[:20]
+        self.tox_cols = [
+            f"Study_{study_type}" for study_type in ("DEV", "CHR", "SUB", "MGR", "SAC")
         ]
+        self.pregnancy_cols = [f"reports_{name}" for name in OUTCOME_NAMES]
+        self.label_cols = [f"label_{name}" for name in OUTCOME_NAMES]
+        self.mask_cols = [f"mask_{name}" for name in OUTCOME_NAMES]
 
-        # 2. Molecular Graph for GNN
-        node_features = []
-        for atom in mol.GetAtoms():
-            # Basic atom features: atomic num, degree, formal charge
-            feat = [
-                atom.GetAtomicNum(),
-                atom.GetDegree(),
-                atom.GetFormalCharge(),
-                float(atom.GetIsAromatic())
-            ]
-            node_features.append(feat)
-
-        edge_index = []
-        edge_attr = []
-        for bond in mol.GetBonds():
-            i = bond.GetBeginAtomIdx()
-            j = bond.GetEndAtomIdx()
-
-            # Directed edges for PyG (i->j and j->i)
-            edge_index += [[i, j], [j, i]]
-
-            # Bond features: bond type as float
-            b_type = float(bond.GetBondTypeAsDouble())
-            edge_attr += [[b_type], [b_type]]
-
-        x = torch.tensor(node_features, dtype=torch.float)
-        edge_index = torch.tensor(edge_index, dtype=torch.long).t().contiguous() if edge_index else torch.empty((2, 0), dtype=torch.long)
-        edge_attr = torch.tensor(edge_attr, dtype=torch.float) if edge_attr else torch.empty((0, 1), dtype=torch.float)
-
-        graph_data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
-
-        return graph_data, torch.tensor(desc_list, dtype=torch.float)
-
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.drug_ids)
 
-    def __getitem__(self, idx):
+    @staticmethod
+    def _number(row: pd.Series, column: str, default: float = 0.0) -> float:
+        value = row.get(column, default)
+        return default if pd.isna(value) else float(value)
+
+    def __getitem__(self, idx: int) -> DrugSample:
         row = self.merged_df.iloc[idx]
-
-        # 1. ADR Features
-        adr_cols = [c for c in row.index if c.startswith('ADR_')]
-        adr_features = torch.tensor(row[adr_cols].values.astype(float), dtype=torch.float)
-
-        # 2. Molecular Features
-        smiles = row['smiles']
-        mol_graph, mol_desc = self._smiles_to_graph(smiles)
-
-        # If molecular processing failed or SMILES missing, create dummy tensors
-        if mol_graph is None:
-            mol_graph = Data(x=torch.zeros((1, 4)), edge_index=torch.empty((2, 0), dtype=torch.long), edge_attr=torch.empty((0, 1), dtype=torch.float))
-            mol_desc = torch.zeros(6, dtype=torch.float)
-            has_mol_data = 0.0
+        graph = _smiles_to_graph(row.get("smiles"))
+        if graph is None:
+            x = torch.empty((0, ATOM_FEATURES), dtype=torch.float32)
+            edge_index = torch.empty((2, 0), dtype=torch.long)
+            edge_attr = torch.empty((0, BOND_FEATURES), dtype=torch.float32)
+            mol_desc = torch.zeros(DESCRIPTOR_FEATURES, dtype=torch.float32)
+            has_molecule = 0.0
         else:
-            has_mol_data = 1.0
+            x, edge_index, edge_attr, mol_desc = graph
+            has_molecule = 1.0
 
-        # 3. Toxicity Data (Evidence source)
-        tox_features = row[self.target_cols].values.astype(float)
-        # Handle NaNs
-        tox_mask_arr = ~np.isnan(tox_features)
-        tox_features = np.nan_to_num(tox_features)
+        adr_values = [self._number(row, column) for column in self.adr_cols]
+        adr_values.extend([0.0] * (20 - len(adr_values)))
+        adr_available = _flag(row, "has_adr_data")
+        tox_values = [self._number(row, column) for column in self.tox_cols]
+        tox_available = _flag(row, "has_tox_data")
+        pregnancy_values = [self._number(row, column) for column in self.pregnancy_cols]
+        pregnancy_available = _flag(row, "has_pregnancy_outcome_data")
+        faers_value = self._number(row, "faers_report_count")
+        faers_available = _flag(row, "has_faers_data")
 
-        tox_feat_tensor = torch.tensor(tox_features, dtype=torch.float)
+        # Source quality is intentionally unknown unless a dataset provides a measured value.
+        quality_values = [
+            self._number(row, f"quality_{name}")
+            for name in ("adr", "descriptors", "graph", "tox", "pregnancy", "faers")
+        ]
 
-        # 4. Target Label (Pregnancy ADR Signal)
-        # We now have real target labels from the Pregnancy database via Actual_Pregnancy_Risk
-        actual_risk = row.get('Actual_Pregnancy_Risk', np.nan)
-        if pd.isna(actual_risk):
-            y = torch.tensor([[0.0]], dtype=torch.float)
-            y_mask = torch.tensor([[0.0]], dtype=torch.float) # Not available
-        else:
-            y = torch.tensor([[float(actual_risk)]], dtype=torch.float)
-            y_mask = torch.tensor([[1.0]], dtype=torch.float) # Available
+        labels: list[float] = []
+        label_masks: list[float] = []
+        for name, label_col, mask_col in zip(OUTCOME_NAMES, self.label_cols, self.mask_cols):
+            label = row.get(label_col, np.nan)
+            supplied_mask = row.get(mask_col, np.nan)
+            is_observed = (
+                not pd.isna(label)
+                and not pd.isna(supplied_mask)
+                and bool(supplied_mask)
+                and float(label) in (0.0, 1.0)
+            )
+            labels.append(float(label) if is_observed else 0.0)
+            label_masks.append(float(is_observed))
 
-        # 5. Availability Masks [ADR, Mol, Tox]
-        has_adr = float(row['has_adr_data'])
-        has_tox = float(row['has_tox_data'])
+        return DrugSample(
+            drug_id=self.drug_ids[idx],
+            x=x,
+            edge_index=edge_index,
+            edge_attr=edge_attr,
+            mol_desc=mol_desc,
+            adr_features=torch.tensor(adr_values, dtype=torch.float32),
+            tox_features=torch.tensor(tox_values, dtype=torch.float32),
+            pregnancy_features=torch.tensor(pregnancy_values, dtype=torch.float32),
+            faers_features=torch.tensor([faers_value], dtype=torch.float32),
+            availability_mask=torch.tensor(
+                [
+                    float(adr_available),
+                    has_molecule,
+                    has_molecule,
+                    float(tox_available),
+                    float(pregnancy_available),
+                    float(faers_available),
+                ],
+                dtype=torch.float32,
+            ),
+            evidence_quality=torch.tensor(quality_values, dtype=torch.float32),
+            y=torch.tensor(labels, dtype=torch.float32),
+            y_mask=torch.tensor(label_masks, dtype=torch.float32),
+        )
 
-        availability_mask = torch.tensor([has_adr, has_mol_data, has_tox], dtype=torch.float)
 
-        # Pack everything into a dictionary to return along with graph
-        mol_graph.adr_features = adr_features.unsqueeze(0)
-        mol_graph.mol_desc = mol_desc.unsqueeze(0)
-        mol_graph.tox_features = tox_feat_tensor.unsqueeze(0)
-        mol_graph.y = y
-        mol_graph.y_mask = y_mask
-        mol_graph.availability_mask = availability_mask.unsqueeze(0)
+def collate_drugs(samples: list[DrugSample]) -> DrugBatch:
+    if not samples:
+        raise ValueError("Cannot create a batch from an empty sample list")
+    node_features = []
+    edge_indices = []
+    edge_features = []
+    node_batches = []
+    offset = 0
+    for batch_idx, sample in enumerate(samples):
+        node_features.append(sample.x)
+        node_batches.append(torch.full((sample.x.shape[0],), batch_idx, dtype=torch.long))
+        if sample.edge_index.numel():
+            edge_indices.append(sample.edge_index + offset)
+            edge_features.append(sample.edge_attr)
+        offset += sample.x.shape[0]
 
-        return mol_graph
+    return DrugBatch(
+        drug_ids=[sample.drug_id for sample in samples],
+        x=torch.cat(node_features, dim=0),
+        edge_index=(
+            torch.cat(edge_indices, dim=1)
+            if edge_indices
+            else torch.empty((2, 0), dtype=torch.long)
+        ),
+        edge_attr=(
+            torch.cat(edge_features, dim=0)
+            if edge_features
+            else torch.empty((0, BOND_FEATURES), dtype=torch.float32)
+        ),
+        batch=torch.cat(node_batches),
+        mol_desc=torch.stack([sample.mol_desc for sample in samples]),
+        adr_features=torch.stack([sample.adr_features for sample in samples]),
+        tox_features=torch.stack([sample.tox_features for sample in samples]),
+        pregnancy_features=torch.stack([sample.pregnancy_features for sample in samples]),
+        faers_features=torch.stack([sample.faers_features for sample in samples]),
+        availability_mask=torch.stack([sample.availability_mask for sample in samples]),
+        evidence_quality=torch.stack([sample.evidence_quality for sample in samples]),
+        y=torch.stack([sample.y for sample in samples]),
+        y_mask=torch.stack([sample.y_mask for sample in samples]),
+    )
 
-def get_dataloader(adr_path, pubchem_path, tox_path, batch_size=32, shuffle=True):
-    from torch_geometric.loader import DataLoader as GeometricDataLoader
-    dataset = PregnancyDataset(adr_path, pubchem_path, tox_path)
-    loader = GeometricDataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
-    return loader
+
+def get_dataloader(
+    adr_path: str | Path,
+    pubchem_path: str | Path,
+    tox_path: str | Path,
+    batch_size: int = 32,
+    shuffle: bool = True,
+    pregnancy_path: str | Path | None = None,
+    labels_path: str | Path | None = None,
+    faers_path: str | Path | None = None,
+) -> DataLoader[DrugBatch]:
+    dataset = PregnancyDataset(
+        adr_path,
+        pubchem_path,
+        tox_path,
+        pregnancy_path=pregnancy_path,
+        labels_path=labels_path,
+        faers_path=faers_path,
+    )
+    return DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        collate_fn=collate_drugs,
+    )

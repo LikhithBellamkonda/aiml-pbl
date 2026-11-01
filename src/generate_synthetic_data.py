@@ -1,13 +1,12 @@
 import pandas as pd
 import numpy as np
 import os
-from rdkit import Chem
-from rdkit.Chem import Descriptors, AllChem
-import json
 
 def generate_mock_data():
+    """Create disposable synthetic fixtures for tests only; never use for training."""
     np.random.seed(42)
-    os.makedirs('data', exist_ok=True)
+    output_dir = os.path.join('tests', 'fixtures', 'generated')
+    os.makedirs(output_dir, exist_ok=True)
 
     num_drugs = 200
 
@@ -47,7 +46,7 @@ def generate_mock_data():
     pregnancy_reports = np.random.poisson(lam=0.5, size=num_drugs)
     adr_df['n_pregnancy_reports'] = pregnancy_reports
 
-    adr_df.to_csv('data/mock_faers_adr.csv', index=False)
+    adr_df.to_csv(os.path.join(output_dir, 'mock_faers_adr.csv'), index=False)
 
     # 2. PubChem (SMILES)
     pubchem_df = pd.DataFrame({
@@ -57,7 +56,7 @@ def generate_mock_data():
     # Simulate some invalid/missing SMILES
     missing_smiles_mask = np.random.rand(num_drugs) < 0.05
     pubchem_df.loc[missing_smiles_mask, 'smiles'] = None
-    pubchem_df.to_csv('data/mock_pubchem.csv', index=False)
+    pubchem_df.to_csv(os.path.join(output_dir, 'mock_pubchem.csv'), index=False)
 
     # 3. ToxCast/Tox21 (Developmental Toxicity Labels)
     # Binary labels for 3 toxicity endpoints
@@ -71,9 +70,9 @@ def generate_mock_data():
 
     # Create mask column for whether any tox data exists
     tox_df['has_tox_data'] = (~missing_tox_mask.all(axis=1)).astype(int)
-    tox_df.to_csv('data/mock_toxicity.csv', index=False)
+    tox_df.to_csv(os.path.join(output_dir, 'mock_toxicity.csv'), index=False)
 
-    print("Mock data generated successfully in data/")
+    print(f"Test-only mock data generated in {output_dir}")
 
 if __name__ == "__main__":
     generate_mock_data()

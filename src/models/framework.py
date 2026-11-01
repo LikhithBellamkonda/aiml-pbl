@@ -1,75 +1,77 @@
 import torch
 import torch.nn as nn
-from .molecular_gnn import MolecularGNN
-from .adr_tox_models import ADRBranch, ToxBranch
+
+from .adr_tox_models import ADRBranch, ChemicalDescriptorBranch, EvidenceBranch
 from .fusion import SourceGatedFusion
+from .molecular_gnn import MolecularGNN
+
+
+def rank_outcomes(probabilities, outcome_names):
+    values = probabilities.flatten().tolist()
+    if len(values) != len(outcome_names):
+        raise ValueError("The number of scores must match the outcome names")
+    return sorted(
+        zip(outcome_names, values),
+        key=lambda item: item[1],
+        reverse=True,
+    )
+
 
 class MultimodalPregnancyADRModel(nn.Module):
-    def __init__(self, num_outcomes=1, rep_dim=128):
-        super(MultimodalPregnancyADRModel, self).__init__()
+    """Outcome-specific research model; labels and evidence remain distinct."""
 
-        # 1. Branches
-        self.mol_branch = MolecularGNN(out_dim=rep_dim)
+    def __init__(self, num_outcomes=4, rep_dim=128):
+        super().__init__()
         self.adr_branch = ADRBranch(out_dim=rep_dim)
-        self.tox_branch = ToxBranch(out_dim=rep_dim)
-
-        # 2. Fusion
-        self.fusion = SourceGatedFusion(rep_dim=rep_dim)
-
-        # 3. Outcome Prediction Head (Multi-task)
-        # Using Dropout for Epistemic Uncertainty via Monte Carlo Dropout
+        self.descriptor_branch = ChemicalDescriptorBranch(out_dim=rep_dim)
+        self.graph_branch = MolecularGNN(out_dim=rep_dim)
+        self.tox_branch = EvidenceBranch(in_dim=5, out_dim=rep_dim)
+        self.pregnancy_branch = EvidenceBranch(in_dim=4, out_dim=rep_dim)
+        self.faers_branch = EvidenceBranch(in_dim=1, out_dim=rep_dim)
+        self.fusion = SourceGatedFusion(rep_dim=rep_dim, num_sources=6)
         self.pred_head = nn.Sequential(
             nn.Linear(rep_dim, 64),
             nn.ReLU(),
-            nn.Dropout(p=0.2), # Standard MC Dropout layer
+            nn.Dropout(p=0.2),
             nn.Linear(64, num_outcomes),
-            nn.Sigmoid() # Calibrated probabilities
         )
 
     def forward(self, mol_data):
-        """
-        mol_data is a PyTorch Geometric Batch object containing custom attributes.
-        """
-        # 1. Molecular Representation
-        h_mol = self.mol_branch(mol_data.x, mol_data.edge_index, mol_data.batch, mol_data.mol_desc)
+        representations = [
+            self.adr_branch(mol_data.adr_features),
+            self.descriptor_branch(mol_data.mol_desc),
+            self.graph_branch(
+                mol_data.x,
+                mol_data.edge_index,
+                mol_data.edge_attr,
+                mol_data.batch,
+                mol_data.adr_features.shape[0],
+            ),
+            self.tox_branch(mol_data.tox_features),
+            self.pregnancy_branch(mol_data.pregnancy_features),
+            self.faers_branch(mol_data.faers_features),
+        ]
+        fused = self.fusion(
+            representations,
+            mol_data.availability_mask,
+            mol_data.evidence_quality,
+        )
+        return torch.sigmoid(self.pred_head(fused))
 
-        # 2. ADR Representation
-        h_adr = self.adr_branch(mol_data.adr_features)
-
-        # 3. Toxicity Proxy Representation
-        h_tox = self.tox_branch(mol_data.tox_features)
-
-        # 4. Fusion
-        z_fused = self.fusion(h_adr, h_mol, h_tox, mol_data.availability_mask)
-
-        # 5. Prediction
-        out = self.pred_head(z_fused)
-
-        return out
-
-    def predict_with_uncertainty(self, mol_data, num_samples=10):
-        """
-        Estimates epistemic uncertainty using Monte Carlo Dropout.
-        Model should be in train() mode for dropout to be active, or we force dropout.
-        """
+    def predict_with_uncertainty(self, mol_data, num_samples=20):
+        if num_samples < 2:
+            raise ValueError("num_samples must be at least 2 for uncertainty estimation")
         was_training = self.training
-        self.train() # Enable dropout
+        self.train()
+        try:
+            with torch.no_grad():
+                predictions = torch.stack(
+                    [self.forward(mol_data) for _ in range(num_samples)], dim=0
+                )
+            return predictions.mean(dim=0), predictions.var(dim=0, unbiased=False)
+        finally:
+            self.train(was_training)
 
-        preds = []
-        with torch.no_grad():
-            for _ in range(num_samples):
-                preds.append(self.forward(mol_data))
-
-        preds_stack = torch.stack(preds) # [num_samples, batch_size, num_outcomes]
-
-        # Mean probability
-        mean_pred = preds_stack.mean(dim=0)
-
-        # Variance (Uncertainty)
-        variance_pred = preds_stack.var(dim=0)
-
-        # Restore training state
-        if not was_training:
-            self.eval()
-
-        return mean_pred, variance_pred
+    @staticmethod
+    def has_predictive_evidence(mol_data):
+        return mol_data.availability_mask.sum(dim=1) > 0
