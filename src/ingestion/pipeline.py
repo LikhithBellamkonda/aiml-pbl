@@ -9,7 +9,7 @@ from typing import Any
 
 import pandas as pd
 
-from src.ingestion import dryad, mendeley, onsides, pubchem, reprotox
+from src.ingestion import dryad, mendeley, onsides, pubchem
 from src.ingestion.common import (
     IngestedSource,
     drug_name_key,
@@ -792,14 +792,6 @@ def _write_analysis(
                 "granularity": "chemical identifiers and structures",
                 "limitation": "Identity/features only; not outcome evidence.",
             },
-            {
-                "source_dataset": "reprotox_kg",
-                "citation_or_doi": "ReproTox-KG graph serialization",
-                "version": "version field retained from graph when available",
-                "license_or_access": "License is not stated in the downloaded graph; review upstream terms.",
-                "granularity": "curated/computational knowledge-graph associations",
-                "limitation": "Associations are not observed patient outcomes or incidence estimates.",
-            },
         ]
     )
     source_registry = source_registry.merge(
@@ -1009,7 +1001,7 @@ Name matching uses normalized exact names and existing/PubChem CID mappings. An 
 
 No negative labels are inferred from absent reports, omitted endpoints, or missing files. The Dryad supplement is an aggregate DOCX (tables of cohort characteristics, ICD codes, and study-level ASD/ADHD hazard-ratio analyses), not individual participant outcomes. Its ASD/ADHD endpoints are distinct from the six pregnancy endpoints and are not converted into labels.
 
-The Mendeley source contains drug-level aggregate spontaneous-report counts without exposed-pregnancy denominators or patient-level non-events. These are reporting signals only, not incidence or validated binary labels. OnSIDES contributes regulatory product-label adverse-effect associations and source model scores; those scores are not confidence estimates or pregnancy outcome labels. ReproTox-KG birth-defect edges are curated/computational knowledge-graph associations, not observed pregnancy events. PubChem contributes chemical identity and descriptors only.
+The Mendeley source contains drug-level aggregate spontaneous-report counts without exposed-pregnancy denominators or patient-level non-events. These are reporting signals only, not incidence or validated binary labels. OnSIDES contributes regulatory product-label adverse-effect associations and source model scores; those scores are not confidence estimates or pregnancy outcome labels. PubChem contributes chemical identity and descriptors only.
 
 ## Potential leakage
 
@@ -1068,13 +1060,11 @@ def run_pipeline(
         "onsides_general_adr": raw_dir / "onsides-v3.1.1.zip",
         "mendeley_pregnancy_v2": dataset_dir / "FAERS_JAAD_Mendeley Supplement.docx",
         "dryad_antiepileptic_pregnancy": dataset_dir / dryad.EXPECTED_FILENAME,
-        "reprotox_kg": raw_dir / "reprotox_serialization.valid.json",
     }
     acquire_functions = {
         "onsides_general_adr": onsides.acquire,
         "mendeley_pregnancy_v2": mendeley.acquire,
         "dryad_antiepileptic_pregnancy": dryad.acquire,
-        "reprotox_kg": reprotox.acquire,
     }
     acquisition_errors: dict[str, str] = {}
     if download_missing:
@@ -1116,7 +1106,6 @@ def run_pipeline(
     sources["dryad_antiepileptic_pregnancy"] = dryad.ingest(
         paths["dryad_antiepileptic_pregnancy"], dryad.DOI
     )
-    sources["reprotox_kg"] = reprotox.ingest(paths["reprotox_kg"])
     for source_name, acquisition_error in acquisition_errors.items():
         existing_error = sources[source_name].error
         sources[source_name].error = (
@@ -1193,7 +1182,6 @@ def run_pipeline(
         "onsides_general_adr",
         "mendeley_pregnancy_v2",
         "dryad_antiepileptic_pregnancy",
-        "reprotox_kg",
     )
     master = pd.concat(
         [canonical_frames[name] for name in master_sources if not canonical_frames[name].empty],

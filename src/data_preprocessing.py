@@ -28,6 +28,17 @@ LABEL_PROVENANCE_COLUMNS = (
     "evidence_type",
 )
 
+# Human-only evidence sources enforced across preprocessing and fusion.
+HUMAN_SOURCES = ("onsides", "mendeley", "faers", "tga")
+
+# ---- Pharmacovigilance disproportionality signal constants ----
+# Reporting Odds Ratio (ROR) and Proportional Reporting Ratio (PRR)
+# are computed per drug per outcome using 2x2 contingency tables.
+# All counts are aggregate spontaneous-report counts; no validated
+# patient-level denominators exist, so signals are exploratory only.
+ROR_SIGNIFICANCE_THRESHOLD = 2.0   # ROR lower CI bound > 2 indicates signal
+PRR_SIGNIFICANCE_THRESHOLD = 2.0   # PRR > 2 with chi-square >= 4 indicates signal
+
 
 @dataclass
 class DrugSample:
@@ -90,6 +101,154 @@ def _read_indexed(path: str | Path, source: str) -> pd.DataFrame:
 def _flag(row: pd.Series, column: str) -> bool:
     value = row.get(column, False)
     return False if pd.isna(value) else bool(value)
+
+
+def compute_ror_prr(
+    drug_counts: dict[str, dict[str, int]],
+    background_counts: dict[str, dict[str, int]],
+) -> dict[str, dict[str, dict[str, float]]]:
+    """Compute Reporting Odds Ratio (ROR) and Proportional Reporting Ratio (PRR).
+
+    For each (drug, outcome) pair, builds a 2x2 contingency table:
+
+        |                | Outcome | No Outcome |
+        |----------------|---------|------------|
+        | Drug exposed   | a       | b          |
+        | Not exposed    | c       | d          |
+
+    ROR = (a / b) / (c / d) = (a * d) / (b * c)
+    PRR = [a / (a + b)] / [c / (c + d)]
+
+    Returns a nested dict: {drug_id: {outcome: {"ROR": float, "PRR": float,
+    "chi_square": float, "signal": bool}}}. Signal is True when ROR lower
+    CI bound exceeds 2.0 and PRR exceeds 2.0 with chi-square >= 4.0.
+    """
+    results: dict[str, dict[str, dict[str, float]]] = {}
+    total_drugs = max(
+        sum(v.get("exposed", 0) for v in drug_counts.values()), 1
+    )
+    total_background = max(
+        sum(v.get("exposed", 0) for v in background_counts.values()), 1
+    )
+    for drug_id, drug_outcomes in drug_counts.items():
+        results[drug_id] = {}
+        for outcome, counts in drug_outcomes.items():
+            a = counts.get("exposed_with_outcome", 0)
+            b = counts.get("exposed_without_outcome", 0)
+            bg = background_counts.get(outcome, {})
+            c = bg.get("exposed_with_outcome", 0) - a
+            d = bg.get("exposed_without_outcome", 0) - b
+            c = max(c, 0)
+            d = max(d, 0)
+
+            # ROR with Haldane-Anscombe correction (add 0.5 to zero cells)
+            a_c, b_c, c_c, d_c = a + 0.5, b + 0.5, c + 0.5, d + 0.5
+            ror = (a_c * d_c) / (b_c * c_c) if (b_c * c_c) > 0 else float("inf")
+            # Standard error of log(ROR)
+            se_log_ror = np.sqrt(1 / a_c + 1 / b_c + 1 / c_c + 1 / d_c)
+            log_ror = np.log(ror)
+            ror_lower = float(np.exp(log_ror - 1.96 * se_log_ror))
+
+            # PRR
+            a_total = a + b
+            c_total = c + d
+            prr = (
+                (a / a_total) / (c / c_total)
+                if (a_total > 0 and c_total > 0)
+                else float("inf")
+            )
+            # Chi-square for 2x2 table
+            n = a + b + c + d
+            expected_a = (a + c) * (a + b) / n if n > 0 else 0
+            chi_square = ((a - expected_a) ** 2 / expected_a) if expected_a > 0 else 0.0
+
+            signal = bool(
+                ror_lower > ROR_SIGNIFICANCE_THRESHOLD
+                and prr > PRR_SIGNIFICANCE_THRESHOLD
+                and chi_square >= 4.0
+            )
+            results[drug_id][outcome] = {
+                "ROR": round(float(ror), 4),
+                "ROR_lower_CI": round(ror_lower, 4),
+                "PRR": round(float(prr), 4),
+                "chi_square": round(float(chi_square), 4),
+                "signal": signal,
+            }
+    return results
+
+
+def build_availability_mask(
+    drug_id: str,
+    source_records: dict[str, pd.DataFrame],
+    source_order: tuple[str, ...] = HUMAN_SOURCES,
+) -> np.ndarray:
+    """Build Missing-Evidence Availability Mask M for a single drug.
+
+    M is a binary vector of length len(source_order) where M[i] = 1 if
+    source i has at least one relevant record for the drug, else 0.
+    """
+    mask = np.zeros(len(source_order), dtype=np.float32)
+    for idx, source in enumerate(source_order):
+        frame = source_records.get(source, pd.DataFrame())
+        if frame.empty or "drug_id" not in frame.columns:
+            continue
+        if (frame["drug_id"].astype(str) == str(drug_id)).any():
+            mask[idx] = 1.0
+    return mask
+
+
+def build_quality_vector(
+    drug_id: str,
+    source_records: dict[str, pd.DataFrame],
+    source_order: tuple[str, ...] = HUMAN_SOURCES,
+) -> np.ndarray:
+    """Build Quality Vector Q for a single drug.
+
+    Q[i] in [0, 1] represents evidence completeness for source i:
+    fraction of expected provenance fields that are non-empty.
+    """
+    provenance_fields = (
+        "source_dataset",
+        "source_url",
+        "source_doi",
+        "evidence_status",
+        "evidence_granularity",
+    )
+    quality = np.zeros(len(source_order), dtype=np.float32)
+    for idx, source in enumerate(source_order):
+        frame = source_records.get(source, pd.DataFrame())
+        if frame.empty or "drug_id" not in frame.columns:
+            continue
+        drug_rows = frame[frame["drug_id"].astype(str) == str(drug_id)]
+        if drug_rows.empty:
+            continue
+        present = 0
+        for field in provenance_fields:
+            if field in drug_rows.columns:
+                non_empty = drug_rows[field].notna() & (
+                    drug_rows[field].astype(str).str.strip() != ""
+                )
+                if non_empty.any():
+                    present += 1
+        quality[idx] = present / max(len(provenance_fields), 1)
+    return quality
+
+
+def compute_q_cov(
+    availability_mask: np.ndarray,
+    quality_vector: np.ndarray,
+    source_order: tuple[str, ...] = HUMAN_SOURCES,
+) -> float:
+    """Compute Evidence Coverage Score Q_cov.
+
+    Q_cov = mean(M[i] * Q[i]) across all sources, capped at 1.0.
+    Represents the fraction of tracked human evidence source families
+    that are both available and have non-trivial quality.
+    """
+    if len(availability_mask) == 0:
+        return 0.0
+    weighted = availability_mask * quality_vector
+    return float(min(weighted.mean(), 1.0))
 
 
 def _smiles_to_graph(smiles: Any) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor] | None:
