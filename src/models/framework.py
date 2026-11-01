@@ -25,10 +25,9 @@ class MultimodalPregnancyADRModel(nn.Module):
         self.adr_branch = ADRBranch(out_dim=rep_dim)
         self.descriptor_branch = ChemicalDescriptorBranch(out_dim=rep_dim)
         self.graph_branch = MolecularGNN(out_dim=rep_dim)
-        self.tox_branch = EvidenceBranch(in_dim=5, out_dim=rep_dim)
         self.pregnancy_branch = EvidenceBranch(in_dim=4, out_dim=rep_dim)
         self.faers_branch = EvidenceBranch(in_dim=1, out_dim=rep_dim)
-        self.fusion = SourceGatedFusion(rep_dim=rep_dim, num_sources=6)
+        self.fusion = SourceGatedFusion(rep_dim=rep_dim, num_sources=5)
         self.pred_head = nn.Sequential(
             nn.Linear(rep_dim, 64),
             nn.ReLU(),
@@ -47,7 +46,6 @@ class MultimodalPregnancyADRModel(nn.Module):
                 mol_data.batch,
                 mol_data.adr_features.shape[0],
             ),
-            self.tox_branch(mol_data.tox_features),
             self.pregnancy_branch(mol_data.pregnancy_features),
             self.faers_branch(mol_data.faers_features),
         ]

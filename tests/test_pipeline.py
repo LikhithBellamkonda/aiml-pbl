@@ -15,10 +15,6 @@ from src.data_preprocessing import (
     get_dataloader,
 )
 from src.dataset_feasibility import build_feasibility_report
-from src.train_reproductive_tox import (
-    ENDPOINTS as TOXICITY_ENDPOINTS,
-    load_endpoint_data,
-)
 from src.models.framework import (
     MultimodalPregnancyADRModel,
     rank_outcomes,
@@ -26,7 +22,6 @@ from src.models.framework import (
 from src.models.fusion import SourceGatedFusion
 from src.process_real_datasets import (
     _extract_faers_outcomes,
-    _process_toxref,
     _query_pubchem,
     _sider_cid,
     drug_id_for_resolution,
@@ -44,7 +39,6 @@ from src.train import (
 def data_files(tmp_path):
     adr_path = tmp_path / "adr.csv"
     pubchem_path = tmp_path / "pubchem.csv"
-    tox_path = tmp_path / "tox.csv"
     pregnancy_path = tmp_path / "pregnancy.csv"
     faers_path = tmp_path / "faers.csv"
 
@@ -68,28 +62,6 @@ def data_files(tmp_path):
         [
             {
                 "drug_id": "CID000002244",
-                "has_tox_data": 1,
-                "Study_DEV": 2,
-                "Study_CHR": 0,
-                "Study_SUB": 0,
-                "Study_MGR": 0,
-                "Study_SAC": 0,
-            },
-            {
-                "drug_id": "NAME:unknown",
-                "has_tox_data": 0,
-                "Study_DEV": 0,
-                "Study_CHR": 0,
-                "Study_SUB": 0,
-                "Study_MGR": 0,
-                "Study_SAC": 0,
-            },
-        ]
-    ).to_csv(tox_path, index=False)
-    pd.DataFrame(
-        [
-            {
-                "drug_id": "CID000002244",
                 "has_pregnancy_outcome_data": 1,
                 "reports_fetal_death": 4,
                 "reports_preterm_birth": 1,
@@ -107,7 +79,7 @@ def data_files(tmp_path):
             }
         ]
     ).to_csv(faers_path, index=False)
-    return adr_path, pubchem_path, tox_path, pregnancy_path, faers_path
+    return adr_path, pubchem_path, pregnancy_path, faers_path
 
 
 def test_name_normalization_and_identifiers():
@@ -202,41 +174,31 @@ def test_dataset_feasibility_does_not_convert_reports_or_classifications_to_labe
     )
 
 
-@pytest.mark.parametrize("endpoint", list(TOXICITY_ENDPOINTS))
-def test_nonclinical_assay_endpoint_has_distinct_binary_structure_labels(endpoint):
-    data = load_endpoint_data(endpoint=endpoint)
-
-    assert set(data.labels.tolist()) == {0, 1}
-    assert len(data.labels) == data.fingerprints.shape[0]
-    assert data.fingerprints.shape[1] == 1024
-    assert len(data.scaffolds) == len(data.labels)
-
-
 def test_dataset_preserves_missing_outcome_labels(data_files):
-    adr, pubchem, tox, pregnancy, faers = data_files
-    dataset = PregnancyDataset(adr, pubchem, tox, pregnancy, faers_path=faers)
+    adr, pubchem, pregnancy, faers = data_files
+    dataset = PregnancyDataset(adr, pubchem, pregnancy, faers_path=faers)
 
     unknown = dataset[dataset.drug_ids.index("NAME:unknown")]
     assert unknown.y.shape == (len(OUTCOME_NAMES),)
     assert torch.equal(unknown.y_mask, torch.zeros(len(OUTCOME_NAMES)))
-    assert unknown.availability_mask.tolist() == [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    assert unknown.availability_mask.tolist() == [0.0, 0.0, 0.0, 0.0, 0.0]
     assert unknown.faers_features.item() == 0.0
 
     aspirin = dataset[dataset.drug_ids.index("CID000002244")]
     assert aspirin.y_mask.sum().item() == 0
     assert aspirin.pregnancy_features[0].item() == 4.0
-    assert aspirin.availability_mask.tolist() == [1, 1, 1, 1, 1, 1]
+    assert aspirin.availability_mask.tolist() == [1, 1, 1, 1, 1]
 
 
 def test_dataloader_and_outcome_specific_model(data_files):
-    adr, pubchem, tox, pregnancy, faers = data_files
+    adr, pubchem, pregnancy, faers = data_files
     loader = get_dataloader(
-        adr, pubchem, tox, batch_size=2, shuffle=False,
+        adr, pubchem, batch_size=2, shuffle=False,
         pregnancy_path=pregnancy, faers_path=faers
     )
     batch = next(iter(loader))
     assert batch.adr_features.shape == (2, 20)
-    assert batch.availability_mask.shape == (2, 6)
+    assert batch.availability_mask.shape == (2, 5)
     assert batch.y.shape == (2, len(OUTCOME_NAMES))
     assert batch.edge_attr.shape[1] == BOND_FEATURES
 
@@ -248,8 +210,8 @@ def test_dataloader_and_outcome_specific_model(data_files):
 
 def test_fusion_handles_all_sources_missing():
     fusion = SourceGatedFusion(rep_dim=8)
-    representations = [torch.randn(2, 8) for _ in range(6)]
-    missing = torch.zeros(2, 6)
+    representations = [torch.randn(2, 8) for _ in range(5)]
+    missing = torch.zeros(2, 5)
     output = fusion(representations, missing, missing)
     assert output.shape == (2, 8)
     assert torch.isfinite(output).all()
@@ -257,9 +219,9 @@ def test_fusion_handles_all_sources_missing():
 
 
 def test_missing_evidence_evaluation_keeps_unlabeled_targets_masked(data_files):
-    adr, pubchem, tox, pregnancy, faers = data_files
+    adr, pubchem, pregnancy, faers = data_files
     loader = get_dataloader(
-        adr, pubchem, tox, batch_size=2, shuffle=False,
+        adr, pubchem, batch_size=2, shuffle=False,
         pregnancy_path=pregnancy, faers_path=faers
     )
     model = MultimodalPregnancyADRModel(num_outcomes=len(OUTCOME_NAMES))
@@ -283,11 +245,11 @@ def test_molecular_graph_has_real_atom_and_bond_features():
 
 
 def test_uncertainty_ranking_and_calibration(data_files):
-    adr, pubchem, tox, pregnancy, faers = data_files
+    adr, pubchem, pregnancy, faers = data_files
     batch = next(
         iter(
             get_dataloader(
-                adr, pubchem, tox, batch_size=2, shuffle=False,
+                adr, pubchem, batch_size=2, shuffle=False,
                 pregnancy_path=pregnancy, faers_path=faers
             )
         )
@@ -305,32 +267,6 @@ def test_uncertainty_ranking_and_calibration(data_files):
     assert metrics["auprc"] == 1.0
     assert metrics["brier_score"] < 0.02
     assert expected_calibration_error([0, 1], [0.1, 0.9]) is not None
-
-
-def test_toxref_keeps_study_evidence_not_positive_outcomes():
-    source = pd.DataFrame(
-        [
-            {
-                "chemical_id": 1,
-                "dsstox_substance_id": "DTXSID1",
-                "casrn": "123-45-6",
-                "preferred_name": "Aspirin",
-                "study_id": 10,
-                "study_type": "DEV",
-                "species": "rat",
-                "dose_start": 1.0,
-                "dose_start_unit": "mg/kg/day",
-            }
-        ]
-    )
-    mapping = pd.DataFrame(
-        [{"name_key": "aspirin", "drug_id": "CID000002244"}]
-    )
-    features, evidence = _process_toxref(source, mapping)
-    assert features.iloc[0]["Study_DEV"] == 1
-    assert "Tox_Dev" not in features.columns
-    assert evidence.iloc[0]["species"] == "rat"
-    assert "no effect outcome" in evidence.iloc[0]["evidence_type"]
 
 
 def test_local_faers_supplement_contains_aggregate_outcomes():

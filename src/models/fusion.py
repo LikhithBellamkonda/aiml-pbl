@@ -5,7 +5,7 @@ import torch.nn as nn
 class SourceGatedFusion(nn.Module):
     """Fuse source encodings using explicit availability and quality inputs."""
 
-    def __init__(self, rep_dim=128, num_sources=6):
+    def __init__(self, rep_dim=128, num_sources=5):
         super().__init__()
         self.num_sources = num_sources
         self.gates = nn.ModuleList(

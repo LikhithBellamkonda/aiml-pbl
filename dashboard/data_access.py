@@ -13,21 +13,20 @@ def _read_optional(path):
 def load_dashboard_data(root=ROOT):
     root = Path(root)
     data = root / "data"
+    feasibility_path = data / "dataset_integration_feasibility.json"
+    if not feasibility_path.exists():
+        feasibility_path = data / "dataset_feasibility.json"
     return {
         "mapping": _read_optional(data / "drug_mapping.csv"),
         "names": _read_optional(data / "drug_names.csv"),
         "pubchem": _read_optional(data / "real_pubchem.csv"),
         "adr": _read_optional(data / "real_adr_evidence.csv"),
-        "toxicity": _read_optional(data / "real_toxicity_evidence.csv"),
         "pregnancy": _read_optional(data / "real_pregnancy_outcomes.csv"),
         "classifications": _read_optional(data / "pregnancy_classifications.csv"),
         "availability": _read_optional(data / "source_availability.csv"),
         "faers_summary": _read_optional(data / "real_faers_summary.csv"),
         "metrics": _read_optional_json(data / "training_metrics.json"),
-        "toxicity_metrics": _read_optional_json(
-            data / "reproductive_tox_training_metrics.json"
-        ),
-        "feasibility": _read_optional_json(data / "dataset_feasibility.json"),
+        "feasibility": _read_optional_json(feasibility_path),
         "metadata": _read_optional_json(root / "src" / "models" / "model_metadata.json"),
     }
 

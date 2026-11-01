@@ -142,7 +142,6 @@ def _evidence_vector(sample):
         (
             sample.adr_features.flatten(),
             sample.mol_desc.flatten(),
-            sample.tox_features.flatten(),
             sample.pregnancy_features.flatten(),
             sample.faers_features.flatten(),
             sample.availability_mask.flatten(),
@@ -157,16 +156,14 @@ def evaluate_classical_baselines(dataset, train_indices, test_indices):
     source_slices = {
         "general_adr": slice(0, 20),
         "chemical_descriptors": slice(20, 26),
-        "toxicity_study_evidence": slice(26, 31),
-        "pregnancy_outcomes": slice(31, 35),
-        "faers_reporting": slice(35, 36),
+        "pregnancy_outcomes": slice(26, 30),
+        "faers_reporting": slice(30, 31),
     }
     source_indices = {
         "general_adr": 0,
         "chemical_descriptors": 1,
-        "toxicity_study_evidence": 3,
-        "pregnancy_outcomes": 4,
-        "faers_reporting": 5,
+        "pregnancy_outcomes": 3,
+        "faers_reporting": 4,
     }
     source_train = {
         name: np.stack(
@@ -175,7 +172,6 @@ def evaluate_classical_baselines(dataset, train_indices, test_indices):
                     (
                         dataset[index].adr_features.flatten(),
                         dataset[index].mol_desc.flatten(),
-                        dataset[index].tox_features.flatten(),
                         dataset[index].pregnancy_features.flatten(),
                         dataset[index].faers_features.flatten(),
                     )
@@ -192,7 +188,6 @@ def evaluate_classical_baselines(dataset, train_indices, test_indices):
                     (
                         dataset[index].adr_features.flatten(),
                         dataset[index].mol_desc.flatten(),
-                        dataset[index].tox_features.flatten(),
                         dataset[index].pregnancy_features.flatten(),
                         dataset[index].faers_features.flatten(),
                     )
@@ -360,9 +355,9 @@ def evaluate_missing_evidence(model, loader, device):
     allowed_sources = {
         "complete_available_sources": None,
         "adr_and_chemical_only": (0, 1, 2),
-        "without_toxicity": (0, 1, 2, 4, 5),
-        "without_pregnancy_outcomes": (0, 1, 2, 3, 5),
-        "without_faers": (0, 1, 2, 3, 4),
+        "without_chemical_features": (0, 3, 4),
+        "without_pregnancy_outcomes": (0, 1, 2, 4),
+        "without_faers": (0, 1, 2, 3),
     }
     collected = {scenario: ([], [], []) for scenario in allowed_sources}
     collected["half_with_pregnancy_source_masked"] = ([], [], [])
@@ -371,7 +366,7 @@ def evaluate_missing_evidence(model, loader, device):
         original_mask = batch.availability_mask.clone()
         scenarios = dict(allowed_sources)
         sparse_mask = original_mask.clone()
-        sparse_mask[1::2, 4] = 0
+        sparse_mask[1::2, 3] = 0
         scenarios["half_with_pregnancy_source_masked"] = None
         for scenario, allowed in scenarios.items():
             if scenario == "half_with_pregnancy_source_masked":
@@ -410,7 +405,6 @@ def train_model(epochs=30, batch_size=32):
     dataset = PregnancyDataset(
         ROOT / "data" / "real_faers_adr.csv",
         ROOT / "data" / "real_pubchem.csv",
-        ROOT / "data" / "real_toxicity.csv",
         pregnancy_path=ROOT / "data" / "real_pregnancy_features.csv",
         labels_path=ROOT / "data" / "pregnancy_labels.csv",
         faers_path=ROOT / "data" / "real_faers_summary.csv",

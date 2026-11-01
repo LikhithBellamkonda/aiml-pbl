@@ -164,13 +164,17 @@ def resolve_names(
             LOGGER.warning("Ignoring invalid PubChem cache %s: %s", cache_path, error)
 
     local_records = _pubchem_record_from_local_csv(DATASET_DIR / "CSV.csv")
-    keys = sorted({_name_key(name) for name in names if _name_key(name)})
+    name_by_key: dict[str, str] = {}
+    for candidate in names:
+        key = _name_key(candidate)
+        if key:
+            name_by_key.setdefault(key, candidate)
+    keys = sorted(name_by_key)
     new_queries = 0
     results: dict[str, dict[str, Any]] = {}
     queries: list[tuple[str, str]] = []
     for key in keys:
-        candidates = [name for name in names if _name_key(name) == key]
-        name = candidates[0]
+        name = name_by_key[key]
         if key in cache and cache[key].get("resolution_status") != "lookup_error":
             results[key] = cache[key]
             continue
@@ -489,15 +493,6 @@ def process_datasets(offline: bool = False, max_pubchem_queries: int | None = No
     adr_df.to_csv(DATA_DIR / "real_faers_adr.csv", index=False)
     adr_evidence.to_csv(DATA_DIR / "real_adr_evidence.csv", index=False)
 
-    tox_source_path = DATASET_DIR / "toxrefdb_3_0_study_chem_summary.xlsx"
-    if tox_source_path.exists():
-        tox_source = pd.read_excel(tox_source_path)
-    else:
-        tox_source = pd.DataFrame()
-    tox_features, tox_evidence = _process_toxref(tox_source, mapping)
-    tox_features.to_csv(DATA_DIR / "real_toxicity.csv", index=False)
-    tox_evidence.to_csv(DATA_DIR / "real_toxicity_evidence.csv", index=False)
-
     outcomes, totals = _extract_faers_outcomes(
         DATASET_DIR / "FAERS_JAAD_Mendeley Supplement.docx"
     )
@@ -562,7 +557,7 @@ def process_datasets(offline: bool = False, max_pubchem_queries: int | None = No
     pregnancy_features = _pregnancy_features(outcomes)
     pregnancy_features.to_csv(DATA_DIR / "real_pregnancy_features.csv", index=False)
     _write_source_coverage(
-        mapping, adr_df, pubchem_df, tox_features, pregnancy_features, totals
+        mapping, adr_df, pubchem_df, pregnancy_features, totals
     )
 
     LOGGER.info("Drug-name records: %d", len(mapping))
@@ -572,67 +567,10 @@ def process_datasets(offline: bool = False, max_pubchem_queries: int | None = No
         int(mapping["pubchem_cid"].isna().sum()),
     )
     LOGGER.info(
-        "SIDER matched drug rows: %d; pregnancy FAERS summary drugs: %d; ToxRef exact-name-linked study rows: %d",
+        "SIDER matched drug rows: %d; aggregate pregnancy-report summary drugs: %d",
         int(adr_df["has_adr_data"].sum()) if "has_adr_data" in adr_df else 0,
         len(totals),
-        len(tox_evidence),
     )
-
-
-def _process_toxref(source: pd.DataFrame, mapping: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    feature_columns = ["drug_id", "has_tox_data", "quality_tox"] + [
-        f"Study_{study_type}" for study_type in ("DEV", "CHR", "SUB", "MGR", "SAC")
-    ]
-    if source.empty or "preferred_name" not in source.columns:
-        return pd.DataFrame(columns=feature_columns), pd.DataFrame()
-    source = source.copy()
-    source["name_key"] = source["preferred_name"].map(_name_key)
-    mapping_by_key = mapping[["name_key", "drug_id"]].drop_duplicates()
-    evidence = source.merge(mapping_by_key, on="name_key", how="inner", validate="many_to_one")
-    evidence["evidence_type"] = "chemical toxicity study record; no effect outcome in summary"
-    evidence["source_dataset"] = "EPA ToxRefDB v3.0"
-    requested = [
-        "drug_id",
-        "chemical_id",
-        "dsstox_substance_id",
-        "casrn",
-        "preferred_name",
-        "study_id",
-        "study_citation",
-        "study_year",
-        "study_type",
-        "species",
-        "strain",
-        "admin_route",
-        "admin_method",
-        "dose_start",
-        "dose_start_unit",
-        "dose_end",
-        "dose_end_unit",
-        "evidence_type",
-        "source_dataset",
-    ]
-    evidence = evidence[[column for column in requested if column in evidence.columns]]
-    rows = []
-    for drug_id in mapping["drug_id"].drop_duplicates():
-        matched = evidence[evidence["drug_id"] == drug_id]
-        row = {"drug_id": drug_id, "has_tox_data": int(not matched.empty)}
-        metadata_columns = [
-            column
-            for column in ("study_citation", "species", "admin_route", "dose_start")
-            if column in matched.columns
-        ]
-        row["quality_tox"] = (
-            float(matched[metadata_columns].notna().to_numpy().mean())
-            if not matched.empty and metadata_columns
-            else 0.0
-        )
-        for study_type in ("DEV", "CHR", "SUB", "MGR", "SAC"):
-            row[f"Study_{study_type}"] = int(
-                matched["study_type"].eq(study_type).sum()
-            ) if "study_type" in matched else 0
-        rows.append(row)
-    return pd.DataFrame(rows, columns=feature_columns), evidence
 
 
 def _pregnancy_features(outcomes: pd.DataFrame) -> pd.DataFrame:
@@ -677,7 +615,6 @@ def _write_source_coverage(
     mapping: pd.DataFrame,
     adr: pd.DataFrame,
     pubchem: pd.DataFrame,
-    tox: pd.DataFrame,
     pregnancy: pd.DataFrame,
     faers: pd.DataFrame,
 ) -> None:
@@ -685,7 +622,6 @@ def _write_source_coverage(
     for source_name, frame, flag, status in (
         ("adr", adr, "has_adr_data", "available"),
         ("molecular", pubchem, "resolution_status", "resolved"),
-        ("toxicity", tox, "has_tox_data", "available"),
         ("pregnancy_outcomes", pregnancy, "has_pregnancy_outcome_data", "available"),
         ("faers", faers, "drug_id", "available"),
     ):
@@ -706,7 +642,6 @@ def _write_source_coverage(
         quality_column = {
             "adr": "quality_adr",
             "molecular": "quality_descriptors",
-            "toxicity": "quality_tox",
             "pregnancy_outcomes": "quality_pregnancy",
             "faers": "quality_faers",
         }[source_name]

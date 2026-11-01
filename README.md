@@ -24,7 +24,7 @@ Run from the project root:
 python -m src.process_real_datasets
 ```
 
-This resolves medication names through PubChem PUG REST, caches responses in `data/pubchem_cache.json`, maps SIDER identifiers to actual PubChem CIDs, extracts the aggregate outcome tables present in the supplied JAAD/FAERS supplement, and retains exact-name-linked ToxRefDB study records. Combination products are not resolved as single ingredients. Failed or ambiguous lookups remain explicit; they are not assigned replacement CIDs.
+This resolves medication names through PubChem PUG REST, caches responses in `data/pubchem_cache.json`, maps SIDER identifiers to actual PubChem CIDs, and extracts aggregate outcome tables from the supplied JAAD/FAERS supplement. Combination products are not resolved as single ingredients. Failed or ambiguous lookups remain explicit; they are not assigned replacement CIDs. This human-outcome processing path does not read study-chemical assay workbooks.
 
 To avoid network access, process only cached and bundled chemical records:
 
@@ -48,21 +48,86 @@ python -m src.dataset_feasibility
 
 The command writes `reports/pregnancy_dataset_feasibility.md` and the machine-readable
 `data/dataset_feasibility.json` used by the dashboard. The report inventories the
-Mendeley dermatology FAERS supplement, checks for the Dryad antiepileptic outcome
-dataset, reports source-name/CID matching and missingness, and assesses each outcome
+Mendeley dermatology FAERS supplement and the cited Dryad antiepileptic-study
+supplement, reports source-name/CID matching and missingness, and assesses each outcome
 without treating unreported events as negatives.
 
-In the current workspace, the Mendeley supplement contains drug-level aggregate
-spontaneous-report term counts, not patient-level outcomes or exposed-pregnancy
-denominators. The Dryad antiepileptic outcome file is not present. The local pregnancy
-database is a classification catalog, not an outcome-label dataset. No endpoint is
-currently trainable, and model training must remain blocked.
+The Mendeley supplement contains drug-level aggregate spontaneous-report term counts,
+not patient-level outcomes or exposed-pregnancy denominators. The Dryad deposit is a
+supplementary DOCX with aggregate cohort characteristics, diagnostic codes, and
+study-level ASD/ADHD analyses; it does not contain patient-level outcomes. The local
+pregnancy database is a classification catalog, not an outcome-label dataset. No
+endpoint is currently trainable, and model training must remain blocked.
+
+## Reproducible dataset integration
+
+Run the source-specific ingestion, identifier standardization, and feasibility pipeline
+from the project root:
+
+```powershell
+python -m src.acquire_datasets
+```
+
+By default, the command works from local source files and cached PubChem mappings; it
+does not issue unbounded network requests. To acquire missing pinned source files and
+allow a capped number of PubChem lookups:
+
+```powershell
+python -m src.acquire_datasets --download-missing --max-pubchem-queries 25 --verbose
+```
+
+The pipeline ingests OnSIDES v3.1.1, Mendeley Version 2, the verified Dryad deposit
+(DOI `10.5061/dryad.2z34tmpk0`), PubChem, and ReproTox-KG. Study-chemical toxicity
+sources are excluded from the master evidence and prediction features. The pipeline
+records source versions, URLs, checksums, parse/acquisition
+errors, normalized drug names, original source identifiers, PubChem matches, outcome
+terms, evidence granularity, trimester, and missingness. OnSIDES RxNorm relations
+expose generic ingredient names; single-ingredient products can match PubChem through
+that relation, while multi-ingredient products remain intact and their ingredients are
+retained as a list rather than split into outcome records. Salt names are not stripped.
+Raw OnSIDES and ReproTox downloads stay under the
+git-ignored `datasets/raw/` directory. The Dryad public API can require an authenticated
+file download; the checked-in pipeline accepts the local file only when its checksum
+matches the verified DOI record.
+
+Generated outputs include:
+
+- `data/cleaned/`: source-specific cleaned tables, including separate Mendeley outcomes
+  and aggregate report totals.
+- `data/standardized_master_evidence.csv`: source-linked evidence records; it does not
+  add outcome labels.
+- `data/drug_identifier_mapping.csv` and `data/standardized_drug_master.csv`.
+- `data/evidence_availability_matrix.csv` and `data/outcome_evidence_matrix.csv`.
+- `data/dataset_summary.csv`, `data/drug_overlap.csv`, `data/outcome_summary.csv`,
+  `data/trimester_summary.csv`, `data/missingness_summary.csv`, and
+  `data/identifier_matching_summary.csv`, plus `data/source_registry.csv`.
+- `data/dataset_acquisition_manifest.json`.
+- `reports/dataset_integration_feasibility.md` and coverage plots in
+  `reports/figures/` for source coverage, pregnancy evidence, trimester data,
+  identifier matching, and missingness.
+
+OnSIDES contributes regulatory product-label associations; its `pred0`/`pred1` values
+are retained as source scores, not interpreted as confidence. ReproTox-KG links remain
+knowledge-graph associations and are not human outcome observations. Neither source
+is used as a human pregnancy risk target. Check upstream dataset terms before
+redistributing raw source data.
+
+## Filtered evidence dashboard
+
+Run the Streamlit dashboard from the project root with
+`python -m streamlit run dashboard/app.py`. The Query Filter Control Panel selects one
+medication, one timing window, and either fetal or maternal outcomes. Evidence records
+and their provenance are filtered to those selections; trimester timing is never
+inferred from an untimed record. `Q_cov` is the fraction of tracked pregnancy-evidence
+source families represented in the filtered evidence, not a risk or quality score.
+No pregnancy outcome is currently trainable, so risk scores and model variance
+(`sigma`) remain unavailable; the dashboard abstains rather than substituting
+unvalidated values.
 
 Key processed outputs include:
 
 - `data/drug_mapping.csv`: original and normalized names, PubChem identifiers, InChIKey, SMILES, and resolution status.
 - `data/real_adr_evidence.csv` and `data/real_faers_adr.csv`: general SIDER terms and model features.
-- `data/real_toxicity_evidence.csv` and `data/real_toxicity.csv`: ToxRefDB study records and study-type counts, not toxicity-positive labels.
 - `data/real_pregnancy_outcomes.csv` and `data/real_pregnancy_features.csv`: source-reported aggregate outcomes, not patient-level observations.
 - `data/real_faers_summary.csv`: report totals for drugs explicitly listed in the supplied supplement.
 - `data/source_availability.csv`: source availability per drug.
@@ -78,29 +143,14 @@ python -m src.train
 streamlit run dashboard/app.py
 ```
 
-The current bundled sources do not provide validated binary human pregnancy-outcome labels with defensible negative examples. Training therefore stops with an explicit explanation rather than learning from classifications, aggregate report counts, or fabricated labels. The Mendeley outcome counts must not be used as both labels and input features. Before training, obtain a documented outcome-specific human cohort or controlled study with outcomes and non-outcomes, suitable follow-up and exposure/comparator denominators, validated drug identifiers, endpoint definitions, and provenance. Add eligible labels to `data/pregnancy_labels.csv` with one row per `drug_id`, `label_<outcome>` and `mask_<outcome>` columns for the supported outcomes (`fetal_death`, `preterm_birth`, `fetal_growth_restriction`, `congenital_anomaly`), plus `source_dataset`, `source_reference`, `outcome_definition`, and `evidence_type`. Masks must be `1` only for verified binary human outcome labels; unknown outcomes must remain masked. Supported evidence types are `human_observed_outcome` and `human_controlled_outcome`. Keep drug/scaffold groups disjoint across training and testing, and validate both classes for each outcome before interpreting metrics.
+The available sources do not provide validated binary human pregnancy-outcome labels with defensible negative examples. Training therefore remains blocked rather than learning from classifications, aggregate report counts, or fabricated labels. The Mendeley supplement supplies aggregate spontaneous-report terms, not case-level exposed and comparator counts. For that reason a valid 2x2 table for ROR/PRR cannot be constructed, and no such ratios are emitted. TGA pregnancy categories are classifications, not outcome labels; general adverse-effect term associations do not supply a compatible comparator denominator. No continuous fetal or maternal risk target, predictive score, or model confidence can be trained from these data.
 
-### Exploratory nonclinical toxicity training
-
-The optional `datasets/Supplementary_S3_Raw data.xlsx` workbook is not bundled. The trainer requires that file at this path and reads five binary molecular assay targets (`TG414`, `TG416`, `TG421t`, `TG422t`, `TG443t`) from its `*_smiles4` sheets. The source citation and label definitions were not established in this project, so obtain and verify the source and redistribution rights before supplying the workbook. If available, run:
-
-```powershell
-python -m src.train_reproductive_tox
-```
-
-This fits Logistic Regression, Random Forest, and XGBoost baselines on RDKit Morgan fingerprints and reports five-fold Bemis-Murcko scaffold-grouped out-of-fold metrics. Results are saved to `data/reproductive_tox_training_metrics.json`; full-data exploratory artifacts are saved under `models/reproductive_tox/`.
-
-These are **nonclinical assay label predictions**, not human pregnancy outcome predictions. The supplied workbook lacks an accompanying citation/codebook defining how the TG target classes were derived; validate its label semantics before scientific use. The initial scaffold-grouped baselines are only modest and do not beat the majority-class accuracy on the measured endpoints. They do not establish high accuracy or calibration, and they must not be used for clinical risk decisions. The ASD/ADHD anti-seizure supplement is aggregate hazard-ratio output without patient-level event labels, so it remains unsuitable for supervised training.
-
-The repository includes processed dashboard data and audit reports, but does not bundle the additional TG workbook, drug-target interaction archive, or anti-seizure study supplement because their redistribution rights are not established here. The dataset audit handles absent optional sources; training the exploratory TG models requires obtaining the workbook separately. Raw/source data should only be added after provenance and redistribution permissions are confirmed.
-
-The dashboard separates software tests, dataset validation, model training, model evaluation, and prediction uncertainty. Software tests do not establish predictive performance. When a compatible, evaluated checkpoint exists, outcome metrics and predictions can be displayed. Without one, the dashboard displays evidence and availability but withholds scores and risk rankings; prediction uncertainty is unavailable.
+Before training, obtain endpoint-specific human pregnancy cohort or case-level pharmacovigilance data with validated exposure/outcome definitions, report-level denominators and comparators, documented exposure timing, linkable drug identifiers, and provenance. Preserve all unknown outcomes as missing. Keep drug/scaffold groups disjoint across training and testing and evaluate only targets with adequate validated support. The dashboard continues to distinguish software validation and evidence availability from model evaluation and prediction uncertainty; it withholds risk scores when no validated model exists.
 
 ## Important limitations
 
 - The included pregnancy-outcome supplement reports aggregate spontaneous-report counts; counts are not incidence, patient-level labels, or causal estimates.
-- The supplied ToxRefDB summary contains study metadata, not observed positive/negative toxicity endpoints. Exact-name-linked records remain study evidence only.
 - An absent source or report is not evidence that a drug is safe.
-- General ADRs, animal study evidence, pregnancy classifications, and human pregnancy outcomes are distinct evidence types.
+- General ADR term associations, pregnancy classifications, and human pregnancy outcomes are distinct evidence types.
 - Monte Carlo dropout variance is an uncertainty signal, not a calibrated probability interval.
 - Synthetic data generation is isolated under `tests/fixtures/generated` and must not be used for real-data training or validation.

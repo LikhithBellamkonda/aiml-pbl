@@ -13,7 +13,6 @@ from torch.utils.data import DataLoader, Dataset
 ATOM_FEATURES = 29
 BOND_FEATURES = 6
 DESCRIPTOR_FEATURES = 6
-TOXICITY_FEATURES = 5
 PREGNANCY_FEATURES = 4
 FAERS_FEATURES = 1
 OUTCOME_NAMES = (
@@ -38,7 +37,6 @@ class DrugSample:
     edge_attr: torch.Tensor
     mol_desc: torch.Tensor
     adr_features: torch.Tensor
-    tox_features: torch.Tensor
     pregnancy_features: torch.Tensor
     faers_features: torch.Tensor
     availability_mask: torch.Tensor
@@ -63,7 +61,6 @@ class DrugBatch:
     batch: torch.Tensor
     mol_desc: torch.Tensor
     adr_features: torch.Tensor
-    tox_features: torch.Tensor
     pregnancy_features: torch.Tensor
     faers_features: torch.Tensor
     availability_mask: torch.Tensor
@@ -178,14 +175,12 @@ class PregnancyDataset(Dataset[DrugSample]):
         self,
         adr_path: str | Path,
         pubchem_path: str | Path,
-        tox_path: str | Path,
         pregnancy_path: str | Path | None = None,
         labels_path: str | Path | None = None,
         faers_path: str | Path | None = None,
     ) -> None:
         self.adr_df = _read_indexed(adr_path, "ADR")
         self.pubchem_df = _read_indexed(pubchem_path, "PubChem")
-        self.tox_df = _read_indexed(tox_path, "toxicity")
         self.pregnancy_df = (
             _read_indexed(pregnancy_path, "pregnancy evidence")
             if pregnancy_path and Path(pregnancy_path).exists()
@@ -201,9 +196,7 @@ class PregnancyDataset(Dataset[DrugSample]):
             if faers_path and Path(faers_path).exists()
             else pd.DataFrame()
         )
-
         self.merged_df = self.adr_df.join(self.pubchem_df, how="outer", rsuffix="_pubchem")
-        self.merged_df = self.merged_df.join(self.tox_df, how="outer", rsuffix="_tox")
         if not self.pregnancy_df.empty:
             self.merged_df = self.merged_df.join(
                 self.pregnancy_df, how="outer", rsuffix="_pregnancy"
@@ -217,9 +210,6 @@ class PregnancyDataset(Dataset[DrugSample]):
             (column for column in self.merged_df if column.startswith("ADR_")),
             key=lambda name: int(name.rsplit("_", 1)[1]),
         )[:20]
-        self.tox_cols = [
-            f"Study_{study_type}" for study_type in ("DEV", "CHR", "SUB", "MGR", "SAC")
-        ]
         self.pregnancy_cols = [f"reports_{name}" for name in OUTCOME_NAMES]
         self.label_cols = [f"label_{name}" for name in OUTCOME_NAMES]
         self.mask_cols = [f"mask_{name}" for name in OUTCOME_NAMES]
@@ -248,8 +238,6 @@ class PregnancyDataset(Dataset[DrugSample]):
         adr_values = [self._number(row, column) for column in self.adr_cols]
         adr_values.extend([0.0] * (20 - len(adr_values)))
         adr_available = _flag(row, "has_adr_data")
-        tox_values = [self._number(row, column) for column in self.tox_cols]
-        tox_available = _flag(row, "has_tox_data")
         pregnancy_values = [self._number(row, column) for column in self.pregnancy_cols]
         pregnancy_available = _flag(row, "has_pregnancy_outcome_data")
         faers_value = self._number(row, "faers_report_count")
@@ -258,7 +246,7 @@ class PregnancyDataset(Dataset[DrugSample]):
         # Source quality is intentionally unknown unless a dataset provides a measured value.
         quality_values = [
             self._number(row, f"quality_{name}")
-            for name in ("adr", "descriptors", "graph", "tox", "pregnancy", "faers")
+            for name in ("adr", "descriptors", "graph", "pregnancy", "faers")
         ]
 
         labels: list[float] = []
@@ -282,7 +270,6 @@ class PregnancyDataset(Dataset[DrugSample]):
             edge_attr=edge_attr,
             mol_desc=mol_desc,
             adr_features=torch.tensor(adr_values, dtype=torch.float32),
-            tox_features=torch.tensor(tox_values, dtype=torch.float32),
             pregnancy_features=torch.tensor(pregnancy_values, dtype=torch.float32),
             faers_features=torch.tensor([faers_value], dtype=torch.float32),
             availability_mask=torch.tensor(
@@ -290,7 +277,6 @@ class PregnancyDataset(Dataset[DrugSample]):
                     float(adr_available),
                     has_molecule,
                     has_molecule,
-                    float(tox_available),
                     float(pregnancy_available),
                     float(faers_available),
                 ],
@@ -334,7 +320,6 @@ def collate_drugs(samples: list[DrugSample]) -> DrugBatch:
         batch=torch.cat(node_batches),
         mol_desc=torch.stack([sample.mol_desc for sample in samples]),
         adr_features=torch.stack([sample.adr_features for sample in samples]),
-        tox_features=torch.stack([sample.tox_features for sample in samples]),
         pregnancy_features=torch.stack([sample.pregnancy_features for sample in samples]),
         faers_features=torch.stack([sample.faers_features for sample in samples]),
         availability_mask=torch.stack([sample.availability_mask for sample in samples]),
@@ -347,7 +332,6 @@ def collate_drugs(samples: list[DrugSample]) -> DrugBatch:
 def get_dataloader(
     adr_path: str | Path,
     pubchem_path: str | Path,
-    tox_path: str | Path,
     batch_size: int = 32,
     shuffle: bool = True,
     pregnancy_path: str | Path | None = None,
@@ -357,7 +341,6 @@ def get_dataloader(
     dataset = PregnancyDataset(
         adr_path,
         pubchem_path,
-        tox_path,
         pregnancy_path=pregnancy_path,
         labels_path=labels_path,
         faers_path=faers_path,
