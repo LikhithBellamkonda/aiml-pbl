@@ -5,6 +5,8 @@ from typing import Any
 
 import pandas as pd
 
+from src.ml_risk_model import score_drug  # deterministic ML + AI routing engine
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MASTER_EVIDENCE_PATH = ROOT / "data" / "standardized_master_evidence.csv"
@@ -278,8 +280,21 @@ def evaluate_drug_safety(
                 "TGA": "Regulatory notes from TGA are not present."
             },
         }
-    return {
+    # Deterministic risk scores (foetus trimester-wise + maternal) and
+    # dynamic runtime model routing (ML vs AI fallback). Computed per query
+    # so results are consistent for identical inputs and routing is not
+    # hardcoded per drug.
+    drug_risk = score_drug(drug_id) if drug_id else {
+        "drug_id": drug_id,
+        "drug_name": drug_name,
+        "foetus_risk": {"overall_foetus_risk": 0.0, "trimester_wise": {}},
+        "maternal_risk": {"maternal_risk": 0.0},
+        "overall_confidence": 0.0,
+        "model_used": "ai_fallback",
+        "ml_available": False,
+    }
 
+    return {
 
         "trimester": trimester,
         "outcome_target": outcome_target,
@@ -291,11 +306,19 @@ def evaluate_drug_safety(
         "timed_outcome_support_count": timed_support_count,
         "provenance_badges": provenance,
         "abstention_alert": abstention_alert,
-        "risk_score": None,
+        "risk_score": drug_risk["foetus_risk"]["overall_foetus_risk"],
         "model_prediction_variance": sigma,
         "risk_scoring_status": (
-            "No validated human pregnancy-outcome model is available; risk scoring is withheld."
+            "Exploratory deterministic risk scores; not a clinically validated predictor."
         ),
         "ml_prediction_active": ml_prediction_active,
         "ai_evidence_synthesis": ai_evidence_synthesis,
+        # New: foetus risk (trimester-wise), maternal risk, confidence, routing.
+        "foetus_risk": drug_risk["foetus_risk"],
+        "trimester_wise_risk": drug_risk["foetus_risk"]["trimester_wise"],
+        "maternal_risk": drug_risk["maternal_risk"],
+        "confidence": drug_risk["overall_confidence"],
+        "model_used": drug_risk["model_used"],
+        "ml_available": drug_risk["ml_available"],
+        "drug_name": drug_risk["drug_name"],
     }

@@ -123,7 +123,8 @@ def test_trimester_filters_produce_distinct_unleaked_coverage(
 
     assert sorted(result["records"]["source_record_id"]) == sorted(expected_ids)
     assert result["evidence_coverage_score"] == expected_coverage
-    assert result["risk_score"] is None
+    assert isinstance(result["risk_score"], float)
+    assert 0.0 <= result["risk_score"] <= 1.0
     assert result["model_prediction_variance"] is None
     assert not result["records"]["source_dataset"].str.contains(
         "ReproTox|Dryad", case=False, regex=True

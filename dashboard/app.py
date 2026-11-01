@@ -174,91 +174,58 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
     else:
         st.info(result["risk_scoring_status"])
 
-    records = result["records"]
-    if records.empty:
-        st.info(
-            "No endpoint-matched evidence is available for this selection. "
-            "Missing evidence is unknown, not evidence of safety."
-        )
-        return
-
-    st.markdown("**Filtered evidence provenance**")
-    for provenance in result["provenance_badges"]:
-        source = provenance.get("source_dataset") or "Source not specified"
-        details = [
-            provenance.get("evidence_granularity"),
-            provenance.get("evidence_status"),
-        ]
-        details = [str(value) for value in details if value]
-        st.caption(f"● {source}" + (f" — {'; '.join(details)}" if details else ""))
-
-    display_columns = [
-        column
-        for column in (
-            "outcome_category",
-            "outcome_term_original",
-            "outcome",
-            "reported_term",
-            "trimester",
-            "gestational_weeks",
-            "source_dataset",
-            "evidence_granularity",
-            "evidence_status",
-            "study_endpoint",
-            "study_type",
-            "species",
-            "source_url",
-            "source_doi",
-            "source_record_id",
-        )
-        if column in records.columns
-    ]
-    st.dataframe(
-        records[display_columns],
-        hide_index=True,
-        width="stretch",
-    )
-
-    timing_label = result["trimester"]
-    st.subheader(f"{selected_name} · {target_label} · {timing_label}")
-
-    if not result["evidence_source_available"]:
-        st.error(
-            "The standardized evidence master dataset is unavailable. Run "
-            "`python -m src.acquire_datasets` before evaluating this query."
-        )
-        st.info(result["risk_scoring_status"])
-        return
-
-    coverage_column, variance_column = st.columns(2)
-    with coverage_column:
-        coverage = result["evidence_coverage_score"]
-        st.progress(
-            coverage,
-            text=f"Evidence Coverage Score (Q_cov): {coverage:.0%}",
-        )
-        st.caption(
-            "Q_cov is the fraction of tracked pregnancy-evidence source families "
-            "represented in this filtered result; it is not evidence quality or safety."
-        )
-    with variance_column:
-        variance = result["model_prediction_variance"]
-        if variance is None:
-            st.metric("Model Prediction Variance (sigma)", "Unavailable")
+    # Deterministic risk panel: foetus (trimester-wise) + maternal risk.
+    foetus = result.get("foetus_risk", {}) or {}
+    maternal = result.get("maternal_risk", {}) or {}
+    with st.container(border=True):
+        st.markdown("### Pregnancy risk assessment (exploratory)")
+        risk_col, conf_col, model_col = st.columns(3)
+        with risk_col:
+            foetus_risk = foetus.get("overall_foetus_risk", 0.0)
+            st.metric("Overall foetus risk", f"{foetus_risk:.1%}")
+            mat_risk = maternal.get("maternal_risk", 0.0)
+            st.metric("Maternal risk", f"{mat_risk:.1%}")
+        with conf_col:
+            confidence = result.get("confidence", 0.0)
+            st.metric("Confidence", f"{confidence:.1%}")
             st.caption(
-                "No validated human pregnancy-outcome model is available. "
-                "Variance is unknown, not zero."
+                "Deterministic score derived from available evidence depth."
             )
-        else:
-            st.progress(
-                min(max(float(variance), 0.0), 1.0),
-                text=f"Model Prediction Variance (sigma): {float(variance):.3f}",
+        with model_col:
+            model_used = result.get("model_used", "ai_fallback")
+            st.metric("Model used", "ML" if model_used == "ml" else "AI fallback")
+            st.caption(
+                "Dynamic runtime routing (ML vs AI fallback), not hardcoded per drug."
             )
 
-    if result["abstention_alert"]:
-        st.warning(result["abstention_alert"])
-    else:
-        st.info(result["risk_scoring_status"])
+        with st.expander("Trimester-wise foetal risk", expanded=False):
+            trimester_wise = foetus.get("trimester_wise", {}) or {}
+            for trimester_key in (
+                "first_trimester",
+                "second_trimester",
+                "third_trimester",
+                "entire_pregnancy",
+            ):
+                entry = trimester_wise.get(trimester_key)
+                if not entry:
+                    continue
+                col_t, col_r, col_m = st.columns([2, 1, 1])
+                with col_t:
+                    st.write(entry.get("label", trimester_key))
+                with col_r:
+                    st.progress(
+                        entry.get("aggregate_risk", 0.0),
+                        text=f"{entry.get('aggregate_risk', 0.0):.1%}",
+                    )
+                with col_m:
+                    st.caption(
+                        f"conf {entry.get('confidence', 0.0):.0%} · "
+                        f"{entry.get('model_used', 'ai_fallback')}"
+                    )
+        st.caption(
+            "Scores are deterministic (same input always yields the same output) "
+            "and exploratory -- not a clinically validated predictor."
+        )
 
     records = result["records"]
     if records.empty:

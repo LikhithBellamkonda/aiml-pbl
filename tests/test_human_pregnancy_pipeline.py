@@ -102,7 +102,8 @@ def test_reasoner_excludes_nonhuman_or_nonreport_sources_from_human_signals():
     )
 
     assert result["records"].empty
-    assert result["risk_score"] is None
+    assert isinstance(result["risk_score"], float)
+    assert 0.0 <= result["risk_score"] <= 1.0
     assert result["model_prediction_variance"] is None
     assert result["abstention_alert"] is not None
 
