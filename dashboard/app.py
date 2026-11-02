@@ -190,6 +190,34 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
             "and exploratory -- not a clinically validated predictor."
         )
 
+    # Side effects reported for this drug (exploratory levels + confidence)
+    side_effects = result.get("side_effects", []) or []
+    if side_effects:
+        with st.container(border=True):
+            st.markdown("### Reported Side Effects (exploratory)")
+            st.caption(
+                "Adverse effect level (High / Moderate / Low) and confidence are "
+                "derived from spontaneous-report counts in the input data — "
+                "NOT clinical severity or validated confidence."
+            )
+            cols = st.columns(4)
+            for idx, se in enumerate(side_effects[:12]):
+                col = cols[idx % 4]
+                level_color = {
+                    "High": "#C53030",
+                    "Moderate": "#D69E2E",
+                    "Low": "#38A169",
+                }.get(se["level"], "#718096")
+                col.markdown(
+                    f"**{se['term']}**  \n"
+                    f"<span style='color:{level_color}; font-weight:bold'>{se['level']}</span>  \n"
+                    f"confidence: {se['confidence']:.0%}  \n"
+                    f"reports: {se['report_count']}",
+                    unsafe_allow_html=True,
+                )
+            if len(side_effects) > 12:
+                st.caption(f"Showing top 12 of {len(side_effects)} reported side effects.")
+
     records = result["records"]
     if records.empty:
         

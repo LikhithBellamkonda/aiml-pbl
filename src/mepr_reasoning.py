@@ -10,6 +10,7 @@ from src.ml_risk_model import score_drug  # deterministic ML + AI routing engine
 
 ROOT = Path(__file__).resolve().parents[1]
 MASTER_EVIDENCE_PATH = ROOT / "data" / "standardized_master_evidence.csv"
+ADR_EVIDENCE_PATH = ROOT / "data" / "real_adr_evidence.csv"
 READ_COLUMNS = {
     "drug_id",
     "canonical_drug_id",
@@ -134,6 +135,90 @@ def _supports_timed_outcome_review(record: pd.Series) -> bool:
     return family == "mendeley" and (
         "human" in granularity or "spontaneous_report" in granularity
     )
+
+
+def _classify_adverse_level(report_count: int) -> str:
+    """Classify adverse effect level as High / Moderate / Low.
+
+    This is exploratory only — derived from report counts, not clinical
+    severity. Not a validated medical assessment.
+    """
+    if report_count >= 10:
+        return "High"
+    if report_count >= 3:
+        return "Moderate"
+    return "Low"
+
+
+def _compute_exploratory_confidence(report_count: int) -> float:
+    """Compute an exploratory confidence score (0–1) from report counts.
+
+    NOT clinical confidence — a relative signal strength derived from the
+    number of spontaneous reports available for this drug–side-effect pair.
+    Clearly labeled as exploratory when displayed.
+    """
+    return round(min(report_count / 10.0, 1.0), 4)
+
+
+def _load_side_effects_for_drug(drug_id: str) -> list[dict[str, Any]]:
+    """Load reported side effects for a drug from real_adr_evidence.csv.
+
+    Returns a list of dicts with: term, meddra_id, source_dataset,
+    report_count, level (High/Moderate/Low), confidence (exploratory 0–1).
+    Sorted by report_count descending.
+    """
+    if not ADR_EVIDENCE_PATH.is_file() or not drug_id:
+        return []
+
+    try:
+        df = pd.read_csv(
+            ADR_EVIDENCE_PATH,
+            usecols=lambda column: column
+            in {
+                "drug_id",
+                "adverse_event_term",
+                "meddra_id",
+                "source_dataset",
+                "source_identifier",
+            },
+        )
+        drug_df = df[df["drug_id"].astype(str) == str(drug_id)]
+        if drug_df.empty:
+            return []
+
+        grouped = (
+            drug_df.groupby("adverse_event_term")
+            .agg(
+                meddra_id=("meddra_id", "first"),
+                source_dataset=("source_dataset", lambda x: ", ".join(sorted(set(x)))),
+                report_count=("source_identifier", "count"),
+            )
+            .reset_index()
+        )
+
+        side_effects: list[dict[str, Any]] = []
+        for _, row in grouped.iterrows():
+            term = str(row["adverse_event_term"]) if pd.notna(row["adverse_event_term"]) else ""
+            if not term:
+                continue
+            count = int(row["report_count"])
+            side_effects.append(
+                {
+                    "term": term,
+                    "meddra_id": str(row["meddra_id"])
+                    if pd.notna(row["meddra_id"])
+                    else "",
+                    "source_dataset": row["source_dataset"],
+                    "report_count": count,
+                    "level": _classify_adverse_level(count),
+                    "confidence": _compute_exploratory_confidence(count),
+                }
+            )
+
+        side_effects.sort(key=lambda x: x["report_count"], reverse=True)
+        return side_effects
+    except Exception:
+        return []
 
 
 def _filter_drug(
@@ -289,6 +374,9 @@ def evaluate_drug_safety(
     confidence = drug_risk["overall_confidence"]
     model_used = drug_risk["model_used"]
 
+    # Side effects for this drug (from input data, exploratory level + confidence)
+    side_effects = _load_side_effects_for_drug(drug_id) if drug_id else []
+
     # --- Dynamic abstention alert (computed from actual input data, not hardcoded) ---
     abstention_alert = None
     if not evidence_source_available:
@@ -364,4 +452,6 @@ def evaluate_drug_safety(
         "model_used": drug_risk["model_used"],
         "ml_available": drug_risk["ml_available"],
         "drug_name": drug_risk["drug_name"],
+        # Side effects with exploratory adverse level and confidence
+        "side_effects": side_effects,
     }
