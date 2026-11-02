@@ -145,7 +145,9 @@ def test_timing_specific_abstention_alert_does_not_use_other_trimesters(
 
     assert result["records"].empty
     assert result["abstention_alert"] == (
-        "Insufficient evidence available specifically for Third Trimester (T3). "
+        "No maternal outcomes only evidence available specifically for "
+        "Third Trimester (T3) for 'ExampleDrug'. "
+        "Trimester timing is never inferred from untimed records. "
         "Model abstains from risk scoring."
     )
     assert result["evidence_coverage_score"] == 0
@@ -201,4 +203,4 @@ def test_missing_master_dataset_is_not_reported_as_zero_coverage(monkeypatch, tm
 
     assert not result["evidence_source_available"]
     assert result["evidence_coverage_score"] is None
-    assert result["abstention_alert"] is None
+    assert "No human evidence master dataset available" in result["abstention_alert"]

@@ -241,32 +241,23 @@ def evaluate_drug_safety(
         else []
     )
 
-    abstention_alert = None
-    if (
-        evidence_source_available
-        and trimester != "All"
-        and timed_support_count == 0
-    ):
-        abstention_alert = (
-            "Insufficient evidence available specifically for "
-            f"{trimester}. Model abstains from risk scoring."
-        )
-
-    # Determine ML vs AI fallback
+    # Determine ML vs AI fallback (Stage 2 input-driven routing)
     ml_prediction_active = True
     # Placeholder variance - in real model would be computed; using None if not available
     sigma = result_variance if (result_variance := None) is not None else None
     # Fallback conditions: low coverage, high variance, or unavailable human-validated source
     fallback_trigger = (
-        (coverage_score is not None and coverage_score < 0.40) or
-        (sigma is not None and sigma > 0.35) or
-        not evidence_source_available
+        (coverage_score is not None and coverage_score < 0.40)
+        or (sigma is not None and sigma > 0.35)
+        or not evidence_source_available
     )
     ai_evidence_synthesis = None
     if fallback_trigger:
         ml_prediction_active = False
         # Identify missing evidence source families
-        missing_families = [fam for fam in PREGNANCY_EVIDENCE_SOURCES if fam not in source_families]
+        missing_families = [
+            fam for fam in PREGNANCY_EVIDENCE_SOURCES if fam not in source_families
+        ]
         # Build synthesis dict with placeholder explanations
         ai_evidence_synthesis = {
             "missing_source_families": missing_families,
@@ -280,6 +271,7 @@ def evaluate_drug_safety(
                 "TGA": "Regulatory notes from TGA are not present."
             },
         }
+
     # Deterministic risk scores (foetus trimester-wise + maternal) and
     # dynamic runtime model routing (ML vs AI fallback). Computed per query
     # so results are consistent for identical inputs and routing is not
@@ -293,6 +285,57 @@ def evaluate_drug_safety(
         "model_used": "ai_fallback",
         "ml_available": False,
     }
+
+    confidence = drug_risk["overall_confidence"]
+    model_used = drug_risk["model_used"]
+
+    # --- Dynamic abstention alert (computed from actual input data, not hardcoded) ---
+    abstention_alert = None
+    if not evidence_source_available:
+        abstention_alert = (
+            "No human evidence master dataset available. "
+            "Run `python -m src.acquire_datasets` to build the evidence base "
+            "before evaluating this query."
+        )
+    elif drug_evidence.empty:
+        abstention_alert = (
+            f"No evidence records found for '{drug_name}' "
+            f"({drug_id or 'unresolved drug id'}). "
+            "Cannot assess risk without source data."
+        )
+    elif filtered.empty:
+        if trimester != "All":
+            abstention_alert = (
+                f"No {outcome_target.lower()} evidence available specifically for "
+                f"{trimester} for '{drug_name}'. "
+                "Trimester timing is never inferred from untimed records. "
+                "Model abstains from risk scoring."
+            )
+        else:
+            abstention_alert = (
+                f"No {outcome_target.lower()} evidence found for '{drug_name}'. "
+                "Model abstains from risk scoring."
+            )
+    elif coverage_score is not None and coverage_score < 0.40:
+        abstention_alert = (
+            f"Insufficient evidence coverage (Q_cov: {coverage_score:.0%}) "
+            f"for {trimester}. Only {len(source_families)} of "
+            f"{EXPECTED_SOURCE_COUNT} human evidence source families "
+            f"are represented for '{drug_name}'. "
+            "Model abstains from risk scoring."
+        )
+    elif confidence < 0.35:
+        abstention_alert = (
+            f"Prediction confidence below threshold ({confidence:.0%}) "
+            f"for {trimester} for '{drug_name}'. "
+            "Model abstains from risk scoring."
+        )
+    elif timed_support_count == 0 and trimester != "All":
+        abstention_alert = (
+            f"No timed outcome support available for {trimester} "
+            f"for '{drug_name}'. "
+            "Model abstains from risk scoring."
+        )
 
     return {
 

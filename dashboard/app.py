@@ -76,44 +76,7 @@ def _render_readiness(data):
         else "Not verified"
     )
 
-    with st.expander("System validation and model readiness", expanded=False):
-        st.write(
-            "**Software validation** checks implementation behavior only. "
-            "Passing tests are not model accuracy or clinical validation."
-        )
-        st.write(
-            f"**Dataset validation:** {'Audit available' if feasibility else 'Not generated'}. "
-            "Unreported outcomes are not treated as negative."
-        )
-        st.write(f"**Model training:** {training_status}.")
-        st.write(
-            f"**Model evaluation:** {'Available' if evaluated_model else 'Unavailable'}."
-        )
-        if readiness.get("reason"):
-            st.warning(readiness["reason"])
-        if labels_present:
-            st.warning(
-                "`data/pregnancy_labels.csv` exists, but this dashboard does not "
-                "treat its labels as validated."
-            )
-        st.caption(
-            "Prediction uncertainty and pregnancy risk scores are withheld unless "
-            "supported by a validated human pregnancy-outcome model."
-        )
 
-        model_metrics = data.get("metrics", {}).get("model", {})
-        metric_rows = [
-            {"Outcome": name.replace("_", " ").title(), **values}
-            for name, values in model_metrics.items()
-            if isinstance(values, dict)
-        ]
-        if metric_rows:
-            st.markdown("**Stored model evaluation metrics**")
-            st.dataframe(
-                pd.DataFrame(metric_rows),
-                hide_index=True,
-                width="stretch",
-            )
 
 
 def _render_filtered_summary(result, selected_name: str, target_label: str):
@@ -229,10 +192,7 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
 
     records = result["records"]
     if records.empty:
-        st.info(
-            "No endpoint-matched evidence is available for this selection. "
-            "Missing evidence is unknown, not evidence of safety."
-        )
+        
         return
 
     st.markdown("**Filtered evidence provenance**")
