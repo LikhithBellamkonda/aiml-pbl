@@ -151,22 +151,13 @@ def _classify_adverse_level(report_count: int) -> str:
     return "Low"
 
 
-def _report_volume_index(report_count: int) -> float:
-    """Relative report-volume index (0-1), capped at ten term records.
-
-    This is not confidence, probability or severity: it only expresses how
-    many separate source records mention a term, and is labelled as such
-    wherever it is displayed.
-    """
-    return round(min(report_count / 10.0, 1.0), 4)
-
-
 def _load_side_effects_for_drug(drug_id: str) -> list[dict[str, Any]]:
     """Load reported side effects for a drug from real_adr_evidence.csv.
 
     Returns a list of dicts with: term, meddra_id, source_dataset,
-    report_count, level (High/Moderate/Low), report_volume_index (0-1).
-    Sorted by report_count descending.
+    report_count and level (High/Moderate/Low). The level is a report-volume
+    band, not a severity or confidence estimate. Sorted by report_count
+    descending.
     """
     if not ADR_EVIDENCE_PATH.is_file() or not drug_id:
         return []
@@ -212,7 +203,6 @@ def _load_side_effects_for_drug(drug_id: str) -> list[dict[str, Any]]:
                     "source_dataset": row["source_dataset"],
                     "report_count": count,
                     "level": _classify_adverse_level(count),
-                    "report_volume_index": _report_volume_index(count),
                 }
             )
 

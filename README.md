@@ -36,8 +36,10 @@ data — no validated human pregnancy labels exist), the system:
 | Evidence-aware abstention messages | ✅ | Dynamic messages based on the actual missing evidence |
 | Per-trimester evidence availability | ✅ | T1/T2/T3/entire pregnancy coverage report; no risk value is produced |
 | Reported side-effect terms | ✅ | Observed terms with report counts and High/Moderate/Low volume levels |
-| Streamlit dashboard | ✅ | Search, identity, per-source evidence panels, animal ADR section, provenance badges |
+| Streamlit dashboard | ✅ | Search, 2D structure, identity, per-source evidence panels, animal ADR section, provenance badges |
 | Dataset feasibility & overlap reports | ✅ | Generated from the current pipeline run |
+| Evidence-tiered coverage inventory | ✅ | 16 literature controls, measured source counts (`reports/pregnancy_evidence_inventory.*`) |
+| Trimester metric definitions | ⚠️ | AUROC/AUPRC/ΔAUROC/ECE per trimester implemented; blocked without labels |
 | Case studies | ✅ | docs/CASE_STUDIES.md (evidence availability, not predictions) |
 | Unit tests | ✅ | pytest suite |
 | ROR/PRR disproportionality ratios | ❌ | No case/non-case denominators exist in the acquired aggregates |
@@ -117,6 +119,12 @@ python -m venv .venv
 # Blocked-evaluation record for the evidence engine
 .venv/bin/python -m src.ml_risk_model
 
+# Evidence-tiered coverage inventory for 16 literature control drugs
+.venv/bin/python -m src.evidence_inventory
+
+# Trimester metrics + three-signal report (records blocked status without labels)
+.venv/bin/python -m src.trimester_evaluation
+
 # Test suite
 .venv/bin/python -m pytest -q
 
@@ -151,6 +159,34 @@ pregnancy risk prediction:
 - **Prediction status** — "Unavailable", with the reason: there is no validated
   human pregnancy-outcome model. No risk score, confidence value or trimester
   risk number is emitted anywhere in the current build.
+- **Observed pregnancy-outcome records** — per-outcome record counts or
+  "no record", shown separately from any risk statement.
+- **Trimester evaluation report** — `reports/trimester_evaluation_report.*`
+  specifies per-trimester AUROC/AUPRC, ΔAUROC, ECE, Brier and Precision@10 and
+  states that they are blocked, not zero, until labels exist.
+
+### Dashboard layout
+
+The dashboard resolves a query by recorded name, project `drug_id`, PubChem
+CID or InChIKey and shows, in order:
+
+1. **Standardized identity** — CID, InChIKey, mapping status and a locally
+   drawn 2D structure (RDKit 2D coordinates rendered with matplotlib, so it
+   works without a graphics stack). No structure is invented when SMILES is
+   absent.
+2. **Evidence availability by source** — measured record counts per source and
+   the missing-source list.
+3. **Evidence panels** — general ADR terms, molecular descriptors, nonclinical
+   developmental/reproductive toxicity studies, human pregnancy-specific
+   records, FAERS summary.
+4. **Filtered evidence query** — trimester + fetal/maternal filter, Q_cov,
+   prediction status (always "Unavailable" with the reason), observed
+   pregnancy-outcome records per outcome (or "no record"), and per-trimester
+   evidence availability.
+5. **Reported side effects** — observed terms, record counts and a documented
+   report-volume band (High ≥10, Moderate 3–9, Low <3). The earlier
+   count/10 "index", which showed 20% for almost every term, has been removed.
+6. **Animal ADR evidence** — separate veterinary-report panel.
 
 ### Prediction status in this build
 

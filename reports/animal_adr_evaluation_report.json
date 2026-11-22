@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-22T14:15:47.834322+00:00",
+  "generated_at": "2026-11-22T14:52:54.565880+00:00",
   "status": "blocked",
   "reason": "No validated human pregnancy-outcome labels (data/pregnancy_labels.csv) are available, so AUROC, AUPRC, Precision@K, Recall@K, Brier and ECE cannot be computed. Animal ADR reports are never used as human outcome labels.",
   "mask_semantics_check": {

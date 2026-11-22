@@ -69,6 +69,9 @@ def test_missing_mapping_is_reported(tmp_path):
 def test_molecular_descriptors_and_invalid_smiles():
     valid = analyse_molecule("CC(=O)OC1=CC=CC=C1C(=O)O")
     assert valid["available"]
+    # A structure depiction is produced from the recorded SMILES.
+    assert valid["structure_png"].startswith("data:image/png;base64,")
+    assert valid["drawing_error"] is None
     assert valid["descriptors"]["molecular_weight"] > 100
     assert 0 < valid["fingerprint"]["on_bits"] <= 2048
     assert valid["scaffold"]

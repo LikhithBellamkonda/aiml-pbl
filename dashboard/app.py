@@ -1,3 +1,4 @@
+import base64
 from pathlib import Path
 import sys
 
@@ -187,6 +188,33 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
             + (", ".join(missing_sources) if missing_sources else "None")
         )
 
+        observed = (result.get("evidence_summary") or {}).get(
+            "observed_outcome_reports"
+        ) or {}
+        with st.expander("Observed pregnancy-outcome records (not risk)", expanded=False):
+            if observed:
+                st.dataframe(
+                    pd.DataFrame(
+                        [
+                            {
+                                "outcome": str(outcome).replace("_", " "),
+                                "source records": (
+                                    "no record" if value is None else value
+                                ),
+                            }
+                            for outcome, value in observed.items()
+                        ]
+                    ),
+                    hide_index=True,
+                    width="stretch",
+                )
+            else:
+                st.caption("No pregnancy-outcome record summary is available.")
+            st.caption(
+                "Counts are source-reported spontaneous-report terms. 'No record' "
+                "is missing evidence, not a zero and not a negative outcome."
+            )
+
         with st.expander("Trimester-wise evidence availability", expanded=False):
             trimester_metrics = result.get("trimester_metrics", {}) or {}
             if not trimester_metrics:
@@ -214,34 +242,35 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
             "must not be interpreted as safe."
         )
 
-    # Side effects reported for this drug (exploratory levels + confidence)
+    # Side effects reported for this drug. Only measured counts and a
+    # documented report-volume band are shown; no score is invented.
     side_effects = result.get("side_effects", []) or []
     if side_effects:
         with st.container(border=True):
             st.markdown("### Reported Side Effects")
             st.caption(
-                "Adverse effect level (High / Moderate / Low) and the report-volume "
-                "index are derived from spontaneous-report counts in the input data "
-                "— NOT clinical severity, incidence or validated confidence."
+                "Observed ADR terms and the number of source records that mention "
+                "each. 'Report-volume level' is a band on that count "
+                "(High >= 10, Moderate 3-9, Low < 3 records), not clinical "
+                "severity, incidence or validated confidence."
             )
-            cols = st.columns(4)
-            for idx, se in enumerate(side_effects[:12]):
-                col = cols[idx % 4]
-                level_color = {
-                    "High": "#C53030",
-                    "Moderate": "#D69E2E",
-                    "Low": "#38A169",
-                }.get(se["level"], "#718096")
-                confidence = se.get("confidence", se.get("report_volume_index", 0.0))
-                col.markdown(
-                    f"**{se['term']}**  \n"
-                    f"<span style='color:{level_color}; font-weight:bold'>{se['level']}</span>  \n"
-                    f"report-volume index: {float(confidence):.0%}  \n"
-                    f"records: {se['report_count']}",
-                    unsafe_allow_html=True,
+            table = pd.DataFrame(
+                [
+                    {
+                        "term": se["term"],
+                        "records": se["report_count"],
+                        "report-volume level": se["level"],
+                        "MEDDRA id": se.get("meddra_id") or "not recorded",
+                    }
+                    for se in side_effects[:50]
+                ]
+            )
+            st.dataframe(table, hide_index=True, width="stretch")
+            if len(side_effects) > 50:
+                st.caption(
+                    f"Showing the 50 most-recorded terms of {len(side_effects)} "
+                    "observed ADR terms."
                 )
-            if len(side_effects) > 12:
-                st.caption(f"Showing top 12 of {len(side_effects)} reported side effects.")
 
     _render_animal_adr(result)
 
@@ -384,6 +413,19 @@ def _render_drug_profile(profile):
         )
         if identity.get("smiles"):
             st.caption(f"SMILES: {identity['smiles']}")
+        molecular = profile.get("molecular") or {}
+        structure_png = molecular.get("structure_png")
+        if structure_png:
+            st.image(
+                base64.b64decode(structure_png.split(",", 1)[-1]),
+                caption=(
+                    "2D structure drawn locally from the recorded SMILES "
+                    f"(scaffold: {molecular.get('scaffold') or 'not available'})."
+                ),
+                width=340,
+            )
+        elif molecular.get("reason"):
+            st.caption(f"Structure depiction unavailable: {molecular['reason']}")
         for warning in profile.get("warnings") or []:
             st.warning(warning)
 
@@ -537,6 +579,11 @@ def _render_drug_profile(profile):
 def main():
     st.set_page_config(page_title="MEPRank Research Dashboard", layout="wide")
     st.title("Pregnancy-Related Drug Safety Research Dashboard")
+    st.caption(
+        "Evidence-aware prioritization of potential pregnancy-stage-specific "
+        "safety signals: trimester-segmented evidence, explicit coverage and "
+        "missing-source reporting. No unvalidated risk score is produced."
+    )
     st.warning(
         "Research-support prototype only. This dashboard does not provide clinical "
         "diagnoses, prescribing recommendations, or validated pregnancy risk scores."

@@ -18,7 +18,10 @@ Design rules enforced here
 
 from __future__ import annotations
 
+import base64
+import io
 import logging
+import math
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote
@@ -389,6 +392,87 @@ def resolve_drug(query: str, data_dir: Path | str = DATA_DIR) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
+def _structure_png(molecule) -> tuple[str | None, str | None]:
+    """Render a 2D depiction as a base64 PNG without RDKit's drawing backend.
+
+    RDKit's SVG/Cairo drawers need native graphics libraries (libXrender,
+    Cairo) that a headless server may not provide. RDKit can still compute 2D
+    coordinates, so the depiction is drawn with matplotlib from those
+    coordinates. This is the real structure, not a placeholder image.
+    """
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        from matplotlib.lines import Line2D
+        from rdkit import Chem
+        from rdkit.Chem import rdDepictor
+
+        mol = Chem.Mol(molecule)
+        rdDepictor.Compute2DCoords(mol)
+        conformer = mol.GetConformer()
+
+        figure, axes = plt.subplots(figsize=(4.2, 3.2), dpi=150)
+        figure.patch.set_facecolor("white")
+        axes.set_facecolor("white")
+
+        for bond in mol.GetBonds():
+            begin = conformer.GetAtomPosition(bond.GetBeginAtomIdx())
+            end = conformer.GetAtomPosition(bond.GetEndAtomIdx())
+            colour = "#4c1d95" if bond.GetIsAromatic() else "#374151"
+            axes.add_line(
+                Line2D(
+                    [begin.x, end.x],
+                    [begin.y, end.y],
+                    color=colour,
+                    linewidth=1.5,
+                    solid_capstyle="round",
+                )
+            )
+            if bond.GetBondTypeAsDouble() == 2 and not bond.GetIsAromatic():
+                dx, dy = end.x - begin.x, end.y - begin.y
+                norm = math.hypot(dx, dy) or 1.0
+                offset_x, offset_y = -dy / norm * 0.13, dx / norm * 0.13
+                axes.add_line(
+                    Line2D(
+                        [begin.x + offset_x, end.x + offset_x],
+                        [begin.y + offset_y, end.y + offset_y],
+                        color=colour,
+                        linewidth=1.0,
+                    )
+                )
+
+        for atom in mol.GetAtoms():
+            symbol = atom.GetSymbol()
+            if symbol == "C":
+                continue
+            position = conformer.GetAtomPosition(atom.GetIdx())
+            axes.text(
+                position.x,
+                position.y,
+                symbol,
+                ha="center",
+                va="center",
+                fontsize=9,
+                color="#111827",
+                bbox=dict(boxstyle="circle,pad=0.12", facecolor="white", edgecolor="none"),
+            )
+
+        axes.set_aspect("equal")
+        axes.axis("off")
+        buffer = io.BytesIO()
+        figure.savefig(
+            buffer, format="png", bbox_inches="tight", facecolor="white"
+        )
+        plt.close(figure)
+        encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
+        return f"data:image/png;base64,{encoded}", None
+    except Exception as error:  # rendering must never break descriptor output
+        LOGGER.warning("Could not render structure: %s", error)
+        return None, str(error)
+
+
 def analyse_molecule(smiles: str | None) -> dict[str, Any]:
     """Compute RDKit descriptors and a Morgan fingerprint summary.
 
@@ -403,6 +487,8 @@ def analyse_molecule(smiles: str | None) -> dict[str, Any]:
             "descriptors": {},
             "fingerprint": {},
             "svg": None,
+            "structure_png": None,
+            "drawing_error": None,
         }
     try:
         from rdkit import Chem, RDLogger
@@ -415,6 +501,8 @@ def analyse_molecule(smiles: str | None) -> dict[str, Any]:
             "descriptors": {},
             "fingerprint": {},
             "svg": None,
+            "structure_png": None,
+            "drawing_error": None,
         }
 
     RDLogger.DisableLog("rdApp.*")
@@ -426,6 +514,8 @@ def analyse_molecule(smiles: str | None) -> dict[str, Any]:
             "descriptors": {},
             "fingerprint": {},
             "svg": None,
+            "structure_png": None,
+            "drawing_error": None,
         }
 
     descriptors = {
@@ -459,17 +549,21 @@ def analyse_molecule(smiles: str | None) -> dict[str, Any]:
         drawer.FinishDrawing()
         svg = drawer.GetDrawingText()
     except Exception as error:
-        LOGGER.warning("Could not render molecule structure: %s", error)
+        # The matplotlib fallback below still renders the structure.
+        LOGGER.debug("RDKit SVG drawing unavailable: %s", error)
         svg = None
         drawing_error = str(error)
     else:
         drawing_error = None
+
+    structure_png, png_error = _structure_png(molecule)
 
     return {
         "available": True,
         "reason": None,
         "canonical_smiles": Chem.MolToSmiles(molecule, canonical=True),
         "scaffold": scaffold or None,
+        "structure_png": structure_png,
         "descriptors": descriptors,
         "fingerprint": {
             "type": "Morgan radius 2, 2048 bits (ECFP4-like)",
@@ -478,7 +572,7 @@ def analyse_molecule(smiles: str | None) -> dict[str, Any]:
             "density": round(len(on_bits) / 2048, 4),
         },
         "svg": svg,
-        "drawing_error": drawing_error,
+        "drawing_error": None if structure_png else (drawing_error or png_error),
     }
 
 

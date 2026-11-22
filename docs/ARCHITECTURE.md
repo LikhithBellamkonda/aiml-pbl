@@ -99,6 +99,7 @@ scoring.
 | `data/animal_adr_*.json`, `reports/animal_adr_integration_report.md` | `src/animal_adr/pipeline.py` |
 | `reports/animal_adr_ablation_results.csv`, `reports/animal_adr_evaluation_report.json` | `src/animal_adr_experiments.py` |
 | `data/ml_risk_metrics.json`, `src/models/ml_risk_model_metadata.json` | `src/ml_risk_model.py` |
+| `reports/pregnancy_evidence_inventory.csv`, `.md` | `src/evidence_inventory.py` |
 
 Every report is written from the execution that produced it; no metric is
 manually entered.

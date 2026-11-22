@@ -48,6 +48,16 @@ def test_dashboard_search_resolves_identifier_and_shows_identity():
     assert metrics.get("Prediction confidence") == "Unavailable"
 
 
+def test_side_effect_panel_reports_measured_counts_without_an_index():
+    app = _run_app()
+    app.selectbox[0].set_value("tretinoin")
+    app.run()
+    assert not app.exception
+    captions = " ".join(item.value for item in app.caption)
+    assert "report-volume index" not in captions.lower()
+    assert "report-volume level" in captions.lower()
+
+
 def test_dashboard_handles_unmatched_search_query():
     app = _run_app()
     app.text_input[0].set_value("not-a-real-drug-xyz")

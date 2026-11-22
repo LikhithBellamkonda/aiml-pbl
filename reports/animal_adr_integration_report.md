@@ -1,6 +1,6 @@
 # Animal ADR Evidence Integration Report
 
-Generated: 2026-11-22T14:15:47.838923+00:00
+Generated: 2026-11-22T14:52:54.571483+00:00
 
 Animal spontaneous adverse-event evidence (FDA CVM ADAE with VeDDRA
 terminology) is integrated as an independent evidence branch. It is
@@ -88,6 +88,8 @@ explicit local-file ingestion interfaces (`ingest_evvet`, `ingest_vmd`).
 | animal_adr | ok |
 | features | ok |
 | feasibility | ok |
+| trimester_evaluation | ok |
+| evidence_inventory | ok |
 
 ## Dashboard
 

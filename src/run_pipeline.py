@@ -155,12 +155,30 @@ def _stage_feasibility() -> dict[str, Any]:
     }
 
 
+def _stage_trimester_evaluation() -> dict[str, Any]:
+    """Trimester metric report; blocked (not zero) without labels."""
+    from src.trimester_evaluation import write_report as write_trimester_report
+
+    report = write_trimester_report()
+    return {"status": report.get("status"), "reason": report.get("reason")}
+
+
+def _stage_evidence_inventory() -> dict[str, Any]:
+    """Evidence-tiered coverage inventory for the literature control drugs."""
+    from src.evidence_inventory import write_inventory
+
+    summary = write_inventory()
+    return {"controls": summary.get("controls"), "matched": summary.get("matched")}
+
+
 STAGES: tuple[tuple[str, Callable[..., dict[str, Any]]], ...] = (
     ("ingest", _stage_ingest),
     ("process", _stage_process),
     ("animal_adr", _stage_animal_adr),
     ("features", _stage_features),
     ("feasibility", _stage_feasibility),
+    ("trimester_evaluation", _stage_trimester_evaluation),
+    ("evidence_inventory", _stage_evidence_inventory),
 )
 
 

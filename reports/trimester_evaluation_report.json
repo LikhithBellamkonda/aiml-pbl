@@ -1,0 +1,50 @@
+{
+  "status": "blocked",
+  "reason": "No validated human pregnancy-outcome labels (data/pregnancy_labels.csv) and no trained human pregnancy model exist, so trimester-wise AUROC, AUPRC, \u0394AUROC, ECE, Brier and Precision@10 cannot be computed. They are reported as unavailable, not as zero.",
+  "labels_present": false,
+  "predictions_present": false,
+  "metric_spec": {
+    "per_trimester": [
+      "auroc",
+      "auprc",
+      "ece",
+      "brier",
+      "precision_at_10"
+    ],
+    "cross_trimester": [
+      "delta_auroc (max - min across trimesters)"
+    ],
+    "interpretation": "\u0394AUROC > 0 indicates trimester-specific learning; \u0394AUROC \u2248 0 means the model collapses to a single-stage predictor.",
+    "trimesters": [
+      "first_trimester",
+      "second_trimester",
+      "third_trimester",
+      "entire_pregnancy"
+    ]
+  },
+  "signals": {
+    "prediction": {
+      "available": false,
+      "reason": "No trained human pregnancy-outcome model.",
+      "value": null
+    },
+    "uncertainty": {
+      "available": false,
+      "reason": "No trained model, so predictive uncertainty is undefined.",
+      "value": null
+    },
+    "evidence_reliability": {
+      "available": true,
+      "definition": "Q_cov = mean over source families of (availability mask \u00d7 provenance completeness)",
+      "not_a_risk_score": true,
+      "drugs": 1720,
+      "mean": 0.0686,
+      "median": 0.025,
+      "p25": 0.025,
+      "p75": 0.125,
+      "evidence_gap_drugs": 1720,
+      "evidence_gap_fraction": 1.0
+    }
+  },
+  "results": null
+}
