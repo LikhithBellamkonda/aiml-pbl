@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 
 from .adr_tox_models import ADRBranch, ChemicalDescriptorBranch, EvidenceBranch
-from .fusion import SourceGatedFusion
+from .animal_adr_encoder import AnimalADRBranch
+from .fusion import MaskAwareCrossAttentionGating, SourceGatedFusion
 from .molecular_gnn import MolecularGNN
 
 
@@ -18,16 +19,30 @@ def rank_outcomes(probabilities, outcome_names):
 
 
 class MultimodalPregnancyADRModel(nn.Module):
-    """Outcome-specific research model; labels and evidence remain distinct."""
+    """Outcome-specific research model; labels and evidence remain distinct.
 
-    def __init__(self, num_outcomes=4, rep_dim=128):
+    ``include_animal_adr`` adds a sixth, independent evidence source: reported
+    animal spontaneous adverse events.  It is off by default so the existing
+    five-source architecture and its trained artefacts keep working.  When it
+    is enabled the fusion gate receives the animal availability mask, so a drug
+    without animal evidence contributes nothing rather than a zero-risk value.
+    """
+
+    def __init__(self, num_outcomes=4, rep_dim=128, include_animal_adr=False):
         super().__init__()
+        self.include_animal_adr = include_animal_adr
         self.adr_branch = ADRBranch(out_dim=rep_dim)
         self.descriptor_branch = ChemicalDescriptorBranch(out_dim=rep_dim)
         self.graph_branch = MolecularGNN(out_dim=rep_dim)
         self.pregnancy_branch = EvidenceBranch(in_dim=4, out_dim=rep_dim)
         self.faers_branch = EvidenceBranch(in_dim=1, out_dim=rep_dim)
-        self.fusion = SourceGatedFusion(rep_dim=rep_dim, num_sources=5)
+        if include_animal_adr:
+            self.animal_adr_branch = AnimalADRBranch(out_dim=rep_dim)
+            num_sources = 6
+        else:
+            self.animal_adr_branch = None
+            num_sources = 5
+        self.fusion = SourceGatedFusion(rep_dim=rep_dim, num_sources=num_sources)
         self.pred_head = nn.Sequential(
             nn.Linear(rep_dim, 64),
             nn.ReLU(),
@@ -35,7 +50,7 @@ class MultimodalPregnancyADRModel(nn.Module):
             nn.Linear(64, num_outcomes),
         )
 
-    def forward(self, mol_data):
+    def _representations(self, mol_data):
         representations = [
             self.adr_branch(mol_data.adr_features),
             self.descriptor_branch(mol_data.mol_desc),
@@ -49,12 +64,53 @@ class MultimodalPregnancyADRModel(nn.Module):
             self.pregnancy_branch(mol_data.pregnancy_features),
             self.faers_branch(mol_data.faers_features),
         ]
-        fused = self.fusion(
-            representations,
+        if self.include_animal_adr:
+            animal_features = getattr(mol_data, "animal_features", None)
+            if animal_features is None:
+                raise ValueError(
+                    "include_animal_adr=True requires mol_data.animal_features "
+                    "and mol_data.animal_availability (use PregnancyDataset with "
+                    "animal_adr_path)."
+                )
+            representations.append(
+                self.animal_adr_branch(
+                    animal_features,
+                    getattr(mol_data, "animal_species_idx", None),
+                    getattr(mol_data, "animal_category_idx", None),
+                    getattr(mol_data, "animal_availability", None),
+                )
+            )
+        return representations
+
+    def _fuse(self, mol_data):
+        return self.fusion(
+            self._representations(mol_data),
             mol_data.availability_mask,
             mol_data.evidence_quality,
         )
-        return torch.sigmoid(self.pred_head(fused))
+
+    def forward(self, mol_data):
+        return torch.sigmoid(self.pred_head(self._fuse(mol_data)))
+
+    def predict_with_evidence(self, mol_data):
+        """Return probabilities together with per-source fusion weights."""
+        details = MaskAwareCrossAttentionGating.forward(
+            self.fusion,
+            self._representations(mol_data),
+            mol_data.availability_mask,
+            mol_data.evidence_quality,
+        )
+        probabilities = torch.sigmoid(self.pred_head(details["fused"]))
+        return {
+            "probabilities": probabilities,
+            "source_weights": details["source_weights"],
+            "attention": details["attention"],
+            "sources": (
+                ("adr", "descriptors", "graph", "pregnancy", "faers", "animal_adr")
+                if self.include_animal_adr
+                else ("adr", "descriptors", "graph", "pregnancy", "faers")
+            ),
+        }
 
     def predict_with_uncertainty(self, mol_data, num_samples=20):
         if num_samples < 2:

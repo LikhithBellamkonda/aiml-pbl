@@ -5,7 +5,8 @@ from typing import Any
 
 import pandas as pd
 
-from src.ml_risk_model import summarise_drug  # observed-evidence summary, not a score
+from src.ml_risk_model import score_drug, summarise_drug  # evidence coverage + observed counts
+from src.services.animal_adr_service import animal_evidence
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -343,7 +344,7 @@ def evaluate_drug_safety(
         missing_families = [
             fam for fam in PREGNANCY_EVIDENCE_SOURCES if fam not in source_families
         ]
-        # Build synthesis dict with placeholder explanations
+        # Evidence-synthesis explanation built from the actual filtered records
         ai_evidence_synthesis = {
             "missing_source_families": missing_families,
             "explanation": (
@@ -417,7 +418,17 @@ def evaluate_drug_safety(
             "not predictions."
         )
 
-    return {
+    # Deterministic exploratory scoring engine already used by the dashboard.
+    # It is optional: if it cannot run, the evidence view is still returned and
+    # the absence of a score is reported instead of inventing one.
+    drug_risk: dict[str, Any] = {}
+    if drug_id:
+        try:
+            drug_risk = score_drug(str(drug_id))
+        except Exception:  # pragma: no cover - defensive, scoring is auxiliary
+            drug_risk = {}
+
+    result: dict[str, Any] = {
 
         "trimester": trimester,
         "outcome_target": outcome_target,
@@ -442,17 +453,31 @@ def evaluate_drug_safety(
         "drug_name": evidence_summary["drug_name"],
         # Observed adverse-term records with derived reporting level
         "side_effects": side_effects,
-        # Evidence quality (separate from prediction confidence)
-        "evidence_quality": drug_risk.get("overall_evidence_quality", 0.0),
+        # Evidence availability and coverage. These describe the evidence,
+        # not a prediction, a confidence value or a risk level.
+        "evidence_quality": drug_risk.get("overall_evidence_quality"),
         "evidence_gap": drug_risk.get("evidence_gap", True),
-        # Trimester-wise metrics for evaluation
+        "evidence_availability": {
+            "available_sources": drug_risk.get("available_sources", []),
+            "missing_sources": drug_risk.get("missing_sources", []),
+            "q_cov": drug_risk.get("q_cov"),
+        },
+        "risk_available": False,
+        "model_used": drug_risk.get("model_used", "none"),
+        # Per-trimester evidence availability (no risk values by design)
         "trimester_metrics": {
             t: {
-                "evidence_quality": v.get("evidence_quality", 0.0),
-                "q_cov": v.get("q_cov", 0.0),
+                "evidence_quality": v.get("evidence_quality"),
+                "q_cov": v.get("q_cov"),
                 "evidence_gap": v.get("evidence_gap", True),
-                "model_used": v.get("model_used", "ai_fallback"),
+                "available_sources": v.get("available_sources", []),
+                "missing_sources": v.get("missing_sources", []),
             }
             for t, v in (drug_risk.get("foetus_risk", {}).get("trimester_wise", {}) or {}).items()
         },
     }
+
+    # Animal spontaneous ADR evidence stays a separate, independent branch and
+    # is always reported as evidence availability, never as a risk conclusion.
+    result["animal_adr_evidence"] = animal_evidence(drug_id, drug_name)
+    return result

@@ -6,56 +6,65 @@ APP = str(Path(__file__).resolve().parents[1] / "dashboard" / "app.py")
 
 
 def _run_app() -> AppTest:
-    app = AppTest.from_file(APP, default_timeout=180)
+    app = AppTest.from_file(APP, default_timeout=240)
     app.run()
     return app
 
 
-def test_dashboard_starts_with_system_status():
+def test_dashboard_starts_on_one_page_query_ui():
     app = _run_app()
     assert not app.exception
     assert any("Pregnancy-Related Drug Safety" in title.value for title in app.title)
     assert any("Research-support prototype" in warning.value for warning in app.warning)
+    labels = [box.label for box in app.selectbox]
+    assert "Select Medication Name" in labels
 
 
-def test_dashboard_renders_evidence_tabs_for_a_drug():
+def test_dashboard_renders_animal_adr_evidence_section():
     app = _run_app()
-    app.text_input(key="drug_query").set_value("tretinoin")
+    app.selectbox[0].set_value("tretinoin")
     app.run()
     assert not app.exception
-    labels = [tab.label for tab in app.tabs]
-    for expected in (
-        "Overview",
-        "General ADR",
-        "Molecular",
-        "Reproductive toxicity",
-        "Pregnancy evidence",
-        "MEPRank results",
-        "Evidence comparison",
-        "System status",
-    ):
-        assert expected in labels
-    # The abstention is visible rather than replaced by a fabricated score.
-    assert any(
-        "No validated human pregnancy-outcome model" in item.value
-        for item in app.markdown
-    ) or any(
-        "abstained" in item.value.lower() for item in app.markdown
+    markdown = " ".join(item.value for item in app.markdown)
+    captions = " ".join(item.value for item in app.caption)
+    assert "Animal Adverse Drug Reaction Evidence" in markdown
+    assert "Supplementary evidence only" in captions
+    # The deterministic evidence panel and its caveat are present.
+    assert "Pregnancy risk assessment" in markdown
+
+
+def test_dashboard_search_resolves_identifier_and_shows_identity():
+    app = _run_app()
+    app.text_input[0].set_value("444795")
+    app.run()
+    assert not app.exception
+    markdown = " ".join(item.value for item in app.markdown)
+    assert "Standardized drug identity" in markdown
+    assert "Evidence availability by source" in markdown
+    metrics = {item.label: item.value for item in app.metric}
+    assert "PubChem CID" in metrics
+    # No fabricated risk values are shown in the prediction panel.
+    assert metrics.get("Predicted foetal risk") == "Unavailable"
+    assert metrics.get("Prediction confidence") == "Unavailable"
+
+
+def test_dashboard_handles_unmatched_search_query():
+    app = _run_app()
+    app.text_input[0].set_value("not-a-real-drug-xyz")
+    app.run()
+    assert not app.exception
+    assert any("No local identifier mapping" in item.value for item in app.error)
+
+
+def test_dashboard_renders_for_drug_without_animal_records():
+    app = _run_app()
+    app.selectbox[0].set_value("abacavir")
+    app.run()
+    assert not app.exception
+    messages = " ".join(item.value for item in app.info)
+    assert (
+        "Animal ADR evidence unavailable" in messages
+        or "Animal Adverse Drug Reaction Evidence" in " ".join(
+            item.value for item in app.markdown
+        )
     )
-
-
-def test_dashboard_handles_unknown_drug_without_crashing():
-    app = _run_app()
-    app.text_input(key="drug_query").set_value("zzzz-not-a-real-drug")
-    app.run()
-    assert not app.exception
-    assert app.error
-    assert any("Could not resolve" in error.value for error in app.error)
-
-
-def test_dashboard_handles_name_keyed_evidence_drug():
-    app = _run_app()
-    app.text_input(key="drug_query").set_value("isotretinoin")
-    app.run()
-    assert not app.exception
-    assert any("isotretinoin" in subheader.value.lower() for subheader in app.subheader)

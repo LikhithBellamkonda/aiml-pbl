@@ -10,6 +10,8 @@ sys.path.insert(0, str(ROOT))
 
 from dashboard.data_access import load_dashboard_data  # noqa: E402
 from src.mepr_reasoning import evaluate_drug_safety  # noqa: E402
+from src.services.animal_adr_service import evidence_distinction  # noqa: E402
+from src.services.drug_service import build_drug_profile  # noqa: E402
 
 
 @st.cache_data
@@ -119,10 +121,11 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
                     text=f"Model Prediction Variance (sigma): {float(variance):.3f}",
                 )
     else:
-        # AI fallback UI rendering
+        # Evidence-synthesis UI: no model produced a value, so the panel
+        # explains what the evidence does and does not cover.
         synthesis = result.get("ai_evidence_synthesis", {})
-        st.info("AI Fallback & Evidence Synthesis Active")
-        st.markdown("**Missing evidence sources:**")
+        st.info("Evidence synthesis active — no model prediction is produced")
+        st.markdown("**Evidence source families missing for this filter:**")
         missing = synthesis.get("missing_source_families", [])
         if missing:
             st.write(", ".join(missing))
@@ -137,68 +140,78 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
     else:
         st.info(result["risk_scoring_status"])
 
-    # Deterministic risk panel: foetus (trimester-wise) + maternal risk.
-    foetus = result.get("foetus_risk", {}) or {}
-    maternal = result.get("maternal_risk", {}) or {}
+    # Prediction status panel. No validated human pregnancy-outcome model
+    # exists, so this panel reports evidence availability and abstention. It
+    # never substitutes a heuristic number for a prediction.
+    evidence_quality = result.get("evidence_quality")
+    availability = result.get("evidence_availability", {}) or {}
     with st.container(border=True):
         st.markdown("### Pregnancy risk assessment")
         risk_col, conf_col, eq_col, model_col = st.columns(4)
         with risk_col:
-            foetus_risk = foetus.get("overall_foetus_risk", 0.0)
-            st.metric("Overall foetus risk", f"{foetus_risk:.1%}")
-            mat_risk = maternal.get("maternal_risk", 0.0)
-            st.metric("Maternal risk", f"{mat_risk:.1%}")
+            st.metric("Predicted foetal risk", "Unavailable")
+            st.metric("Predicted maternal risk", "Unavailable")
+            st.caption("No validated human pregnancy-outcome model is available.")
         with conf_col:
-            confidence = result.get("confidence", 0.0)
-            st.metric("Confidence", f"{confidence:.1%}")
+            st.metric("Prediction confidence", "Unavailable")
             st.caption(
-                "Deterministic score derived from available evidence depth."
+                "Confidence is undefined when no model output exists. "
+                "The absence of a prediction is not a low-risk result."
             )
         with eq_col:
-            evidence_quality = result.get("evidence_quality", 0.0)
-            st.metric("Evidence Quality", f"{evidence_quality:.1%}")
-            evidence_gap = result.get("evidence_gap", True)
-            st.caption(
-                "Evidence reliability (M × Q coverage). "
-                "Low = insufficient data to predict reliably."
+            st.metric(
+                "Evidence quality",
+                "Unavailable"
+                if evidence_quality is None
+                else f"{float(evidence_quality):.0%}",
             )
-            if evidence_gap:
-                st.error("⚠ Evidence Gap: understudied drug")
+            if result.get("evidence_gap", True):
+                st.error("Evidence gap: understudied or single-source drug.")
+            else:
+                st.caption(
+                    "Evidence coverage (availability mask × completeness), "
+                    "not risk and not prediction confidence."
+                )
         with model_col:
-            model_used = result.get("model_used", "ai_fallback")
-            st.metric("Model used", "ML" if model_used == "ml" else "AI fallback")
-            st.caption(
-                "Dynamic runtime routing (ML vs AI fallback), not hardcoded per drug."
-            )
+            st.metric("Model used", "None (abstained)")
+            st.caption("No trained human pregnancy-outcome checkpoint exists.")
 
-        with st.expander("Trimester-wise foetal risk", expanded=False):
-            trimester_wise = foetus.get("trimester_wise", {}) or {}
-            for trimester_key in (
-                "first_trimester",
-                "second_trimester",
-                "third_trimester",
-                "entire_pregnancy",
-            ):
-                entry = trimester_wise.get(trimester_key)
-                if not entry:
-                    continue
-                col_t, col_r, col_m = st.columns([2, 1, 1])
-                with col_t:
-                    st.write(entry.get("label", trimester_key))
-                with col_r:
-                    st.progress(
-                        entry.get("aggregate_risk", 0.0),
-                        text=f"{entry.get('aggregate_risk', 0.0):.1%}",
-                    )
-                with col_m:
-                    st.caption(
-                        f"conf {entry.get('confidence', 0.0):.0%} · "
-                        f"EQ {entry.get('evidence_quality', 0.0):.0%} · "
-                        f"{entry.get('model_used', 'ai_fallback')}"
-                    )
+        available_sources = availability.get("available_sources") or []
+        missing_sources = availability.get("missing_sources") or []
+        st.markdown(
+            "**Evidence source families with drug-level records:** "
+            + (", ".join(available_sources) if available_sources else "None")
+        )
+        st.markdown(
+            "**Evidence source families without drug-level records:** "
+            + (", ".join(missing_sources) if missing_sources else "None")
+        )
+
+        with st.expander("Trimester-wise evidence availability", expanded=False):
+            trimester_metrics = result.get("trimester_metrics", {}) or {}
+            if not trimester_metrics:
+                st.caption("No trimester-level evidence summary is available.")
+            for trimester_key, entry in trimester_metrics.items():
+                eq_value = entry.get("evidence_quality")
+                q_cov_value = entry.get("q_cov")
+                eq_text = (
+                    "unavailable" if eq_value is None else f"{float(eq_value):.0%}"
+                )
+                q_cov_text = (
+                    "unavailable"
+                    if q_cov_value is None
+                    else f"{float(q_cov_value):.0%}"
+                )
+                gap_text = "yes" if entry.get("evidence_gap", True) else "no"
+                st.markdown(
+                    f"**{str(trimester_key).replace('_', ' ').title()}** — "
+                    f"evidence quality: {eq_text} · Q_cov: {q_cov_text} · "
+                    f"evidence gap: {gap_text}"
+                )
         st.caption(
-            "Scores are deterministic (same input always yields the same output) "
-            "and exploratory -- not a clinically validated predictor."
+            "Evidence availability and evidence quality describe the underlying "
+            "records only. They are not a risk score, and a drug with no records "
+            "must not be interpreted as safe."
         )
 
     # Side effects reported for this drug (exploratory levels + confidence)
@@ -207,9 +220,9 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
         with st.container(border=True):
             st.markdown("### Reported Side Effects")
             st.caption(
-                "Adverse effect level (High / Moderate / Low) and confidence are "
-                "derived from spontaneous-report counts in the input data — "
-                "NOT clinical severity or validated confidence."
+                "Adverse effect level (High / Moderate / Low) and the report-volume "
+                "index are derived from spontaneous-report counts in the input data "
+                "— NOT clinical severity, incidence or validated confidence."
             )
             cols = st.columns(4)
             for idx, se in enumerate(side_effects[:12]):
@@ -219,19 +232,21 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
                     "Moderate": "#D69E2E",
                     "Low": "#38A169",
                 }.get(se["level"], "#718096")
+                confidence = se.get("confidence", se.get("report_volume_index", 0.0))
                 col.markdown(
                     f"**{se['term']}**  \n"
                     f"<span style='color:{level_color}; font-weight:bold'>{se['level']}</span>  \n"
-                    f"confidence: {se['confidence']:.0%}  \n"
-                    f"reports: {se['report_count']}",
+                    f"report-volume index: {float(confidence):.0%}  \n"
+                    f"records: {se['report_count']}",
                     unsafe_allow_html=True,
                 )
             if len(side_effects) > 12:
                 st.caption(f"Showing top 12 of {len(side_effects)} reported side effects.")
 
+    _render_animal_adr(result)
+
     records = result["records"]
     if records.empty:
-        
         return
 
     st.markdown("**Filtered evidence provenance**")
@@ -272,6 +287,253 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
     )
 
 
+def _render_animal_adr(result):
+    """Render the independent Animal ADR evidence branch.
+
+    Findings are reported veterinary adverse events. A missing section is
+    reported as unavailable evidence, never as a safe drug.
+    """
+    evidence = result.get("animal_adr_evidence") or {}
+    with st.container(border=True):
+        st.markdown("### Animal Adverse Drug Reaction Evidence")
+        st.caption(
+            "Veterinary spontaneous reports (FDA CVM ADAE, VeDDRA terms). "
+            "Supplementary evidence only: not a human pregnancy risk conclusion, "
+            "not incidence, and no causality is implied."
+        )
+        if not evidence.get("available"):
+            st.info(
+                evidence.get(
+                    "message",
+                    "Animal ADR evidence unavailable. This does not indicate that "
+                    "the drug is safe.",
+                )
+            )
+        else:
+            first, second, third = st.columns(3)
+            first.metric("Animal ADR reports", evidence.get("report_count", 0))
+            first.metric("Reported reaction terms", evidence.get("reaction_count", 0))
+            second.metric("Species represented", evidence.get("species_count", 0))
+            second.metric("Serious reports", evidence.get("serious_report_count", 0))
+            third.metric("Dominant species", evidence.get("top_species") or "Unknown")
+            third.metric(
+                "Dominant reaction category",
+                evidence.get("top_reaction_category") or "Unclassified",
+            )
+            quality, mapping, dates = st.columns(3)
+            quality.metric(
+                "Record completeness", f"{evidence.get('record_completeness', 0.0):.0%}"
+            )
+            mapping.metric(
+                "Drug mapping confidence", f"{evidence.get('mapping_confidence', 0.0):.0%}"
+            )
+            dates.metric(
+                "Reporting period",
+                f"{evidence.get('report_date_min') or '?'} to "
+                f"{evidence.get('report_date_max') or '?'}",
+            )
+            st.caption(
+                f"Source: {evidence.get('sources') or 'FDA CVM ADAE'} · "
+                f"mapping: {evidence.get('mapping_status') or 'unknown'} · "
+                f"deaths/euthanasia reports: "
+                f"{evidence.get('death_or_euthanasia_report_count', 0)}"
+            )
+            if evidence.get("source_url"):
+                st.markdown(f"[Original dataset documentation]({evidence['source_url']})")
+            st.caption(
+                "Limitations: spontaneous reporting is voluntary and has no "
+                "exposure denominator, so counts are neither incidence nor "
+                "severity. Reports describe product-level exposure and may "
+                "involve combination products."
+            )
+        with st.expander("Evidence categories kept separate", expanded=False):
+            st.dataframe(
+                pd.DataFrame(evidence_distinction()),
+                hide_index=True,
+                width="stretch",
+            )
+
+
+def _render_drug_profile(profile):
+    """Render resolved identity and each evidence source separately.
+
+    Nothing in this panel is a risk estimate: absent evidence is reported as
+    unavailable rather than scored.
+    """
+    identity = profile.get("identity") or {}
+    counts = profile.get("evidence_counts") or {}
+    availability = profile.get("availability") or {}
+
+    with st.container(border=True):
+        st.markdown("### Standardized drug identity")
+        cid_col, key_col, status_col, id_col = st.columns(4)
+        cid_col.metric("PubChem CID", identity.get("pubchem_cid") or "Unavailable")
+        key_col.metric("InChIKey", identity.get("inchikey") or "Unavailable")
+        status_col.metric(
+            "Mapping status", str(identity.get("resolution_status") or "unknown")
+        )
+        id_col.metric(
+            "Project drug id",
+            str(identity.get("drug_id") or profile.get("drug_id") or "Unavailable"),
+        )
+        st.caption(
+            "Resolved from: "
+            + str(identity.get("resolution_source") or "project identifier mapping")
+            + " · name key: "
+            + str(profile.get("name_key") or "not applicable")
+        )
+        if identity.get("smiles"):
+            st.caption(f"SMILES: {identity['smiles']}")
+        for warning in profile.get("warnings") or []:
+            st.warning(warning)
+
+    with st.container(border=True):
+        st.markdown("### Evidence availability by source")
+        rows = [
+            {
+                "evidence source": "Human pregnancy-specific",
+                "category": "human",
+                "records": counts.get("pregnancy_records"),
+            },
+            {
+                "evidence source": "General ADR terms",
+                "category": "human",
+                "records": counts.get("adr_terms"),
+            },
+            {
+                "evidence source": "FAERS reports (aggregate)",
+                "category": "human",
+                "records": counts.get("faers_reports"),
+            },
+            {
+                "evidence source": "Developmental / reproductive toxicity studies",
+                "category": "animal (experimental)",
+                "records": counts.get("nonclinical_toxicity_records"),
+            },
+        ]
+        frame = pd.DataFrame(rows)
+        frame["records"] = frame["records"].map(
+            lambda value: "unavailable" if value is None else value
+        )
+        st.dataframe(frame, hide_index=True, width="stretch")
+        st.caption(
+            "Absent evidence is reported as unavailable. It is not zero risk and "
+            "not a negative outcome. Animal ADR evidence is shown separately below."
+        )
+        missing = availability.get("missing_sources") or []
+        if missing:
+            st.info("Sources without records: " + ", ".join(missing))
+
+    adr = profile.get("adr") or {}
+    with st.expander("General adverse-drug-reaction evidence", expanded=False):
+        if not adr.get("available"):
+            st.info(adr.get("reason") or "No general ADR evidence recorded.")
+        else:
+            st.caption(
+                f"{adr.get('term_count', 0)} distinct terms from "
+                f"{', '.join(adr.get('source_datasets') or []) or 'unspecified sources'}. "
+                "Term records are not incidence rates and imply no causality."
+            )
+            if adr.get("terms"):
+                st.dataframe(
+                    pd.DataFrame(adr["terms"]), hide_index=True, width="stretch"
+                )
+
+    molecular = profile.get("molecular") or {}
+    with st.expander("Chemical and molecular properties", expanded=False):
+        if not molecular.get("available"):
+            st.info(molecular.get("reason") or "No molecular structure available.")
+        else:
+            descriptors = molecular.get("descriptors") or {}
+            st.dataframe(
+                pd.DataFrame(
+                    [
+                        {"property": name, "value": value}
+                        for name, value in descriptors.items()
+                    ]
+                ),
+                hide_index=True,
+                width="stretch",
+            )
+            fingerprint = molecular.get("fingerprint") or {}
+            st.caption(
+                f"Scaffold: {molecular.get('scaffold') or 'not available'} · "
+                f"{fingerprint.get('type', 'fingerprint')}: "
+                f"{fingerprint.get('on_bits', 0)} bits set. "
+                "Descriptors describe the structure only; they are not biological predictions."
+            )
+            if molecular.get("svg"):
+                st.markdown(molecular["svg"], unsafe_allow_html=True)
+
+    toxicity = profile.get("reproductive_toxicity") or {}
+    with st.expander(
+        "Developmental / reproductive toxicity evidence (nonclinical animal studies)",
+        expanded=False,
+    ):
+        st.caption(
+            "Controlled animal assay endpoints. Kept separate from animal "
+            "spontaneous ADR reports and from human pregnancy evidence."
+        )
+        if not toxicity.get("available"):
+            st.info(
+                toxicity.get("reason")
+                or "No developmental/reproductive toxicity records."
+            )
+        else:
+            st.caption(
+                f"{toxicity.get('record_count', 0)} records · species: "
+                f"{', '.join(toxicity.get('species') or []) or 'not recorded'}"
+            )
+            if toxicity.get("records"):
+                st.dataframe(
+                    pd.DataFrame(toxicity["records"]),
+                    hide_index=True,
+                    width="stretch",
+                )
+
+    pregnancy = profile.get("pregnancy") or {}
+    with st.expander("Human pregnancy-specific evidence", expanded=False):
+        st.caption(
+            "Human evidence only. Report counts are spontaneous-report volume, "
+            "not incidence, and imply no causality."
+        )
+        if not pregnancy.get("available"):
+            st.info(pregnancy.get("reason") or "No human pregnancy evidence recorded.")
+        else:
+            st.caption(
+                f"{pregnancy.get('record_count', 0)} records · sources: "
+                f"{', '.join(pregnancy.get('sources') or []) or 'unspecified'} · "
+                "trimesters: "
+                f"{', '.join(pregnancy.get('trimesters') or []) or 'unknown'}"
+            )
+            category_counts = pregnancy.get("category_counts") or {}
+            if category_counts:
+                st.caption(
+                    "Records by category: "
+                    + ", ".join(
+                        f"{name} {value}" for name, value in category_counts.items()
+                    )
+                )
+            if pregnancy.get("records"):
+                st.dataframe(
+                    pd.DataFrame(pregnancy["records"]),
+                    hide_index=True,
+                    width="stretch",
+                )
+
+    faers = profile.get("faers") or {}
+    with st.expander("FAERS reporting summary", expanded=False):
+        if not faers.get("available"):
+            st.info(faers.get("reason") or "No FAERS reporting summary.")
+        else:
+            st.caption(
+                f"Aggregate reports: {faers.get('report_count')} · "
+                f"outcome rows: {faers.get('outcome_count')} · "
+                f"source: {faers.get('source_name') or 'not recorded'}. "
+                "Reporting volume is not incidence."
+            )
+
+
 def main():
     st.set_page_config(page_title="MEPRank Research Dashboard", layout="wide")
     st.title("Pregnancy-Related Drug Safety Research Dashboard")
@@ -303,6 +565,11 @@ def main():
 
     with st.container(border=True):
         st.markdown("### Query Filter Control Panel")
+        search_query = st.text_input(
+            "Search by drug name or identifier (drug_id, PubChem CID, InChIKey)",
+            value="",
+            placeholder="e.g. tretinoin, CID000444795, 444795",
+        )
         medication_column, timing_column, target_column = st.columns([2, 1, 1])
         selected_name = medication_column.selectbox(
             "Select Medication Name",
@@ -321,19 +588,53 @@ def main():
         )
         target_label = target_column.radio(
             "View Target",
-            ("Fetal Risk", "Maternal Risk"),
+            ("Fetal Outcomes", "Maternal Outcomes"),
         )
 
-    drug_rows = mapping.loc[mapping["original_name"].astype(str).eq(selected_name)]
-    drug_id = str(drug_rows.iloc[0].get("drug_id", ""))
+    profile = None
+    if search_query.strip():
+        profile = build_drug_profile(search_query.strip())
+        if profile.get("ambiguous"):
+            st.warning(
+                f"'{search_query.strip()}' matches multiple drug identifiers. "
+                "Select one explicitly before reading any evidence."
+            )
+            st.dataframe(
+                pd.DataFrame(profile.get("candidates") or []),
+                hide_index=True,
+                width="stretch",
+            )
+            _render_readiness(data)
+            return
+        if not profile.get("matched"):
+            st.error(
+                f"No local identifier mapping or evidence entry matches "
+                f"'{search_query.strip()}'."
+            )
+            for warning in profile.get("warnings") or []:
+                st.caption(warning)
+            _render_readiness(data)
+            return
+        selected_name = str(
+            (profile.get("identity") or {}).get("name") or search_query.strip()
+        )
+        drug_id = str(profile.get("drug_id") or "")
+    else:
+        drug_rows = mapping.loc[
+            mapping["original_name"].astype(str).eq(selected_name)
+        ]
+        drug_id = str(drug_rows.iloc[0].get("drug_id", ""))
+
     timing_filter = (
         "All" if selected_timing == "All Trimesters" else selected_timing
     )
     target_filter = (
         "Fetal Outcomes Only"
-        if target_label == "Fetal Risk"
+        if target_label == "Fetal Outcomes"
         else "Maternal Outcomes Only"
     )
+    if profile is not None:
+        _render_drug_profile(profile)
     result = _evaluate_query(
         selected_name,
         drug_id,

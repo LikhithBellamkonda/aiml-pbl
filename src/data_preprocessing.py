@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -8,6 +8,14 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader, Dataset
+
+from src.animal_adr.features import (
+    NUMERIC_FEATURES as ANIMAL_NUMERIC_FEATURES,
+    category_index as animal_category_index,
+    load_features as load_animal_features,
+    numeric_vector as animal_numeric_vector,
+    species_index as animal_species_index,
+)
 
 
 ATOM_FEATURES = 29
@@ -54,6 +62,16 @@ class DrugSample:
     evidence_quality: torch.Tensor
     y: torch.Tensor
     y_mask: torch.Tensor
+    animal_features: torch.Tensor = field(
+        default_factory=lambda: torch.zeros(len(ANIMAL_NUMERIC_FEATURES))
+    )
+    animal_species_idx: torch.Tensor = field(
+        default_factory=lambda: torch.zeros((), dtype=torch.long)
+    )
+    animal_category_idx: torch.Tensor = field(
+        default_factory=lambda: torch.zeros((), dtype=torch.long)
+    )
+    animal_availability: torch.Tensor = field(default_factory=lambda: torch.zeros(()))
 
     def to(self, device: torch.device | str) -> "DrugSample":
         for field in self.__dataclass_fields__:
@@ -78,6 +96,10 @@ class DrugBatch:
     evidence_quality: torch.Tensor
     y: torch.Tensor
     y_mask: torch.Tensor
+    animal_features: torch.Tensor | None = None
+    animal_species_idx: torch.Tensor | None = None
+    animal_category_idx: torch.Tensor | None = None
+    animal_availability: torch.Tensor | None = None
 
     def to(self, device: torch.device | str) -> "DrugBatch":
         for field in self.__dataclass_fields__:
@@ -337,6 +359,7 @@ class PregnancyDataset(Dataset[DrugSample]):
         pregnancy_path: str | Path | None = None,
         labels_path: str | Path | None = None,
         faers_path: str | Path | None = None,
+        animal_adr_path: str | Path | None = None,
     ) -> None:
         self.adr_df = _read_indexed(adr_path, "ADR")
         self.pubchem_df = _read_indexed(pubchem_path, "PubChem")
@@ -353,6 +376,12 @@ class PregnancyDataset(Dataset[DrugSample]):
         self.faers_df = (
             _read_indexed(faers_path, "FAERS evidence")
             if faers_path and Path(faers_path).exists()
+            else pd.DataFrame()
+        )
+        self.include_animal_adr = animal_adr_path is not None
+        self.animal_df = (
+            load_animal_features(animal_adr_path)
+            if self.include_animal_adr
             else pd.DataFrame()
         )
         self.merged_df = self.adr_df.join(self.pubchem_df, how="outer", rsuffix="_pubchem")
@@ -382,6 +411,7 @@ class PregnancyDataset(Dataset[DrugSample]):
         return default if pd.isna(value) else float(value)
 
     def __getitem__(self, idx: int) -> DrugSample:
+        drug_id = self.drug_ids[idx]
         row = self.merged_df.iloc[idx]
         graph = _smiles_to_graph(row.get("smiles"))
         if graph is None:
@@ -407,6 +437,35 @@ class PregnancyDataset(Dataset[DrugSample]):
             self._number(row, f"quality_{name}")
             for name in ("adr", "descriptors", "graph", "pregnancy", "faers")
         ]
+        mask_values = [
+            float(adr_available),
+            has_molecule,
+            has_molecule,
+            float(pregnancy_available),
+            float(faers_available),
+        ]
+
+        # Animal spontaneous ADR evidence is an independent source.  Missing
+        # animal evidence is masked out, never replaced with neutral values.
+        animal_values = [0.0] * len(ANIMAL_NUMERIC_FEATURES)
+        animal_species, animal_category = 0, 0
+        animal_available, animal_quality = 0.0, 0.0
+        if (
+            self.include_animal_adr
+            and not self.animal_df.empty
+            and drug_id in self.animal_df.index
+        ):
+            animal_row = self.animal_df.loc[drug_id]
+            if isinstance(animal_row, pd.DataFrame):
+                animal_row = animal_row.iloc[0]
+            animal_values = animal_numeric_vector(animal_row)
+            animal_species = int(animal_species_index(animal_row))
+            animal_category = int(animal_category_index(animal_row))
+            animal_available = 1.0
+            animal_quality = float(animal_row.get("record_completeness", 0.0) or 0.0)
+        if self.include_animal_adr:
+            mask_values.append(animal_available)
+            quality_values.append(animal_quality)
 
         labels: list[float] = []
         label_masks: list[float] = []
@@ -423,7 +482,7 @@ class PregnancyDataset(Dataset[DrugSample]):
             label_masks.append(float(is_observed))
 
         return DrugSample(
-            drug_id=self.drug_ids[idx],
+            drug_id=drug_id,
             x=x,
             edge_index=edge_index,
             edge_attr=edge_attr,
@@ -431,19 +490,14 @@ class PregnancyDataset(Dataset[DrugSample]):
             adr_features=torch.tensor(adr_values, dtype=torch.float32),
             pregnancy_features=torch.tensor(pregnancy_values, dtype=torch.float32),
             faers_features=torch.tensor([faers_value], dtype=torch.float32),
-            availability_mask=torch.tensor(
-                [
-                    float(adr_available),
-                    has_molecule,
-                    has_molecule,
-                    float(pregnancy_available),
-                    float(faers_available),
-                ],
-                dtype=torch.float32,
-            ),
+            availability_mask=torch.tensor(mask_values, dtype=torch.float32),
             evidence_quality=torch.tensor(quality_values, dtype=torch.float32),
             y=torch.tensor(labels, dtype=torch.float32),
             y_mask=torch.tensor(label_masks, dtype=torch.float32),
+            animal_features=torch.tensor(animal_values, dtype=torch.float32),
+            animal_species_idx=torch.tensor(animal_species, dtype=torch.long),
+            animal_category_idx=torch.tensor(animal_category, dtype=torch.long),
+            animal_availability=torch.tensor(animal_available, dtype=torch.float32),
         )
 
 
@@ -485,6 +539,10 @@ def collate_drugs(samples: list[DrugSample]) -> DrugBatch:
         evidence_quality=torch.stack([sample.evidence_quality for sample in samples]),
         y=torch.stack([sample.y for sample in samples]),
         y_mask=torch.stack([sample.y_mask for sample in samples]),
+        animal_features=torch.stack([sample.animal_features for sample in samples]),
+        animal_species_idx=torch.stack([sample.animal_species_idx for sample in samples]),
+        animal_category_idx=torch.stack([sample.animal_category_idx for sample in samples]),
+        animal_availability=torch.stack([sample.animal_availability for sample in samples]),
     )
 
 
@@ -496,6 +554,7 @@ def get_dataloader(
     pregnancy_path: str | Path | None = None,
     labels_path: str | Path | None = None,
     faers_path: str | Path | None = None,
+    animal_adr_path: str | Path | None = None,
 ) -> DataLoader[DrugBatch]:
     dataset = PregnancyDataset(
         adr_path,
@@ -503,6 +562,7 @@ def get_dataloader(
         pregnancy_path=pregnancy_path,
         labels_path=labels_path,
         faers_path=faers_path,
+        animal_adr_path=animal_adr_path,
     )
     return DataLoader(
         dataset,

@@ -22,6 +22,7 @@ from urllib.parse import unquote
 
 import numpy as np
 
+from src.services.animal_adr_service import animal_evidence
 from src.services.drug_service import build_drug_profile, resolve_drug
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -379,22 +380,28 @@ def predict(
         smiles = (profile.get("identity") or {}).get("smiles")
 
     if target in PREGNANCY_TARGETS:
-        return _pregnancy_prediction(drug_id, target)
-    if target in TOX_ENDPOINTS:
-        return _toxicity_prediction(
+        response = _pregnancy_prediction(drug_id, target)
+    elif target in TOX_ENDPOINTS:
+        response = _toxicity_prediction(
             drug_id,
             target,
             smiles=smiles,
             model_dir=Path(model_dir),
             metrics_path=Path(metrics_path),
         )
-    return _response(
-        target,
-        "unknown",
-        status="unsupported",
-        reasons=[
-            f"No model or task is defined for target '{target}'.",
-            "Supported targets: " + ", ".join(PREGNANCY_TARGETS + TOX_ENDPOINTS),
-        ],
-        drug_id=drug_id,
-    )
+    else:
+        response = _response(
+            target,
+            "unknown",
+            status="unsupported",
+            reasons=[
+                f"No model or task is defined for target '{target}'.",
+                "Supported targets: " + ", ".join(PREGNANCY_TARGETS + TOX_ENDPOINTS),
+            ],
+            drug_id=drug_id,
+        )
+
+    # Animal spontaneous ADR evidence is attached to every response as a
+    # separate branch: it never changes the prediction or the abstention.
+    response["animal_adr_evidence"] = animal_evidence(drug_id)
+    return response

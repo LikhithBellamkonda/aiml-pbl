@@ -109,6 +109,38 @@ def test_reasoner_excludes_nonhuman_or_nonreport_sources_from_human_signals():
     assert result["abstention_alert"] is not None
 
 
+def test_evidence_engine_abstains_instead_of_scoring_risk():
+    from src.ml_risk_model import predict, score_drug
+
+    result = score_drug("CID000444795")
+    assert result["risk_available"] is False
+    assert result["overall_confidence"] is None
+    assert result["model_used"] == "none"
+    assert result["foetus_risk"]["overall_foetus_risk"] is None
+    assert result["maternal_risk"]["maternal_risk"] is None
+    for entry in result["foetus_risk"]["trimester_wise"].values():
+        assert entry["aggregate_risk"] is None
+        assert entry["confidence"] is None
+
+    prediction = predict("CID000444795", "congenital_anomaly", "first_trimester")
+    assert prediction["risk"] is None
+    assert prediction["confidence"] is None
+    assert prediction["risk_available"] is False
+
+
+def test_no_hash_based_scores_or_pseudo_label_metrics():
+    import src.ml_risk_model as model
+
+    # The SHA-256 pseudo-score helper and its fabricated evaluation are gone.
+    assert not hasattr(model, "_stable_hash")
+    assert not hasattr(model, "_evaluate_split")
+    record = model.get_model().metrics_record()
+    assert record["status"] == "blocked"
+    assert record["risk_scores_available"] is False
+    assert record["evaluation"]["auroc"] is None
+    assert record["evaluation"]["n"] is None
+
+
 def test_training_remains_blocked_without_validated_human_labels(monkeypatch):
     class DatasetWithoutLabels:
         merged_df = pd.DataFrame()

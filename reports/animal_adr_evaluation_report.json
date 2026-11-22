@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-11-22T14:15:47.834322+00:00",
+  "status": "blocked",
+  "reason": "No validated human pregnancy-outcome labels (data/pregnancy_labels.csv) are available, so AUROC, AUPRC, Precision@K, Recall@K, Brier and ECE cannot be computed. Animal ADR reports are never used as human outcome labels.",
+  "mask_semantics_check": {
+    "A_equals_D_mean_probability": true,
+    "note": "With shared weights and the animal source masked out, the six-source model must reproduce the five-source model. A difference would mean missing evidence influenced the score."
+  },
+  "sample": {
+    "drugs_scored": 200,
+    "drugs_with_animal_adr_evidence": 17,
+    "seed": 42,
+    "training_performed": false,
+    "note": "Model weights are randomly initialised and untrained; only architecture and mask behaviour are exercised."
+  },
+  "outcomes": [
+    "fetal_death",
+    "preterm_birth",
+    "fetal_growth_restriction",
+    "congenital_anomaly"
+  ],
+  "experiments": {
+    "A_no_animal_adr": {
+      "experiment": "A",
+      "drugs": 200,
+      "status": "blocked: no validated human pregnancy-outcome labels",
+      "mean_probability": 0.5066,
+      "animal_source_available": 0,
+      "animal_source_masked_fraction": 1.0,
+      "metrics": {}
+    },
+    "B_animal_adr_no_missing_handling": {
+      "experiment": "B",
+      "drugs": 200,
+      "status": "blocked: no validated human pregnancy-outcome labels",
+      "mean_probability": 0.5034,
+      "animal_source_available": 200,
+      "animal_source_masked_fraction": 0.0,
+      "metrics": {}
+    },
+    "C_animal_adr_masked_fusion": {
+      "experiment": "C",
+      "drugs": 200,
+      "status": "blocked: no validated human pregnancy-outcome labels",
+      "mean_probability": 0.5063,
+      "animal_source_available": 17,
+      "animal_source_masked_fraction": 0.915,
+      "metrics": {}
+    },
+    "D_no_animal_adr_at_inference": {
+      "experiment": "D",
+      "drugs": 200,
+      "status": "blocked: no validated human pregnancy-outcome labels",
+      "mean_probability": 0.5066,
+      "animal_source_available": 0,
+      "animal_source_masked_fraction": 1.0,
+      "metrics": {}
+    }
+  },
+  "metrics": {
+    "auroc": null,
+    "auprc": null,
+    "precision_at_10": null,
+    "recall_at_10": null,
+    "brier": null,
+    "ece": null
+  }
+}

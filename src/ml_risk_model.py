@@ -1,19 +1,21 @@
-"""Deterministic, runtime-routable pregnancy risk scoring engine.
+"""Evidence-summary engine for pregnancy drug-safety queries.
 
-Provides foetal risk (trimester-wise: T1/T2/T3/entire pregnancy) and
-maternal risk for every drug, together with a confidence score and a
-dynamic model-routing decision (ML vs AI fallback) made at runtime.
+This module reports what the acquired sources actually record for a drug and
+how much of the tracked evidence space is covered. It produces **no risk
+score, no confidence and no model prediction**: the locally available sources
+contain aggregate spontaneous-report counts, regulatory classifications and
+untimed associations, not compatible binary human pregnancy-outcome labels.
 
-All scoring is deterministic: the same drug / outcome / trimester input
-always produces the same output. This is an exploratory research
-prototype, not a clinically validated predictor.
+Earlier revisions of this module derived a "risk" number from a SHA-256 hash of
+the drug identifier plus hard-coded trimester constants, and scored those same
+numbers against pseudo-labels built with more hash noise. That was neither a
+model nor an evaluation, so it has been removed. Every public function below
+now abstains explicitly and reports only observed evidence and coverage.
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
-import math
 from pathlib import Path
 from typing import Any
 
@@ -22,9 +24,6 @@ import pandas as pd
 from src.evaluation import (
     compute_evidence_quality_score,
     load_source_records_from_data_dir,
-    evaluate_trimester_metrics,
-    detect_evidence_conflict,
-    fuse_with_conflict_awareness,
 )
 
 
@@ -33,13 +32,6 @@ DATA_DIR = ROOT / "data"
 MODEL_DIR = ROOT / "src" / "models"
 METRICS_PATH = DATA_DIR / "ml_risk_metrics.json"
 MODEL_METADATA_PATH = MODEL_DIR / "ml_risk_model_metadata.json"
-
-RANDOM_SEED = 42
-CONFIDENCE_HIGH = 0.80
-CONFIDENCE_MEDIUM = 0.60
-# Target fraction of drugs served by the AI fallback path. The routing
-# threshold is calibrated at runtime to land close to this value.
-AI_FALLBACK_TARGET = 0.60
 
 TRIMESTERS = (
     "first_trimester",
@@ -63,580 +55,357 @@ MATERNAL_OUTCOMES = ("maternal_adverse_reaction",)
 ALL_OUTCOMES = FETUS_OUTCOMES + MATERNAL_OUTCOMES
 
 
-def _stable_hash(value: str) -> float:
-    """Deterministic hash of a string into [0, 1]."""
-    digest = hashlib.sha256(value.encode("utf-8")).hexdigest()
-    return int(digest[:8], 16) / float(0xFFFFFFFF)
+NO_MODEL_MESSAGE = (
+    "No validated human pregnancy-outcome model is available: the acquired "
+    "sources provide aggregate spontaneous-report counts, classifications and "
+    "untimed associations, not compatible binary outcome labels."
+)
+
+# Pregnancy outcome -> aggregate report-count column in
+# data/real_pregnancy_features.csv (used by the observed-evidence summary).
+OUTCOME_COUNT_COLUMNS = {
+    "fetal_death": "reports_fetal_death",
+    "preterm_birth": "reports_preterm_birth",
+    "fetal_growth_restriction": "reports_fetal_growth_restriction",
+    "congenital_anomaly": "reports_congenital_anomaly",
+    "maternal_adverse_reaction": "reports_maternal_adverse_reaction",
+}
 
 
-def _sigmoid(x: float) -> float:
-    x = max(-60.0, min(60.0, x))
-    return 1.0 / (1.0 + math.exp(-x))
+def _safe_int(value: Any) -> int | None:
+    """Return an integer count, or None when the source value is unavailable."""
+    if value is None or pd.isna(value):
+        return None
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None
 
 
-class DeterministicPregnancyRiskModel:
-    """Deterministic pregnancy risk model with dynamic runtime routing.
+def _load_drug_row(drug_id: str | None) -> pd.Series | None:
+    if not drug_id:
+        return None
+    path = DATA_DIR / "real_pregnancy_features.csv"
+    if not path.is_file():
+        return None
+    frame = pd.read_csv(path)
+    if "drug_id" not in frame.columns:
+        return None
+    matches = frame[frame["drug_id"].astype(str) == str(drug_id)]
+    return matches.iloc[0] if not matches.empty else None
 
-    The model is trained (feature statistics computed) deterministically
-    from the available local evidence. At prediction time, each drug is
-    routed either to the ML score or to an AI evidence-synthesis fallback
-    based on feature availability and confidence. The routing decision is
-    recomputed per query -- it is not hardcoded per drug.
+
+def _adr_term_count(drug_id: str | None) -> int | None:
+    """Number of distinct adverse-event term records for a drug, or None."""
+    if not drug_id:
+        return None
+    path = DATA_DIR / "real_adr_evidence.csv"
+    if not path.is_file():
+        return None
+    frame = pd.read_csv(
+        path, usecols=lambda column: column in {"drug_id", "adverse_event_term"}
+    )
+    if "drug_id" not in frame.columns:
+        return None
+    rows = frame[frame["drug_id"].astype(str) == str(drug_id)]
+    if rows.empty:
+        return None
+    if "adverse_event_term" in rows.columns:
+        return int(rows["adverse_event_term"].dropna().nunique())
+    return int(len(rows))
+
+
+def _faers_report_count(drug_id: str | None) -> int | None:
+    """Aggregate FAERS report total for a drug, or None when not reported."""
+    if not drug_id:
+        return None
+    path = DATA_DIR / "real_faers_summary.csv"
+    if not path.is_file():
+        return None
+    frame = pd.read_csv(path)
+    if "drug_id" not in frame.columns or "faers_report_count" not in frame.columns:
+        return None
+    rows = frame[frame["drug_id"].astype(str) == str(drug_id)]
+    return _safe_int(rows.iloc[0]["faers_report_count"]) if not rows.empty else None
+
+
+def summarise_drug(drug_id: str | None, drug_name: str | None = None) -> dict[str, Any]:
+    """Summarise observed evidence for one drug without producing a prediction.
+
+    ``observed_outcome_reports`` maps each outcome to the aggregate number of
+    spontaneous-report terms recorded by the acquired pregnancy source, or to
+    ``None`` when that source has no record for the drug. These counts are
+    reporting volume, not incidence, severity or risk.
+    """
+    row = _load_drug_row(drug_id)
+    observed = {
+        outcome: (_safe_int(row.get(column)) if row is not None else None)
+        for outcome, column in OUTCOME_COUNT_COLUMNS.items()
+    }
+    adr_term_count = _adr_term_count(drug_id)
+    faers_report_count = _faers_report_count(drug_id)
+    available_sources: list[str] = []
+    if any(value is not None for value in observed.values()):
+        available_sources.append("pregnancy_outcomes")
+    if adr_term_count is not None:
+        available_sources.append("adr")
+    if faers_report_count is not None:
+        available_sources.append("faers")
+
+    return {
+        "drug_id": str(drug_id) if drug_id else "",
+        "drug_name": drug_name
+        or (str(row.get("name", drug_id)) if row is not None else (drug_id or "")),
+        "risk_available": False,
+        "risk_score": None,
+        "confidence": None,
+        "model_used": "none",
+        "abstain": True,
+        "status": NO_MODEL_MESSAGE,
+        "observed_outcome_reports": observed,
+        "adr_term_count": adr_term_count,
+        "faers_report_count": faers_report_count,
+        "sources_with_records": sorted(available_sources),
+    }
+
+
+class PregnancyEvidenceEngine:
+    """Evidence-quality and availability engine; it never scores risk.
+
+    Every method returns ``risk_available=False`` together with the recorded
+    evidence counts, the availability mask and the coverage score. This lets a
+    caller state *why* no prediction is possible instead of inventing one.
     """
 
-    def __init__(self, seed: int = RANDOM_SEED):
-        self.seed = seed
-        self.feature_stats: dict[str, dict[str, float]] = {}
-        self.drug_features: dict[str, dict[str, float]] = {}
-        self.all_drug_ids: list[str] = []
-        self.trained = False
-        self.trained_drugs = 0
-        self.metrics: dict[str, Any] = {}
-        self.confidence_histogram: dict[str, int] = {}
+    def __init__(self) -> None:
+        self._source_records: dict[str, pd.DataFrame] | None = None
 
     # ------------------------------------------------------------------ #
-    # Training / feature preparation
+    # Evidence quality / availability
     # ------------------------------------------------------------------ #
-    def _load_features(self) -> pd.DataFrame:
-        """Assemble a per-drug feature table from all available evidence."""
-        frames: list[pd.DataFrame] = []
+    def _sources(self) -> dict[str, pd.DataFrame]:
+        if self._source_records is None:
+            self._source_records = load_source_records_from_data_dir()
+        return self._source_records
 
-        features_path = DATA_DIR / "real_pregnancy_features.csv"
-        if features_path.exists():
-            frames.append(pd.read_csv(features_path))
+    def evidence_quality(self, drug_id: str | None) -> dict[str, Any]:
+        """Availability mask (M) x completeness (Q) summary for one drug.
 
-        # ADR evidence volume per drug (general safety signal).
-        adr_path = DATA_DIR / "real_adr_evidence.csv"
-        adr_counts: dict[str, int] = {}
-        if adr_path.exists():
-            adr = pd.read_csv(adr_path)
-            if "drug_id" in adr.columns:
-                adr_counts = adr.groupby("drug_id").size().to_dict()
-
-        # Universe of drugs from the mapping (every drug must be scorable).
-        mapping_path = DATA_DIR / "drug_mapping.csv"
-        mapping = pd.read_csv(mapping_path) if mapping_path.exists() else pd.DataFrame()
-        if not mapping.empty and "drug_id" in mapping.columns:
-            universe = mapping[["drug_id", "original_name"]].copy()
-            universe = universe.rename(columns={"original_name": "name"})
-        else:
-            universe = pd.DataFrame(columns=["drug_id", "name"])
-
-        base = frames[0] if frames else pd.DataFrame()
-        if not base.empty and "drug_id" in base.columns:
-            base = base.copy()
-            base["name"] = base.get("name", base.get("original_name", base["drug_id"]))
-            merged = universe.merge(
-                base,
-                on="drug_id",
-                how="left",
-                suffixes=("", "_feat"),
-            )
-        else:
-            merged = universe.copy()
-
-        for col in ("name",):
-            if col not in merged.columns:
-                merged[col] = merged["drug_id"]
-
-        for col in (
-            "has_pregnancy_outcome_data",
-            "quality_pregnancy",
-            "reports_fetal_death",
-            "reports_preterm_birth",
-            "reports_fetal_growth_restriction",
-            "reports_congenital_anomaly",
-        ):
-            if col not in merged.columns:
-                merged[col] = 0.0
-
-        def _safe_float(value, default=0.0):
-            try:
-                value = float(value)
-            except (TypeError, ValueError):
-                return default
-            return default if pd.isna(value) else value
-
-        rows: list[dict[str, Any]] = []
-        for _, row in merged.iterrows():
-            drug_id = str(row.get("drug_id", ""))
-            name = str(row.get("name", drug_id))
-            adr_count = _safe_float(adr_counts.get(drug_id, 0.0))
-            rows.append(
-                {
-                    "drug_id": drug_id,
-                    "name": name,
-                    "has_pregnancy_data": _safe_float(
-                        row.get("has_pregnancy_outcome_data", 0.0)
-                    ),
-                    "quality": _safe_float(row.get("quality_pregnancy", 0.0)),
-                    "fetal_death": _safe_float(row.get("reports_fetal_death", 0.0)),
-                    "preterm_birth": _safe_float(row.get("reports_preterm_birth", 0.0)),
-                    "fetal_growth_restriction": _safe_float(
-                        row.get("reports_fetal_growth_restriction", 0.0)
-                    ),
-                    "congenital_anomaly": _safe_float(
-                        row.get("reports_congenital_anomaly", 0.0)
-                    ),
-                    "adr_count": adr_count,
-                }
-            )
-
-        df = pd.DataFrame(rows)
-        required = [
-            "drug_id",
-            "name",
-            "has_pregnancy_data",
-            "quality",
-            "fetal_death",
-            "preterm_birth",
-            "fetal_growth_restriction",
-            "congenital_anomaly",
-            "adr_count",
-        ]
-        for col in required:
-            if col not in df.columns:
-                df[col] = 0.0
-        return df[required]
-
-    def train(self) -> dict[str, Any]:
-        """Compute deterministic feature statistics and exploratory metrics."""
-        df = self._load_features()
-        self.all_drug_ids = [str(d) for d in df["drug_id"].tolist()]
-
-        self.drug_features = {}
-        for _, row in df.iterrows():
-            self.drug_features[str(row["drug_id"])] = {
-                "name": str(row["name"]),
-                "has_pregnancy_data": float(row.get("has_pregnancy_data", 0.0)),
-                "quality": float(row.get("quality", 0.0)),
-                "fetal_death": float(row.get("fetal_death", 0.0)),
-                "preterm_birth": float(row.get("preterm_birth", 0.0)),
-                "fetal_growth_restriction": float(row.get("fetal_growth_restriction", 0.0)),
-                "congenital_anomaly": float(row.get("congenital_anomaly", 0.0)),
-                "adr_count": float(row.get("adr_count", 0.0)),
+        This describes evidence coverage, not risk and not prediction
+        confidence.
+        """
+        if not drug_id:
+            return {
+                "drug_id": "",
+                "evidence_quality": None,
+                "q_cov": None,
+                "evidence_gap": True,
+                "available_sources": [],
+                "missing_sources": [],
             }
+        return compute_evidence_quality_score(str(drug_id), self._sources())
 
-        numeric_cols = [
-            "fetal_death",
-            "preterm_birth",
-            "fetal_growth_restriction",
-            "congenital_anomaly",
-            "adr_count",
+    def _summary(self, drug_id: str | None) -> dict[str, Any]:
+        summary = summarise_drug(drug_id)
+        quality = self.evidence_quality(drug_id)
+        mask = quality.get("availability_mask") or []
+        available_names = [
+            str(name) for name, present in mask if float(present or 0.0) > 0
         ]
-        for col in numeric_cols:
-            vals = df[col].astype(float)
-            self.feature_stats[col] = {
-                "mean": float(vals.mean()) if len(vals) else 0.0,
-                "std": float(vals.std()) if len(vals) > 1 else 1.0,
-                "max": float(vals.max()) if len(vals) else 1.0,
+        # Per-drug missing sources come from the availability mask. The
+        # engine's own missing_sources list means a whole source dataset is
+        # absent, which is a different fact.
+        missing_names = [
+            str(name) for name, present in mask if float(present or 0.0) <= 0
+        ]
+        summary.update(
+            {
+                "evidence_quality": quality.get("evidence_quality"),
+                "q_cov": quality.get("q_cov"),
+                "evidence_gap": bool(quality.get("evidence_gap", True)),
+                "available_sources": available_names,
+                "available_source_count": int(quality.get("available_sources") or 0),
+                "total_sources": int(quality.get("total_sources") or 0),
+                "missing_sources": missing_names,
+                "missing_datasets": list(quality.get("missing_sources") or []),
             }
+        )
+        return summary
 
-        self.trained_drugs = len(self.drug_features)
-        self.trained = True
-
-        # Exploratory train/test metrics (deterministic hash split).
-        self.metrics = self._evaluate_split(df)
-        self._persist()
+    # ------------------------------------------------------------------ #
+    # Public API (abstaining)
+    # ------------------------------------------------------------------ #
+    def predict(
+        self, drug_id: str, outcome: str, trimester: str | None = None
+    ) -> dict[str, Any]:
+        """Report evidence for one drug/outcome/trimester; never a risk value."""
+        summary = self._summary(drug_id)
+        column = OUTCOME_COUNT_COLUMNS.get(outcome)
+        row = _load_drug_row(str(drug_id))
+        observed = _safe_int(row.get(column)) if (row is not None and column) else None
         return {
-            "trained": True,
-            "trained_drugs": self.trained_drugs,
-            "metrics": self.metrics,
+            "drug_id": str(drug_id),
+            "outcome": outcome,
+            "trimester": trimester,
+            "trimester_label": TRIMESTER_LABELS.get(trimester, trimester or "All"),
+            "risk": None,
+            "risk_available": False,
+            "confidence": None,
+            "model_used": "none",
+            "status": NO_MODEL_MESSAGE,
+            "observed_reports": observed,
+            "evidence_quality": summary["evidence_quality"],
+            "q_cov": summary["q_cov"],
+            "evidence_gap": summary["evidence_gap"],
+            "available_sources": summary["available_sources"],
+            "missing_sources": summary["missing_sources"],
         }
 
-    def _persist(self) -> None:
+    def trimester_evidence(self, drug_id: str) -> dict[str, Any]:
+        """Per-trimester evidence availability with no risk values."""
+        summary = self._summary(drug_id)
+        return {
+            trimester: {
+                "label": TRIMESTER_LABELS[trimester],
+                "aggregate_risk": None,
+                "confidence": None,
+                "model_used": "none",
+                "outcomes": {outcome: None for outcome in FETUS_OUTCOMES},
+                "evidence_quality": summary["evidence_quality"],
+                "q_cov": summary["q_cov"],
+                "evidence_gap": summary["evidence_gap"],
+                "available_sources": summary["available_sources"],
+                "missing_sources": summary["missing_sources"],
+            }
+            for trimester in TRIMESTERS
+        }
+
+    def foetus_risk_all_trimesters(self, drug_id: str) -> dict[str, Any]:
+        """Foetal-outcome view of the evidence; risk values are unavailable."""
+        summary = self._summary(drug_id)
+        return {
+            "drug_id": str(drug_id),
+            "risk_available": False,
+            "status": NO_MODEL_MESSAGE,
+            "overall_foetus_risk": None,
+            "overall_confidence": None,
+            "overall_evidence_quality": summary["evidence_quality"],
+            "q_cov": summary["q_cov"],
+            "evidence_gap": summary["evidence_gap"],
+            "model_used": "none",
+            "observed_outcome_reports": {
+                outcome: summary["observed_outcome_reports"].get(outcome)
+                for outcome in FETUS_OUTCOMES
+            },
+            "trimester_wise": self.trimester_evidence(drug_id),
+        }
+
+    def maternal_risk(self, drug_id: str) -> dict[str, Any]:
+        """Maternal-outcome view of the evidence; risk values are unavailable."""
+        summary = self._summary(drug_id)
+        return {
+            "drug_id": str(drug_id),
+            "risk_available": False,
+            "status": NO_MODEL_MESSAGE,
+            "maternal_risk": None,
+            "confidence": None,
+            "model_used": "none",
+            "evidence_quality": summary["evidence_quality"],
+            "q_cov": summary["q_cov"],
+            "evidence_gap": summary["evidence_gap"],
+            "observed_reports": summary["observed_outcome_reports"].get(
+                "maternal_adverse_reaction"
+            ),
+        }
+
+    def score_drug(self, drug_id: str) -> dict[str, Any]:
+        """Complete evidence summary for a drug: counts + coverage, no score."""
+        summary = self._summary(drug_id)
+        row = _load_drug_row(str(drug_id))
+        return {
+            "drug_id": str(drug_id),
+            "drug_name": summary["drug_name"],
+            "risk_available": False,
+            "status": NO_MODEL_MESSAGE,
+            "foetus_risk": self.foetus_risk_all_trimesters(drug_id),
+            "maternal_risk": self.maternal_risk(drug_id),
+            "overall_confidence": None,
+            "overall_evidence_quality": summary["evidence_quality"],
+            "q_cov": summary["q_cov"],
+            "evidence_gap": summary["evidence_gap"],
+            "available_sources": summary["available_sources"],
+            "missing_sources": summary["missing_sources"],
+            "model_used": "none",
+            "observed_outcome_reports": summary["observed_outcome_reports"],
+            "adr_term_count": summary["adr_term_count"],
+            "faers_report_count": summary["faers_report_count"],
+            "sources_with_records": summary["sources_with_records"],
+        }
+
+    # ------------------------------------------------------------------ #
+    # Records
+    # ------------------------------------------------------------------ #
+    def metrics_record(self) -> dict[str, Any]:
+        """Explicit blocked-evaluation record for this component."""
+        return {
+            "component": "PregnancyEvidenceEngine",
+            "status": "blocked",
+            "training_status": "blocked",
+            "reason": NO_MODEL_MESSAGE,
+            "risk_scores_available": False,
+            "confidence_available": False,
+            "evaluation": {
+                "auroc": None,
+                "auprc": None,
+                "precision_at_k": None,
+                "recall_at_k": None,
+                "brier_score": None,
+                "ece": None,
+                "n": None,
+            },
+            "outcomes": list(ALL_OUTCOMES),
+            "trimesters": list(TRIMESTERS),
+            "note": (
+                "No AUROC/AUPRC/calibration values are reported because no "
+                "validated human pregnancy-outcome labels exist. Missing values "
+                "are unavailable, not zero."
+            ),
+        }
+
+    def write_records(self) -> dict[str, Any]:
+        """Persist the blocked-evaluation record and model metadata."""
         MODEL_DIR.mkdir(parents=True, exist_ok=True)
         DATA_DIR.mkdir(parents=True, exist_ok=True)
-        payload = {
-            "seed": self.seed,
-            "trained_drugs": self.trained_drugs,
-            "metrics": self.metrics,
-            "feature_stats": self.feature_stats,
-            "confidence_thresholds": {
-                "high": CONFIDENCE_HIGH,
-                "medium": CONFIDENCE_MEDIUM,
-            },
-        }
-        METRICS_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        record = self.metrics_record()
+        METRICS_PATH.write_text(json.dumps(record, indent=2), encoding="utf-8")
         MODEL_METADATA_PATH.write_text(
             json.dumps(
                 {
-                    "model_type": "DeterministicPregnancyRiskModel (exploratory)",
-                    "seed": self.seed,
-                    "trained_drugs": self.trained_drugs,
+                    "model_type": "PregnancyEvidenceEngine (no predictive model)",
+                    "trained": False,
+                    "risk_scores_available": False,
                     "outcomes": list(ALL_OUTCOMES),
                     "trimesters": list(TRIMESTERS),
-                    "routing": "dynamic_runtime",
-                    "limitations": (
-                        "Exploratory risk scores derived from aggregate report "
-                        "counts and ADR evidence; not validated clinical labels."
-                    ),
+                    "reason": NO_MODEL_MESSAGE,
                 },
                 indent=2,
             ),
             encoding="utf-8",
         )
-
-    # ------------------------------------------------------------------ #
-    # Scoring helpers
-    # ------------------------------------------------------------------ #
-    def _normalize(self, col: str, value: float) -> float:
-        stats = self.feature_stats.get(col, {"mean": 0.0, "std": 1.0, "max": 1.0})
-        std = stats["std"] if stats["std"] > 0 else 1.0
-        return (value - stats["mean"]) / std
-
-    def _risk_score(self, drug_id: str, outcome: str, trimester: str | None = None) -> float:
-        """Deterministic foetal/maternal risk score in [0, 1]."""
-        feat = self.drug_features.get(drug_id)
-        unknown = feat is None
-        if unknown:
-            base = _stable_hash(f"{self.seed}:{drug_id}:{outcome}:{trimester or 'all'}")
-            return round(min(0.45, base * 0.45), 4)
-
-        evidence_val = {
-            "fetal_death": feat["fetal_death"],
-            "congenital_anomaly": feat["congenital_anomaly"],
-            "preterm_birth": feat["preterm_birth"],
-            "fetal_growth_restriction": feat["fetal_growth_restriction"],
-            "maternal_adverse_reaction": feat["adr_count"],
-        }.get(outcome, 0.0)
-
-        norm_evidence = self._normalize(outcome, evidence_val) if outcome in self.feature_stats else 0.0
-        adr_norm = self._normalize("adr_count", feat["adr_count"])
-        quality = feat["quality"]
-        has_data = feat["has_pregnancy_data"]
-
-        modifier = (
-            _stable_hash(f"{self.seed}:{drug_id}:{outcome}:{trimester or 'all'}:score") - 0.5
-        ) * 0.20
-
-        trimester_weight = 1.0
-        if trimester:
-            trimester_weight = {
-                "first_trimester": {
-                    "congenital_anomaly": 1.30,
-                    "fetal_death": 1.00,
-                    "preterm_birth": 0.55,
-                    "fetal_growth_restriction": 0.70,
-                    "maternal_adverse_reaction": 0.90,
-                },
-                "second_trimester": {
-                    "congenital_anomaly": 0.85,
-                    "fetal_death": 1.00,
-                    "preterm_birth": 0.85,
-                    "fetal_growth_restriction": 1.15,
-                    "maternal_adverse_reaction": 1.00,
-                },
-                "third_trimester": {
-                    "congenital_anomaly": 0.50,
-                    "fetal_death": 1.05,
-                    "preterm_birth": 1.35,
-                    "fetal_growth_restriction": 1.20,
-                    "maternal_adverse_reaction": 1.05,
-                },
-                "entire_pregnancy": {
-                    "congenital_anomaly": 1.00,
-                    "fetal_death": 1.00,
-                    "preterm_birth": 1.00,
-                    "fetal_growth_restriction": 1.00,
-                    "maternal_adverse_reaction": 1.00,
-                },
-            }.get(trimester, {}).get(outcome, 1.0)
-
-        raw = (
-            0.50 * _sigmoid(norm_evidence)
-            + 0.18 * _sigmoid(adr_norm * 0.5)
-            + 0.16 * quality
-            + 0.10 * has_data
-            + 0.06 * modifier
-        ) * trimester_weight
-
-        return round(max(0.0, min(1.0, raw)), 4)
-
-    def _confidence(self, drug_id: str) -> float:
-        """Deterministic confidence in [0, 1] based on data depth/quality.
-
-        Evidence volume combines pregnancy-outcome reports and ADR reports,
-        so drugs with substantive pharmacovigilance signal score higher.
-        Flat quality/has-data boosts are small so the 60% / 80% thresholds
-        remain meaningful.
-        """
-        feat = self.drug_features.get(drug_id)
-        if feat is None:
-            return round(0.10 + _stable_hash(f"{self.seed}:{drug_id}:conf") * 0.40, 4)
-        has_data = feat["has_pregnancy_data"]
-        quality = feat["quality"]
-        total_reports = (
-            feat["fetal_death"]
-            + feat["preterm_birth"]
-            + feat["fetal_growth_restriction"]
-            + feat["congenital_anomaly"]
-            + feat["adr_count"]
-        )
-        volume_score = min(1.0, math.log1p(total_reports) / math.log1p(500.0))
-        conf = 0.10 * has_data + 0.10 * quality + 0.70 * volume_score
-        conf += (_stable_hash(f"{self.seed}:{drug_id}:confj") - 0.5) * 0.12
-        return round(max(0.05, min(0.99, conf)), 4)
-
-    def compute_evidence_quality(self, drug_id: str) -> dict[str, Any]:
-        """Compute evidence quality score separate from prediction confidence.
-
-        Evidence quality reflects data completeness and reliability
-        (availability mask M × quality vector Q), not the model's certainty
-        about its prediction. This separation enables the system to say
-        "we don't have enough evidence" rather than "we predict low risk
-        with high confidence."
-        """
-        source_records = load_source_records_from_data_dir()
-        return compute_evidence_quality_score(str(drug_id), source_records)
-
-    def _route_with_evidence_quality(
-        self, drug_id: str, confidence: float, evidence_quality: dict[str, Any]
-    ) -> str:
-        """Dynamic routing that considers both confidence and evidence quality.
-
-        ML is used only when:
-        - The drug has real feature evidence (ADR reports or pregnancy data)
-        - Confidence clears the medium threshold (>= 0.60) OR evidence quality
-          is high enough (>= 0.60) to support a reliable prediction
-        - No evidence gap (evidence_gap is False)
-
-        Otherwise routes to AI fallback.
-        """
-        feat = self.drug_features.get(drug_id)
-        if feat is None:
-            return "ai_fallback"
-        has_evidence = feat["adr_count"] > 0 or feat["has_pregnancy_data"] > 0
-        if not has_evidence:
-            return "ai_fallback"
-        if evidence_quality.get("evidence_gap", True):
-            return "ai_fallback"
-        if confidence >= CONFIDENCE_MEDIUM or evidence_quality["evidence_quality"] >= 0.60:
-            return "ml"
-        return "ai_fallback"
-
-    def _route(self, drug_id: str, confidence: float) -> str:
-        """Dynamic runtime routing: 'ml' or 'ai_fallback'.
-
-        Backward-compatible wrapper that uses confidence-only routing.
-        For evidence-quality-aware routing, use _route_with_evidence_quality.
-        """
-        feat = self.drug_features.get(drug_id)
-        if feat is None:
-            return "ai_fallback"
-        has_evidence = feat["adr_count"] > 0 or feat["has_pregnancy_data"] > 0
-        if has_evidence and confidence >= 0.10:
-            return "ml"
-        return "ai_fallback"
-
-    # ------------------------------------------------------------------ #
-    # Public prediction API
-    # ------------------------------------------------------------------ #
-    def predict(self, drug_id: str, outcome: str, trimester: str | None = None) -> dict[str, Any]:
-        if not self.trained:
-            self.train()
-        drug_id = str(drug_id)
-        risk = self._risk_score(drug_id, outcome, trimester)
-        confidence = self._confidence(drug_id)
-        evidence_quality = self.compute_evidence_quality(drug_id)
-        model_used = self._route_with_evidence_quality(drug_id, confidence, evidence_quality)
-        return {
-            "drug_id": drug_id,
-            "outcome": outcome,
-            "trimester": trimester,
-            "trimester_label": TRIMESTER_LABELS.get(trimester, trimester or "All"),
-            "risk": risk,
-            "confidence": confidence,
-            "evidence_quality": evidence_quality["evidence_quality"],
-            "q_cov": evidence_quality["q_cov"],
-            "evidence_gap": evidence_quality["evidence_gap"],
-            "available_sources": evidence_quality["available_sources"],
-            "missing_sources": evidence_quality["missing_sources"],
-            "model_used": model_used,
-            "ml_available": drug_id in self.drug_features,
-        }
-
-    def foetus_risk_all_trimesters(self, drug_id: str) -> dict[str, Any]:
-        """Full foetal risk profile across all trimesters for one drug."""
-        drug_id = str(drug_id)
-        if not self.trained:
-            self.train()
-        per_trimester: dict[str, Any] = {}
-        for trimester in TRIMESTERS:
-            trimester_risks: dict[str, float] = {}
-            confidences: list[float] = []
-            for outcome in FETUS_OUTCOMES:
-                pred = self.predict(drug_id, outcome, trimester)
-                trimester_risks[outcome] = pred["risk"]
-                confidences.append(pred["confidence"])
-            # Aggregate foetal risk for the trimester (max across foetal outcomes)
-            aggregate = max(trimester_risks.values()) if trimester_risks else 0.0
-            per_trimester[trimester] = {
-                "label": TRIMESTER_LABELS[trimester],
-                "aggregate_risk": round(aggregate, 4),
-                "outcomes": trimester_risks,
-                "confidence": round(statistics_mean(confidences), 4) if confidences else 0.0,
-                "evidence_quality": pred.get("evidence_quality", 0.0) if confidences else 0.0,
-                "q_cov": pred.get("q_cov", 0.0) if confidences else 0.0,
-                "evidence_gap": pred.get("evidence_gap", True) if confidences else True,
-                "model_used": pred.get("model_used", "ai_fallback"),
-            }
-
-        # Overall foetal risk (max across trimesters)
-        overall = max((v["aggregate_risk"] for v in per_trimester.values()), default=0.0)
-        overall_conf = statistics_mean(
-            [v["confidence"] for v in per_trimester.values()]
-        )
-        overall_eq = statistics_mean(
-            [v["evidence_quality"] for v in per_trimester.values()]
-        )
-        any_gap = any(v["evidence_gap"] for v in per_trimester.values())
-        return {
-            "drug_id": drug_id,
-            "overall_foetus_risk": round(overall, 4),
-            "overall_confidence": round(overall_conf, 4),
-            "overall_evidence_quality": round(overall_eq, 4),
-            "evidence_gap": any_gap,
-            "model_used": "ml" if any(
-                v["model_used"] == "ml" for v in per_trimester.values()
-            ) else "ai_fallback",
-            "trimester_wise": per_trimester,
-        }
-
-    def maternal_risk(self, drug_id: str) -> dict[str, Any]:
-        """Maternal risk (entire pregnancy) for one drug."""
-        pred = self.predict(drug_id, "maternal_adverse_reaction", "entire_pregnancy")
-        return {
-            "drug_id": drug_id,
-            "maternal_risk": pred["risk"],
-            "confidence": pred["confidence"],
-            "evidence_quality": pred.get("evidence_quality", 0.0),
-            "q_cov": pred.get("q_cov", 0.0),
-            "evidence_gap": pred.get("evidence_gap", True),
-            "model_used": pred["model_used"],
-        }
-
-    def score_drug(self, drug_id: str) -> dict[str, Any]:
-        """Complete deterministic score for a drug: foetus + maternal + routing."""
-        drug_id = str(drug_id)
-        if not self.trained:
-            self.train()
-        foetus = self.foetus_risk_all_trimesters(drug_id)
-        maternal = self.maternal_risk(drug_id)
-        # Overall model_used: ML if either foetus or maternal used ML, else AI.
-        model_used = "ml" if (
-            foetus["model_used"] == "ml" or maternal["model_used"] == "ml"
-        ) else "ai_fallback"
-        # Overall evidence quality: mean of foetus and maternal
-        overall_eq = statistics_mean([
-            foetus.get("overall_evidence_quality", 0.0),
-            maternal.get("evidence_quality", 0.0),
-        ])
-        any_gap = foetus.get("evidence_gap", True) or maternal.get("evidence_gap", True)
-        return {
-            "drug_id": drug_id,
-            "drug_name": self.drug_features.get(drug_id, {}).get("name", drug_id),
-            "foetus_risk": foetus,
-            "maternal_risk": maternal,
-            "overall_confidence": round(
-                statistics_mean([foetus["overall_confidence"], maternal["confidence"]]), 4
-            ),
-            "overall_evidence_quality": round(overall_eq, 4),
-            "evidence_gap": any_gap,
-            "model_used": model_used,
-            "ml_available": drug_id in self.drug_features,
-        }
-
-    # ------------------------------------------------------------------ #
-    # Exploratory metrics (train/test split)
-    # ------------------------------------------------------------------ #
-    def _evaluate_split(self, df: pd.DataFrame) -> dict[str, Any]:
-        """Deterministic train/test accuracy/precision/recall per outcome."""
-        df = df.copy()
-        df["hash"] = df["drug_id"].map(lambda d: _stable_hash(f"{self.seed}:{d}:split"))
-        train = df[df["hash"] < 0.70]
-        test = df[df["hash"] >= 0.70]
-
-        results: dict[str, Any] = {}
-        for outcome in ALL_OUTCOMES:
-            source_col = {
-                "fetal_death": "fetal_death",
-                "congenital_anomaly": "congenital_anomaly",
-                "preterm_birth": "preterm_birth",
-                "fetal_growth_restriction": "fetal_growth_restriction",
-                "maternal_adverse_reaction": "adr_count",
-            }[outcome]
-
-            def pseudo_label(row):
-                v = float(row[source_col])
-                base = 1 if v > 0 else 0
-                noise = _stable_hash(f"{self.seed}:{row['drug_id']}:{outcome}:label")
-                return int(base == 1 or noise > 0.88)
-
-            def predict_row(row):
-                norm = self._normalize(source_col, float(row[source_col]))
-                return int(norm > 0.0)
-
-            test_labels = test.apply(pseudo_label, axis=1).tolist()
-            test_preds = test.apply(predict_row, axis=1).tolist()
-            results[outcome] = self._binary_metrics(test_labels, test_preds)
-
-        # Aggregate counts across the whole population for the summary.
-        confidences = [self._confidence(d) for d in self.all_drug_ids]
-        above_80 = sum(1 for c in confidences if c >= CONFIDENCE_HIGH)
-        above_60 = sum(1 for c in confidences if c >= CONFIDENCE_MEDIUM)
-        ml_count = sum(1 for d in self.all_drug_ids if self._route(d, self._confidence(d)) == "ml")
-        ai_count = len(self.all_drug_ids) - ml_count
-
-        results["_summary"] = {
-            "total_drugs": len(self.all_drug_ids),
-            "trained_drugs": self.trained_drugs,
-            "confidence_above_80": above_80,
-            "confidence_above_60": above_60,
-            "ml_routed_drugs": ml_count,
-            "ai_fallback_routed_drugs": ai_count,
-            "ai_fallback_fraction": round(ai_count / max(1, len(self.all_drug_ids)), 4),
-        }
-        return results
-
-    @staticmethod
-    def _binary_metrics(y_true, y_pred) -> dict[str, Any]:
-        tp = sum(1 for t, p in zip(y_true, y_pred) if t == 1 and p == 1)
-        tn = sum(1 for t, p in zip(y_true, y_pred) if t == 0 and p == 0)
-        fp = sum(1 for t, p in zip(y_true, y_pred) if t == 0 and p == 1)
-        fn = sum(1 for t, p in zip(y_true, y_pred) if t == 1 and p == 0)
-        n = len(y_true)
-        accuracy = (tp + tn) / max(1, n)
-        precision = tp / max(1, tp + fp)
-        recall = tp / max(1, tp + fn)
-        f1 = 2 * precision * recall / max(1e-9, precision + recall)
-        return {
-            "n": n,
-            "accuracy": round(accuracy, 4),
-            "precision": round(precision, 4),
-            "recall": round(recall, 4),
-            "f1": round(f1, 4),
-            "tp": tp,
-            "tn": tn,
-            "fp": fp,
-            "fn": fn,
-        }
+        return record
 
 
-def statistics_mean(values):
-    return sum(values) / len(values) if values else 0.0
+# Backwards-compatible name for callers that imported the old class.
+DeterministicPregnancyRiskModel = PregnancyEvidenceEngine
+
+_engine: PregnancyEvidenceEngine | None = None
 
 
-# Module-level singleton for reuse across calls (keeps scoring deterministic).
-_model: DeterministicPregnancyRiskModel | None = None
-
-
-def get_model() -> DeterministicPregnancyRiskModel:
-    global _model
-    if _model is None:
-        _model = DeterministicPregnancyRiskModel()
-        _model.train()
-    return _model
+def get_model() -> PregnancyEvidenceEngine:
+    global _engine
+    if _engine is None:
+        _engine = PregnancyEvidenceEngine()
+    return _engine
 
 
 def score_drug(drug_id: str) -> dict[str, Any]:
@@ -651,5 +420,22 @@ def maternal_risk(drug_id: str) -> dict[str, Any]:
     return get_model().maternal_risk(drug_id)
 
 
-def predict(drug_id: str, outcome: str, trimester: str | None = None) -> dict[str, Any]:
+def predict(
+    drug_id: str, outcome: str, trimester: str | None = None
+) -> dict[str, Any]:
     return get_model().predict(drug_id, outcome, trimester)
+
+
+def main() -> None:
+    record = get_model().write_records()
+    print(
+        "PregnancyEvidenceEngine: status={status}; risk_scores_available={risk}".format(
+            status=record["status"],
+            risk=record["risk_scores_available"],
+        )
+    )
+    print(record["reason"])
+
+
+if __name__ == "__main__":
+    main()

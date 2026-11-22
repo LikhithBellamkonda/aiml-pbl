@@ -1,0 +1,5 @@
+experiment,drugs,mean_probability,animal_source_masked_fraction,auroc,auprc,brier,status
+A_no_animal_adr,200,0.5066,1.0,,,,blocked: no validated human pregnancy-outcome labels
+B_animal_adr_no_missing_handling,200,0.5034,0.0,,,,blocked: no validated human pregnancy-outcome labels
+C_animal_adr_masked_fusion,200,0.5063,0.915,,,,blocked: no validated human pregnancy-outcome labels
+D_no_animal_adr_at_inference,200,0.5066,1.0,,,,blocked: no validated human pregnancy-outcome labels

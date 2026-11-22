@@ -82,12 +82,14 @@ def _stage_process(offline: bool, max_pubchem_queries: int | None) -> dict[str, 
 
 def _stage_features() -> dict[str, Any]:
     """Build and validate the model-ready feature tables."""
+    animal_features = DATA_DIR / "animal_adr_features.csv"
     dataset = PregnancyDataset(
         DATA_DIR / "real_faers_adr.csv",
         DATA_DIR / "real_pubchem.csv",
         pregnancy_path=DATA_DIR / "real_pregnancy_features.csv",
         labels_path=DATA_DIR / "pregnancy_labels.csv",
         faers_path=DATA_DIR / "real_faers_summary.csv",
+        animal_adr_path=animal_features if animal_features.exists() else None,
     )
     if len(dataset) == 0:
         raise RuntimeError("Model-ready feature table is empty.")
@@ -103,8 +105,10 @@ def _stage_features() -> dict[str, Any]:
         sample = dataset[index]
         for position, name in enumerate(
             ("general_adr", "chemical_descriptors", "molecular_graph",
-             "pregnancy_outcomes", "faers_reporting")
+             "pregnancy_outcomes", "faers_reporting", "animal_adr")
         ):
+            if position >= len(sample.availability_mask):
+                continue
             if float(sample.availability_mask[position]) > 0:
                 summary["modality_availability"][name] = (
                     summary["modality_availability"].get(name, 0) + 1
@@ -123,6 +127,23 @@ def _stage_features() -> dict[str, Any]:
     return summary
 
 
+def _stage_animal_adr() -> dict[str, Any]:
+    """Animal spontaneous ADR evidence; optional and independent of other stages."""
+    from src.animal_adr.pipeline import run as run_animal_adr
+
+    report = run_animal_adr(download_missing=False)
+    if report.get("status") == "skipped":
+        return {"status": "skipped", "reason": report.get("reason")}
+    stages = report.get("stages", {})
+    return {
+        "status": report.get("status"),
+        "raw_records": stages.get("acquire", {}).get("records"),
+        "cleaned_rows": stages.get("preprocess", {}).get("cleaned_rows"),
+        "mapped_drugs": stages.get("map", {}).get("unique_standardized_drugs"),
+        "feature_drugs": stages.get("features", {}).get("drugs"),
+    }
+
+
 def _stage_feasibility() -> dict[str, Any]:
     report = write_report(ROOT)
     decisions = report.get("target_decisions", [])
@@ -137,6 +158,7 @@ def _stage_feasibility() -> dict[str, Any]:
 STAGES: tuple[tuple[str, Callable[..., dict[str, Any]]], ...] = (
     ("ingest", _stage_ingest),
     ("process", _stage_process),
+    ("animal_adr", _stage_animal_adr),
     ("features", _stage_features),
     ("feasibility", _stage_feasibility),
 )

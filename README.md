@@ -24,69 +24,144 @@ data — no validated human pregnancy labels exist), the system:
 
 | Component | Status | Description |
 |-----------|--------|-------------|
-| Human-only data pipeline | ✅ | OnSIDES, Mendeley, TGA, FAERS, PubChem (animal/nonclinical data purged) |
-| ROR/PRR disproportionality signals | ✅ | Reporting Odds Ratio and Proportional Reporting Ratio per drug–outcome |
-| Availability Mask (M) & Quality Vector (Q) | ✅ | Per-drug, per-source evidence availability and completeness |
+| Human-only evidence pipeline | ✅ | OnSIDES, Mendeley, TGA, FAERS, PubChem; animal records never become human outcome labels |
+| Animal ADR evidence branch | ✅ | FDA CVM ADAE (VeDDRA terms) as a separate, gated sixth evidence source |
+| Drug lookup by name or identifier | ✅ | Recorded name, project `drug_id`, PubChem CID or InChIKey; ambiguity is surfaced |
+| Availability Mask (M) & Quality Vector (Q) | ✅ | Per-drug, per-source evidence availability and provenance completeness |
 | Q_cov coverage score | ✅ | Evidence coverage = mean(M × Q) across source families |
-| Mask-Aware Cross-Attention Gating | ✅ | Multimodal fusion conditioned on M and Q |
+| Mask-aware cross-attention gating | ⚠️ | Architecture implemented; weights are untrained (no labels, see below) |
 | Scientific safeguard | ✅ | Training blocked without validated human pregnancy labels |
-| 2-stage evaluation (drug × trimester × outcome) | ✅ | Stage 1: filter evidence; Stage 2: Q_cov < 0.40 → AI fallback |
-| Dynamic ML ↔ AI fallback routing | ✅ | Recomputed per query, not hardcoded per drug |
-| Trimester-wise foetal risk + maternal risk | ✅ | Separate fetal (4 outcomes) and maternal risk per trimester |
-| Side effects with adverse level + confidence | ✅ | High/Moderate/Low levels from report counts |
-| Evidence quality head (separate from confidence) | ✅ | M × Q based evidence reliability score |
-| Evidence gap flag | ✅ | Explicit "understudied drug" warning |
-| Evidence-aware abstention alerts | ✅ | Dynamic messages based on root cause |
-| Streamlit dashboard | ✅ | Query filter panel, risk panel, side effects, provenance badges |
-| Architecture diagram | ✅ | 4-tier human-only system (reports/figures/) |
-| Curated benchmark (25 drugs) | ✅ | Known teratogens + safe drugs (data/curated_benchmark.csv) |
-| Case studies | ✅ | docs/CASE_STUDIES.md |
-| Unit tests (38 passing) | ✅ | pytest suite |
+| Evidence quality (separate from prediction) | ✅ | M × Q evidence reliability, never presented as confidence |
+| Evidence gap flag | ✅ | Explicit "understudied or single-source drug" warning |
+| Evidence-aware abstention messages | ✅ | Dynamic messages based on the actual missing evidence |
+| Per-trimester evidence availability | ✅ | T1/T2/T3/entire pregnancy coverage report; no risk value is produced |
+| Reported side-effect terms | ✅ | Observed terms with report counts and High/Moderate/Low volume levels |
+| Streamlit dashboard | ✅ | Search, identity, per-source evidence panels, animal ADR section, provenance badges |
+| Dataset feasibility & overlap reports | ✅ | Generated from the current pipeline run |
+| Case studies | ✅ | docs/CASE_STUDIES.md (evidence availability, not predictions) |
+| Unit tests | ✅ | pytest suite |
+| ROR/PRR disproportionality ratios | ❌ | No case/non-case denominators exist in the acquired aggregates |
+| Trained pregnancy model, risk score, confidence | ❌ | Blocked: no validated human pregnancy-outcome labels |
+| AUROC / AUPRC / calibration | ❌ | Blocked; no labels means no metric, not a metric of zero |
+| Curated benchmark file | ❌ | Not present in the repository |
+
+## Animal ADR Evidence Branch
+
+Veterinary spontaneous adverse-event reports are integrated as an
+**independent evidence branch**, never as human pregnancy labels:
+
+```bash
+python -m src.animal_adr.pipeline          # acquire -> clean -> map -> features
+python -m src.animal_adr_experiments       # ablation A/B/C/D + reports
+python -m src.run_pipeline                 # full pipeline (includes animal_adr)
+```
+
+- **Source**: FDA CVM Animal & Veterinary Adverse Event export
+  `datasets/animalandveterinary-event-*.json.zip` (18,673 reports, VeDDRA-coded
+  reactions), with the EMA VeDDRA terminology workbook for System Organ Class
+  categorisation. EMA EVVet and UK VMD have no scriptable structured bulk
+  export here and are recorded as `manual_access_required`, with explicit
+  local-file ingestion functions (`ingest_evvet`, `ingest_vmd`).
+- **Outputs**: `data/animal_adr_acquisition_manifest.json`,
+  `data/animal_adr_dataset_summary.json`, `data/animal_adr_overlap.csv`,
+  `data/animal_adr_data_quality_report.json`, `data/animal_adr_features.csv`,
+  `data/cleaned/animal_adr_{cleaned,mapped,unmatched,drug_mapping,
+  species_summary,reaction_summary}.csv`, and
+  `reports/animal_adr_{integration_report.md,ablation_results.csv,
+  evaluation_report.json}`.
+- **Model**: `src/models/animal_adr_encoder.py` (MLP with species and reaction
+  embeddings) enters `MaskAwareCrossAttentionGating` as a sixth source. The
+  five-source architecture remains the default, so existing artefacts load
+  unchanged; `MultimodalPregnancyADRModel(include_animal_adr=True)` enables it.
+- **Missing evidence**: a drug without animal records has mask 0 and the branch
+  emits exact zeros; fusion excludes it. The dashboard says "Animal ADR
+  evidence unavailable. This does not indicate that the drug is safe."
+- **Safeguards**: animal spontaneous reports are kept distinct from animal
+  developmental/reproductive toxicity, human ADR evidence and human pregnancy
+  outcomes. Counts are not incidence, imply no causality, and are never used as
+  pregnancy labels. No animal branch or MEPRank weights are claimed as trained
+  without validated labels (see `reports/animal_adr_evaluation_report.json`).
 
 ## What Is NOT Implemented (and why)
 
 | Feature | Status | Reason / Alternative |
 |-----------|--------|---------------------|
-| Dirichlet evidential deep learning | ❌ | Requires labeled training data (blocked). Alternative: heuristic confidence + evidence quality score |
-| Multi-task learning neural network | ❌ | No labeled human pregnancy outcomes (blocked by design). Alternative: deterministic risk model |
+| Dirichlet evidential deep learning | ❌ | Requires labeled training data (blocked). Alternative: evidence coverage score only |
+| Multi-task learning neural network | ❌ | No labeled human pregnancy outcomes (blocked by design). Alternative: observed-evidence summary |
 | SHAP / Integrated Gradients | ❌ | No trained GNN + molecular graph pipeline. Alternative: side effect terms + provenance badges |
 | Expert validation (clinician) | ❌ | No experts available. Alternative: case studies with known teratogens |
 | External validation (SIDER, DailyMed) | ❌ | Not available locally. Alternative: real FAERS/OnSIDES in pipeline |
 | Drug-disjoint / temporal splits | ❌ | No labeled data. Alternative: deterministic hash-based split |
 | RAG / literature branch | ❌ | No literature corpus available. Alternative: PubChem + ADR evidence |
 | DMPNN / AttentiveFP | ❌ | Needs graph training data + labels. Alternative: basic MolecularGNN |
-| Public benchmark release | ⚠️ | Data not curated to publication level. Alternative: curated_benchmark.csv (25 drugs) |
+| Public benchmark release | ❌ | No curated benchmark file is present in the repository |
 | Conflict-resolution module | ⚠️ | No labeled contradictory pairs. Alternative: conflict detection heuristic implemented |
 | Mechanism-aware explanations | ❌ | No mechanism database. Alternative: SMILES-based features |
 | Prospective evaluation | ❌ | No temporal outcome data. Not feasible |
 
 ## Installation & Usage
 
-See the original setup instructions below. After installation, run:
+```bash
+# Install pinned dependencies (CPU-only PyTorch build)
+python -m venv .venv
+.venv/bin/pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+.venv/bin/pip install -r requirements.txt
 
-```powershell
-# Process datasets
-python -m src.process_real_datasets --offline
+# Full pipeline: ingest -> process -> animal_adr -> features -> feasibility
+.venv/bin/python -m src.run_pipeline
 
-# Run dashboard
-streamlit run dashboard/app.py
+# Animal ADR branch on its own, then the A/B/C/D mask ablation
+.venv/bin/python -m src.animal_adr.pipeline
+.venv/bin/python -m src.animal_adr_experiments
 
-# Run tests
-python -m pytest -q
+# Blocked-evaluation record for the evidence engine
+.venv/bin/python -m src.ml_risk_model
+
+# Test suite
+.venv/bin/python -m pytest -q
+
+# Dashboard (open http://localhost:8501)
+.venv/bin/python -m streamlit run dashboard/app.py
 ```
+
+On Windows use `.venv\Scripts\python.exe` in place of `.venv/bin/python`.
+Training commands (`python -m src.train`, `python -m src.train_reproductive_tox`)
+raise a documented error until validated labels / the source workbook exist.
 
 ## Key Outputs
 
-For any drug query, the system returns:
+For any drug query, the system returns **observed evidence and its coverage**, never a
+pregnancy risk prediction:
 
-- **Foetus risk** (trimester-wise: T1, T2, T3, Entire Pregnancy) for 4 fetal outcomes
-- **Maternal risk** (entire pregnancy)
-- **Prediction confidence** (0–1, how sure the model is)
-- **Evidence quality** (0–1, how reliable the underlying data is — separate from confidence)
-- **Evidence gap flag** (True if data too sparse for reliable prediction)
-- **Model used** (ML vs AI fallback, decided dynamically per query)
-- **Side effects** with High/Moderate/Low adverse levels and exploratory confidence
-- **Abstention alert** (dynamic message explaining why scoring is withheld, if applicable)
+- **Standardized identity** — recorded name, project `drug_id`, PubChem CID,
+  InChIKey, SMILES and the mapping status (resolved / unresolved / name-keyed /
+  combination not resolved). No identifier is invented for an ambiguous match.
+- **Per-source evidence** — human pregnancy-specific records, general ADR terms,
+  FAERS aggregate reports, nonclinical developmental/reproductive toxicity
+  studies, and animal spontaneous ADR reports, each in a separate panel with
+  its own provenance.
+- **Evidence quality (Q_cov)** — availability mask × provenance completeness.
+  This is a coverage measure, not confidence and not risk.
+- **Evidence gap flag** — True when fewer than two source families cover the drug
+  or coverage is very low.
+- **Missing-source list** — every tracked source without a record is named, so an
+  absent record is never read as a negative outcome.
+- **Side-effect terms** — observed ADR terms with report counts and a relative
+  report-volume level. Counts are not incidence and imply no causality.
+- **Prediction status** — "Unavailable", with the reason: there is no validated
+  human pregnancy-outcome model. No risk score, confidence value or trimester
+  risk number is emitted anywhere in the current build.
+
+### Prediction status in this build
+
+Earlier revisions of `src/ml_risk_model.py` produced a "foetal risk" number from a
+SHA-256 hash of the drug identifier plus hard-coded trimester constants, a
+hash-perturbed "confidence", and an accuracy/precision/recall evaluation against
+pseudo-labels built from the same feature columns. That path has been removed:
+it was neither a trained model nor a valid evaluation. The module is now a
+`PregnancyEvidenceEngine` that reports observed counts and evidence coverage and
+explicitly abstains from scoring. `data/ml_risk_metrics.json` records
+`status: blocked` with null metrics.
 
 ## Important Limitations
 

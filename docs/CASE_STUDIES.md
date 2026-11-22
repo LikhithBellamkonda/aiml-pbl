@@ -1,141 +1,100 @@
-# Case Studies: Known Pregnancy Drug-Safety Signals
+# Case Studies: What the Local Evidence Actually Contains
 
-This document presents case studies for drugs with well-established pregnancy
-safety profiles. These serve as positive controls (known teratogens) and
-negative controls (known safe drugs) to demonstrate where the model succeeds,
-where it fails, and how evidence reliability scoring behaves.
+This document records, for a set of drugs with well-known pregnancy-safety
+literature, **what the acquired local sources contain**. It is an evidence
+inventory, not a prediction exercise: the project has no validated human
+pregnancy-outcome model, so there is no model output to compare with the
+literature.
 
-## Positive Controls (Known Teratogens / High Risk)
+## Method
 
-### Isotretinoin (CID000444795)
-- **Known risk:** Severe congenital anomalies (craniofacial, cardiac, thymic)
-- **Most vulnerable trimester:** First Trimester (T1) - organogenesis
-- **Evidence level:** High (FAERS + Mendeley + FDA labels)
-- **Expected model output:** High foetus risk in T1, evidence quality High
-- **Model behavior:** Should predict high risk with high evidence quality
+Every row below was produced by calling the same service the dashboard uses:
 
-### Valproic Acid / Valproate (CID000002812)
-- **Known risk:** Neural tube defects, craniofacial anomalies, developmental delay
-- **Most vulnerable trimester:** First Trimester (T1)
-- **Evidence level:** High (FAERS + Mendeley + FDA labels)
-- **Expected model output:** High foetus risk in T1, evidence quality High
+```bash
+python -c "from src.services.drug_service import build_drug_profile; import json; print(json.dumps(build_drug_profile('isotretinoin'), indent=2, default=str))"
+```
 
-### Thalidomide (CID000004946)
-- **Known risk:** Phocomelia (limb reduction defects)
-- **Most vulnerable trimester:** First Trimester (T1)
-- **Evidence level:** High (historical, FDA labels)
-- **Expected model output:** High foetus risk in T1
-- **Note:** Historical teratogen; may have limited modern FAERS reports due to strict controls
+Counts are record counts from the local files at the time of the run recorded in
+`data/pipeline_run.json`:
 
-### Warfarin (CID000004189)
-- **Known risk:** Fetal warfarin syndrome (nasal hypoplasia, stippled epiphyses)
-- **Most vulnerable trimester:** First Trimester (T1)
-- **Evidence level:** High (FAERS + Mendeley + FDA labels)
-- **Expected model output:** High foetus risk in T1
+- **Human pregnancy records** — rows in `data/real_pregnancy_outcomes.csv`
+  (aggregate spontaneous-report terms, not patient-level outcomes).
+- **General ADR terms** — distinct terms in `data/real_adr_evidence.csv`.
+- **Nonclinical toxicity records** — OECD TG assay rows in
+  `data/real_toxicity_evidence.csv`.
+- **FAERS reports** — aggregate reporting total in `data/real_faers_summary.csv`.
 
-### Phenytoin (CID000003365)
-- **Known risk:** Fetal hydantoin syndrome (cleft lip/palate, growth restriction)
-- **Most vulnerable trimester:** First Trimester (T1)
-- **Evidence level:** High (FAERS + Mendeley + FDA labels)
+A zero or "unavailable" cell means the local sources have no record. It is not
+evidence of safety, and it is not a negative label.
 
-### Carbamazepine (CID0000047576)
-- **Known risk:** Spina bifida, craniofacial defects
-- **Most vulnerable trimester:** First Trimester (T1)
-- **Evidence level:** High (FAERS + Mendeley + FDA labels)
+## Measured coverage
 
-### ACE Inhibitors (e.g., Lisinopril, CID000005526)
-- **Known risk:** Fetal renal dysfunction, oligohydramnios, skull hypoplasia
-- **Most vulnerable trimester:** Second Trimester (T2) / Third Trimester (T3)
-- **Evidence level:** High (FAERS + Mendeley + FDA labels)
-- **Expected model output:** High risk in T2/T3, lower in T1
+| Drug asked | Resolved identity | Mapping status | Human pregnancy records | General ADR terms | Nonclinical toxicity records | FAERS reports |
+| --- | --- | --- | ---: | ---: | ---: | ---: |
+| isotretinoin | `NAME:isotretinoin` | name-keyed evidence only | 222 | 0 | 0 | unavailable |
+| thalidomide | CID 5426 | resolved | 0 | 402 | 1 | unavailable |
+| carbamazepine | CID 2554 | resolved | 0 | 340 | 3 | unavailable |
+| spironolactone | CID 5833 | resolved | 7 | 56 | 3 | 11 |
+| metformin | CID 4091 | resolved | 0 | 141 | 0 | unavailable |
+| amoxicillin | CID 33613 | resolved | 34 | 93 | 0 | 109 |
+| ibuprofen | CID 3672 | resolved | 0 | 337 | 0 | unavailable |
+| warfarin | CID 54678486 | resolved | 0 | 0 | 0 | unavailable |
+| heparin | `NAME:heparin` | unresolved | 0 | 0 | 0 | unavailable |
 
-### Spironolactone (CID000005833)
-- **Known risk:** Feminization of male fetus (anti-androgen effects)
-- **Most vulnerable trimester:** Second Trimester (T2)
-- **Evidence level:** Moderate (FAERS + Mendeley)
+The following names used in the pregnancy literature are **not present** in the
+local identifier mapping under that exact spelling, so a lookup returns
+"no local mapping entry matches": `valproic acid` (recorded as
+`sodium valproate (valproic acid)`), `phenytoin` (recorded as
+`phenytoin sodium`), `levothyroxine` (recorded as `thyroxine (levothyroxine)`),
+`acetaminophen` (recorded as `paracetamol`) and `insulin` (recorded only as
+specific analogues and combinations). They are listed here so the gap is
+explicit rather than hidden.
 
-## Negative Controls (Known Safe)
+## Observations
 
-### Metformin (CID000006741)
-- **Known risk:** None established
-- **Most vulnerable trimester:** Entire Pregnancy (no specific trimester)
-- **Evidence level:** High (FAERS + Mendeley)
-- **Expected model output:** Low risk across all trimesters, evidence quality High
+- **Isotretinoin** is the clearest case of human pregnancy evidence in the local
+  data: 222 aggregate pregnancy-outcome records keyed by the evidence index name
+  `isotretinoin`. It has no PubChem structure in the local mapping, so molecular
+  and nonclinical joins are unavailable. The dashboard states this and does not
+  attach a CID.
+- **Thalidomide, carbamazepine, metformin and ibuprofen** have substantial
+  general-ADR coverage but no human pregnancy-outcome records in the local files.
+  Absence of a pregnancy record is reported as unavailable.
+- **Spironolactone and amoxicillin** are the only rows above with records in
+  four of the tracked human/animal families at once; they are useful for
+  checking that the dashboard keeps the panels separate.
+- **Warfarin** resolves to a PubChem CID but has no records in any local
+  evidence table. The identifier mapping and the evidence coverage are
+  independent facts, and the dashboard reports both.
+- **Heparin** is keyed by name with `unresolved` status; no structure is
+  available, so molecular analysis is disabled for it.
 
-### Levothyroxine (CID000006167)
-- **Known risk:** None (essential for maternal hypothyroidism)
-- **Most vulnerable trimester:** Entire Pregnancy
-- **Evidence level:** High
-- **Expected model output:** Low risk, evidence quality High
+## What this does and does not support
 
-### Heparin (CID000005754)
-- **Known risk:** None (does not cross placenta)
-- **Most vulnerable trimester:** Entire Pregnancy
-- **Evidence level:** High
-- **Expected model output:** Low risk, evidence quality High
+Supported:
 
-### Acetaminophen / Paracetamol (CID000003652)
-- **Known risk:** None (first-line analgesic in pregnancy)
-- **Most vulnerable trimester:** Entire Pregnancy
-- **Evidence level:** High
-- **Expected model output:** Low risk, evidence quality High
+- Identifier resolution and its status, including ambiguity and name-only keys.
+- Per-source evidence availability and record counts.
+- Evidence coverage (Q_cov) and evidence-gap flags.
+- Separation of human pregnancy, human ADR, animal spontaneous ADR and animal
+  experimental toxicity evidence in the interface.
 
-### Amoxicillin (CID000005526)
-- **Known risk:** None
-- **Most vulnerable trimester:** Entire Pregnancy
-- **Evidence level:** High
-- **Expected model output:** Low risk, evidence quality High
+Not supported:
 
-### Insulin (CID000004946)
-- **Known risk:** None (does not cross placenta)
-- **Most vulnerable trimester:** Entire Pregnancy
-- **Evidence level:** High
-- **Expected model output:** Low risk, evidence quality High
-
-## Trimester-Dependent Risk (Different Risk by Trimester)
-
-### Ibuprofen (CID000004201)
-- **Known risk:** Oligohydramnios, premature closure of ductus arteriosus
-- **Most vulnerable trimester:** Third Trimester (T3)
-- **Evidence level:** Moderate
-- **Expected model output:** Higher risk in T3, lower in T1/T2
-
-### Fluoxetine / Sertraline (SSRIs, CID000005526, CID000004173)
-- **Known risk:** Neonatal adaptation syndrome (mild, transient)
-- **Most vulnerable trimester:** Third Trimester (T3)
-- **Evidence level:** Moderate
-- **Expected model output:** Higher maternal/neonatal risk in T3
-
-## Interpretation Guide
-
-| Model Output | Interpretation | Action |
-|-------------|---------------|--------|
-| High risk + High evidence quality | Strong signal, well-supported | Clinical review warranted |
-| High risk + Low evidence quality | Hypothesis-generating only | Needs investigation, not actionable |
-| Low risk + High evidence quality | Reassuring evidence | Can be considered with clinical judgment |
-| Low risk + Low evidence quality | Absence of evidence ≠ evidence of absence | Caution, more data needed |
-| Evidence gap flag | Understudied drug | Prioritize for data collection |
+- Any statement that a drug is high or low risk in pregnancy.
+- Any ranking of these drugs by predicted risk.
+- Any comparison against literature effect sizes; the local records are
+  aggregate spontaneous-report counts without denominators or comparators.
+- Any causal interpretation. Spontaneous reporting is voluntary, under-reported
+  and subject to stimulated reporting.
 
 ## Limitations
 
-- These case studies reflect historical and aggregate evidence, not individual patient outcomes
-- Spontaneous reporting data (FAERS, OnSIDES) has stimulated reporting and under-reporting biases
-- Associations are not causal; the model is a screening/prioritization tool
-- "Safe" drugs may still carry individual patient risks; always consult clinical guidelines
-- Evidence quality scores are exploratory and not clinically validated
-
-## Known Teratogen Reference List
-
-For expert validation, the following drugs should be reviewed by a clinical
-pharmacologist or obstetric expert:
-
-1. Isotretinoin - confirmed human teratogen
-2. Valproate - confirmed human teratogen
-3. Thalidomide - confirmed human teratogen
-4. Warfarin - confirmed human teratogen
-5. Phenytoin - confirmed human teratogen
-6. Carbamazepine - confirmed human teratogen
-7. ACE inhibitors - confirmed fetotoxic in T2/T3
-8. Metformin - considered safe
-9. Levothyroxine - considered safe
-10. Heparin - considered safe (does not cross placenta)
+- Counts are reporting volume. They are not incidence, severity or causal
+  effects, and they cannot be converted into a 2×2 table for ROR/PRR because no
+  case/non-case denominators are present.
+- The local identifier mapping does not cover every synonym in clinical use;
+  the unmatched names above are retained explicitly rather than forced onto a
+  neighbouring identifier.
+- The absence of a record is never treated as a negative outcome, and no
+  pregnancy risk score or confidence value is produced anywhere in this build.
