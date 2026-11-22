@@ -11,7 +11,7 @@ read as a validated clinical label or as a model target.
 
 - Control drugs listed: 16
 - Resolved by the local identifier mapping / evidence index: 16
-- Flagged with an evidence gap (fewer than two families or low coverage): 16
+- Flagged with an evidence gap (fewer than two families or low coverage): 9
 
 ## Coverage table
 

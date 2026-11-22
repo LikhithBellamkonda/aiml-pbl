@@ -91,7 +91,11 @@ def _evidence_reliability_summary() -> dict[str, Any]:
     series = pd.Series(values, dtype=float)
     return {
         "available": True,
-        "definition": "Q_cov = mean over source families of (availability mask × provenance completeness)",
+        "definition": (
+            "Q_cov = mean over source families of (availability mask × "
+            "source quality), where source quality = 0.5 × populated content "
+            "fields + 0.5 × log-scaled evidence volume for that drug"
+        ),
         "not_a_risk_score": True,
         "drugs": len(values),
         "mean": round(float(series.mean()), 4),

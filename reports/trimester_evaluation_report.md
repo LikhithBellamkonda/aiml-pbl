@@ -15,7 +15,7 @@ No validated human pregnancy-outcome labels (data/pregnancy_labels.csv) and no t
 - **prediction**: unavailable — No trained human pregnancy-outcome model.
 - **uncertainty**: unavailable — No trained model, so predictive uncertainty is undefined.
 - **evidence_reliability**: available
-  - Q_cov = mean over source families of (availability mask × provenance completeness); drugs=1720, mean=0.0686, median=0.025, evidence-gap fraction=1.0
+  - Q_cov = mean over source families of (availability mask × source quality), where source quality = 0.5 × populated content fields + 0.5 × log-scaled evidence volume for that drug; drugs=1720, mean=0.3155, median=0.225, evidence-gap fraction=0.5843
 
 ## Results
 

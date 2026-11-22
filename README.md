@@ -27,7 +27,7 @@ data — no validated human pregnancy labels exist), the system:
 | Human-only evidence pipeline | ✅ | OnSIDES, Mendeley, TGA, FAERS, PubChem; animal records never become human outcome labels |
 | Animal ADR evidence branch | ✅ | FDA CVM ADAE (VeDDRA terms) as a separate, gated sixth evidence source |
 | Drug lookup by name or identifier | ✅ | Recorded name, project `drug_id`, PubChem CID or InChIKey; ambiguity is surfaced |
-| Availability Mask (M) & Quality Vector (Q) | ✅ | Per-drug, per-source evidence availability and provenance completeness |
+| Availability Mask (M) & Quality Vector (Q) | ✅ | Per-drug, per-source evidence availability, measured field completeness and record volume |
 | Q_cov coverage score | ✅ | Evidence coverage = mean(M × Q) across source families |
 | Mask-aware cross-attention gating | ⚠️ | Architecture implemented; weights are untrained (no labels, see below) |
 | Scientific safeguard | ✅ | Training blocked without validated human pregnancy labels |
@@ -148,8 +148,13 @@ pregnancy risk prediction:
   FAERS aggregate reports, nonclinical developmental/reproductive toxicity
   studies, and animal spontaneous ADR reports, each in a separate panel with
   its own provenance.
-- **Evidence quality (Q_cov)** — availability mask × provenance completeness.
-  This is a coverage measure, not confidence and not risk.
+- **Evidence quality (Q_cov)** — measured per source: 0.5 × completeness (populated
+  fraction of that source's content fields for the drug) + 0.5 × volume
+  (`log1p(count) / log1p(reference volume)`), averaged over the four tracked
+  source families. It is computed from the stored records for each drug, is
+  undefined (not 0%) when no source records the drug, and is never confidence
+  or risk. Per-trimester quality is reported only when records carry trimester
+  timing; otherwise it is shown as unavailable rather than repeated.
 - **Evidence gap flag** — True when fewer than two source families cover the drug
   or coverage is very low.
 - **Missing-source list** — every tracked source without a record is named, so an

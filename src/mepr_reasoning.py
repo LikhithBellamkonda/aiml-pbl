@@ -447,6 +447,10 @@ def evaluate_drug_safety(
         # not a prediction, a confidence value or a risk level.
         "evidence_quality": drug_risk.get("overall_evidence_quality"),
         "evidence_gap": drug_risk.get("evidence_gap", True),
+        "evidence_source_breakdown": drug_risk.get(
+            "evidence_source_breakdown", []
+        ),
+        "evidence_quality_method": drug_risk.get("evidence_quality_method"),
         "evidence_availability": {
             "available_sources": drug_risk.get("available_sources", []),
             "missing_sources": drug_risk.get("missing_sources", []),
@@ -457,13 +461,19 @@ def evaluate_drug_safety(
         # Per-trimester evidence availability (no risk values by design)
         "trimester_metrics": {
             t: {
+                "label": v.get("label"),
                 "evidence_quality": v.get("evidence_quality"),
                 "q_cov": v.get("q_cov"),
                 "evidence_gap": v.get("evidence_gap", True),
+                "trimester_evidence_available": v.get(
+                    "trimester_evidence_available", False
+                ),
+                "timed_record_count": v.get("timed_record_count", 0),
                 "available_sources": v.get("available_sources", []),
                 "missing_sources": v.get("missing_sources", []),
             }
             for t, v in (drug_risk.get("foetus_risk", {}).get("trimester_wise", {}) or {}).items()
+            if isinstance(v, dict)
         },
     }
 

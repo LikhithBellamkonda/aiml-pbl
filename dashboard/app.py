@@ -1,4 +1,5 @@
 import base64
+import re
 from pathlib import Path
 import sys
 
@@ -66,7 +67,7 @@ def _render_readiness(data):
             "status": "blocked" if blocked else "not_verified",
             "reason": decisions[0].get("reason", "") if blocked else "",
         }
-    evaluated_model = has_evaluated_model(data)
+        evaluated_model = has_evaluated_model(data)
     labels_present = (ROOT / "data" / "pregnancy_labels.csv").exists()
     training_status = (
         "Trained"
@@ -79,7 +80,56 @@ def _render_readiness(data):
         else "Not verified"
     )
 
+    status_column, labels_column, model_column = st.columns(3)
+    status_column.metric("Training status", training_status)
+    labels_column.metric(
+        "Validated human labels", "present" if labels_present else "absent"
+    )
+    model_column.metric(
+        "Evaluated model", "available" if evaluated_model else "none"
+    )
+    reason = readiness.get("reason")
+    if reason:
+        st.caption(reason)
 
+    decisions = feasibility.get("target_decisions") or []
+    if decisions:
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "outcome": str(item.get("outcome") or "").replace("_", " "),
+                        "decision": item.get("decision") or "unknown",
+                        "reason": item.get("reason") or "",
+                    }
+                    for item in decisions
+                ]
+            ),
+            hide_index=True,
+            width="stretch",
+        )
+    st.caption(
+        "No validated human pregnancy-outcome labels exist locally, so no model "
+        "is trained and no AUROC/AUPRC/calibration value is reported. Missing "
+        "values are unavailable, not zero."
+    )
+
+
+def _formula_html(formula: str) -> str:
+    """Render an RDKit Hill-order formula with proper element subscripts."""
+    parts: list[str] = []
+    for element, count in re.findall(r"([A-Z][a-z]?)(\d*)", str(formula)):
+        if not element:
+            continue
+        parts.append(
+            element + (f"<sub>{count}</sub>" if count and count != "1" else "")
+        )
+    return (
+        "<div style='font-size:2.1rem;font-weight:600;letter-spacing:0.02em;"
+        "line-height:1.15;margin:0.1rem 0 0.6rem 0'>"
+        + "".join(parts)
+        + "</div>"
+    )
 
 
 def _render_filtered_summary(result, selected_name: str, target_label: str):
@@ -161,17 +211,22 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
             )
         with eq_col:
             st.metric(
-                "Evidence quality",
+                "Evidence quality (Q_cov)",
                 "Unavailable"
                 if evidence_quality is None
-                else f"{float(evidence_quality):.0%}",
+                else f"{float(evidence_quality):.1%}",
             )
-            if result.get("evidence_gap", True):
+            if evidence_quality is None:
+                st.caption(
+                    "No source family records this drug, so quality is "
+                    "undefined — not 0%, and not evidence of safety."
+                )
+            elif result.get("evidence_gap", True):
                 st.error("Evidence gap: understudied or single-source drug.")
             else:
                 st.caption(
-                    "Evidence coverage (availability mask × completeness), "
-                    "not risk and not prediction confidence."
+                    "Measured completeness and volume of the records held "
+                    "for this drug, not risk and not prediction confidence."
                 )
         with model_col:
             st.metric("Model used", "None (abstained)")
@@ -188,6 +243,48 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
             + (", ".join(missing_sources) if missing_sources else "None")
         )
 
+        breakdown = result.get("evidence_source_breakdown") or []
+        with st.expander("How this evidence-quality value is computed", expanded=False):
+            if breakdown:
+                st.dataframe(
+                    pd.DataFrame(
+                        [
+                            {
+                                "source family": item.get("label") or item.get("source"),
+                                "available": "yes" if item.get("available") else "no",
+                                "records": item.get("records"),
+                                "observed count total": item.get("observed_total"),
+                                "completeness": (
+                                    "unavailable"
+                                    if item.get("completeness") is None
+                                    else f"{float(item['completeness']):.1%}"
+                                ),
+                                "volume component": (
+                                    "unavailable"
+                                    if item.get("volume_score") is None
+                                    else f"{float(item['volume_score']):.1%}"
+                                ),
+                                "source quality": (
+                                    "unavailable"
+                                    if item.get("quality") is None
+                                    else f"{float(item['quality']):.1%}"
+                                ),
+                            }
+                            for item in breakdown
+                        ]
+                    ),
+                    hide_index=True,
+                    width="stretch",
+                )
+            else:
+                st.caption("No per-source quality breakdown is available.")
+            if result.get("evidence_quality_method"):
+                st.caption(result["evidence_quality_method"])
+            st.caption(
+                "Every value above is measured from the stored records for this "
+                "drug. A source family with no record contributes 0 to Q_cov."
+            )
+
         observed = (result.get("evidence_summary") or {}).get(
             "observed_outcome_reports"
         ) or {}
@@ -199,7 +296,7 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
                             {
                                 "outcome": str(outcome).replace("_", " "),
                                 "source records": (
-                                    "no record" if value is None else value
+                                    "no record" if value is None else str(value)
                                 ),
                             }
                             for outcome, value in observed.items()
@@ -220,22 +317,22 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
             if not trimester_metrics:
                 st.caption("No trimester-level evidence summary is available.")
             for trimester_key, entry in trimester_metrics.items():
+                if not isinstance(entry, dict):
+                    continue
                 eq_value = entry.get("evidence_quality")
-                q_cov_value = entry.get("q_cov")
-                eq_text = (
-                    "unavailable" if eq_value is None else f"{float(eq_value):.0%}"
-                )
-                q_cov_text = (
-                    "unavailable"
-                    if q_cov_value is None
-                    else f"{float(q_cov_value):.0%}"
-                )
-                gap_text = "yes" if entry.get("evidence_gap", True) else "no"
-                st.markdown(
-                    f"**{str(trimester_key).replace('_', ' ').title()}** — "
-                    f"evidence quality: {eq_text} · Q_cov: {q_cov_text} · "
-                    f"evidence gap: {gap_text}"
-                )
+                record_count = entry.get("timed_record_count") or 0
+                label = entry.get("label") or str(trimester_key).replace("_", " ")
+                if eq_value is None:
+                    st.markdown(
+                        f"**{label}** — evidence quality: unavailable "
+                        f"(no trimester-resolved records for this drug)"
+                    )
+                else:
+                    st.markdown(
+                        f"**{label}** — evidence quality: "
+                        f"{float(eq_value):.1%} from {record_count} timed "
+                        "record(s)"
+                    )
         st.caption(
             "Evidence availability and evidence quality describe the underlying "
             "records only. They are not a risk score, and a drug with no records "
@@ -272,10 +369,13 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
                     "observed ADR terms."
                 )
 
-    _render_animal_adr(result)
 
+
+def _render_provenance(result):
+    """Render the filtered record provenance and the records themselves."""
     records = result["records"]
     if records.empty:
+        st.info("No records match the current filter.")
         return
 
     st.markdown("**Filtered evidence provenance**")
@@ -411,23 +511,47 @@ def _render_drug_profile(profile):
             + " · name key: "
             + str(profile.get("name_key") or "not applicable")
         )
-        if identity.get("smiles"):
-            st.caption(f"SMILES: {identity['smiles']}")
-        molecular = profile.get("molecular") or {}
-        structure_png = molecular.get("structure_png")
-        if structure_png:
-            st.image(
-                base64.b64decode(structure_png.split(",", 1)[-1]),
-                caption=(
-                    "2D structure drawn locally from the recorded SMILES "
-                    f"(scaffold: {molecular.get('scaffold') or 'not available'})."
-                ),
-                width=340,
-            )
-        elif molecular.get("reason"):
-            st.caption(f"Structure depiction unavailable: {molecular['reason']}")
         for warning in profile.get("warnings") or []:
             st.warning(warning)
+
+    molecular = profile.get("molecular") or {}
+    formula = identity.get("molecular_formula") or molecular.get("molecular_formula")
+    structure_png = molecular.get("structure_png")
+    with st.container(border=True):
+        st.markdown("### Chemical representation")
+        formula_column, image_column = st.columns([1, 1])
+        with formula_column:
+            st.caption("Molecular formula (Hill order, computed from the recorded SMILES)")
+            if formula:
+                st.markdown(_formula_html(formula), unsafe_allow_html=True)
+            else:
+                st.info("No molecular formula is recorded for this identity.")
+            weight = identity.get("molecular_weight")
+            if weight not in (None, ""):
+                try:
+                    st.metric("Molecular weight (g/mol)", f"{float(weight):.2f}")
+                except (TypeError, ValueError):
+                    st.metric("Molecular weight (g/mol)", str(weight))
+            smiles = identity.get("smiles") or molecular.get("canonical_smiles")
+            if smiles:
+                st.caption("SMILES (linear symbolic representation)")
+                st.code(str(smiles), language="text")
+            else:
+                st.caption("No SMILES is recorded for this identity.")
+        with image_column:
+            if structure_png:
+                st.image(
+                    base64.b64decode(structure_png.split(",", 1)[-1]),
+                    caption=(
+                        "2D structure drawn locally from the recorded SMILES "
+                        f"(scaffold: {molecular.get('scaffold') or 'not available'})."
+                    ),
+                    width=340,
+                )
+            elif molecular.get("reason"):
+                st.info(f"Structure depiction unavailable: {molecular['reason']}")
+            else:
+                st.info("No 2D structure is available for this identity.")
 
     with st.container(border=True):
         st.markdown("### Evidence availability by source")
@@ -610,15 +734,15 @@ def main():
         st.error("No medication names are available in the local drug mapping.")
         return
 
-    with st.container(border=True):
-        st.markdown("### Query Filter Control Panel")
+    with st.sidebar:
+        st.markdown("## Search")
         search_query = st.text_input(
-            "Search by drug name or identifier (drug_id, PubChem CID, InChIKey)",
+            "Drug name or identifier",
             value="",
             placeholder="e.g. tretinoin, CID000444795, 444795",
+            help="Matches a drug name, drug_id, PubChem CID or InChIKey.",
         )
-        medication_column, timing_column, target_column = st.columns([2, 1, 1])
-        selected_name = medication_column.selectbox(
+        selected_name = st.selectbox(
             "Select Medication Name",
             medication_names,
         )
@@ -629,13 +753,18 @@ def main():
             "Entire Pregnancy",
             "All Trimesters",
         ]
-        selected_timing = timing_column.selectbox(
-            "Target Timing",
-            timing_options,
-        )
-        target_label = target_column.radio(
-            "View Target",
+        selected_timing = st.selectbox("Target timing", timing_options)
+        target_label = st.radio(
+            "View target",
             ("Fetal Outcomes", "Maternal Outcomes"),
+            horizontal=False,
+        )
+        st.divider()
+        st.markdown("## Sections")
+        st.caption(
+            "Overview → identity and chemistry.  Pregnancy evidence → what the "
+            "sources record.  Animal ADR → separate veterinary branch.  "
+            "Provenance → raw filtered records.  Data readiness → model status."
         )
 
     profile = None
@@ -680,17 +809,39 @@ def main():
         if target_label == "Fetal Outcomes"
         else "Maternal Outcomes Only"
     )
-    if profile is not None:
-        _render_drug_profile(profile)
     result = _evaluate_query(
         selected_name,
         drug_id,
         timing_filter,
         target_filter,
     )
-    _render_filtered_summary(result, selected_name, target_label)
 
-    _render_readiness(data)
+    overview_tab, evidence_tab, animal_tab, provenance_tab, readiness_tab = st.tabs(
+        [
+            "Overview",
+            "Pregnancy evidence",
+            "Animal ADR",
+            "Provenance & records",
+            "Data readiness",
+        ]
+    )
+    with overview_tab:
+        if profile is not None:
+            _render_drug_profile(profile)
+        else:
+            st.info(
+                f"Showing mapping entry '{selected_name}'. Search a drug name or "
+                "identifier in the sidebar for its resolved identity, structure "
+                "and evidence."
+            )
+    with evidence_tab:
+        _render_filtered_summary(result, selected_name, target_label)
+    with animal_tab:
+        _render_animal_adr(result)
+    with provenance_tab:
+        _render_provenance(result)
+    with readiness_tab:
+        _render_readiness(data)
 
 
 if __name__ == "__main__":

@@ -228,6 +228,10 @@ class PregnancyEvidenceEngine:
                 "total_sources": int(quality.get("total_sources") or 0),
                 "missing_sources": missing_names,
                 "missing_datasets": list(quality.get("missing_sources") or []),
+                "evidence_source_breakdown": list(
+                    quality.get("source_breakdown") or []
+                ),
+                "evidence_quality_method": quality.get("quality_method"),
             }
         )
         return summary
@@ -262,23 +266,43 @@ class PregnancyEvidenceEngine:
         }
 
     def trimester_evidence(self, drug_id: str) -> dict[str, Any]:
-        """Per-trimester evidence availability with no risk values."""
+        """Per-trimester evidence quality, computed from trimester-timed rows.
+
+        A trimester can only have a quality value when the sources record
+        timing for that drug; otherwise the value is None rather than a copy of
+        the whole-pregnancy number.
+        """
         summary = self._summary(drug_id)
-        return {
-            trimester: {
+        sources = self._sources()
+        result: dict[str, Any] = {}
+        for trimester in TRIMESTERS:
+            timed = compute_evidence_quality_score(
+                str(drug_id), sources, trimester=trimester
+            )
+            mask = timed.get("availability_mask") or []
+            result[trimester] = {
                 "label": TRIMESTER_LABELS[trimester],
                 "aggregate_risk": None,
                 "confidence": None,
                 "model_used": "none",
                 "outcomes": {outcome: None for outcome in FETUS_OUTCOMES},
-                "evidence_quality": summary["evidence_quality"],
-                "q_cov": summary["q_cov"],
-                "evidence_gap": summary["evidence_gap"],
-                "available_sources": summary["available_sources"],
-                "missing_sources": summary["missing_sources"],
+                "evidence_quality": timed.get("evidence_quality"),
+                "q_cov": timed.get("q_cov"),
+                "evidence_gap": bool(timed.get("evidence_gap", True)),
+                "trimester_evidence_available": timed.get("evidence_quality")
+                is not None,
+                "timed_record_count": sum(
+                    int(item.get("records") or 0)
+                    for item in timed.get("source_breakdown") or []
+                ),
+                "available_sources": [
+                    str(name) for name, present in mask if float(present or 0) > 0
+                ],
+                "missing_sources": [
+                    str(name) for name, present in mask if float(present or 0) <= 0
+                ],
             }
-            for trimester in TRIMESTERS
-        }
+        return result
 
     def foetus_risk_all_trimesters(self, drug_id: str) -> dict[str, Any]:
         """Foetal-outcome view of the evidence; risk values are unavailable."""
@@ -335,6 +359,8 @@ class PregnancyEvidenceEngine:
             "evidence_gap": summary["evidence_gap"],
             "available_sources": summary["available_sources"],
             "missing_sources": summary["missing_sources"],
+            "evidence_source_breakdown": summary["evidence_source_breakdown"],
+            "evidence_quality_method": summary["evidence_quality_method"],
             "model_used": "none",
             "observed_outcome_reports": summary["observed_outcome_reports"],
             "adr_term_count": summary["adr_term_count"],

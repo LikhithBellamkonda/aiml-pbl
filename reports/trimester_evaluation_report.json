@@ -35,15 +35,15 @@
     },
     "evidence_reliability": {
       "available": true,
-      "definition": "Q_cov = mean over source families of (availability mask \u00d7 provenance completeness)",
+      "definition": "Q_cov = mean over source families of (availability mask \u00d7 source quality), where source quality = 0.5 \u00d7 populated content fields + 0.5 \u00d7 log-scaled evidence volume for that drug",
       "not_a_risk_score": true,
       "drugs": 1720,
-      "mean": 0.0686,
-      "median": 0.025,
-      "p25": 0.025,
-      "p75": 0.125,
-      "evidence_gap_drugs": 1720,
-      "evidence_gap_fraction": 1.0
+      "mean": 0.3155,
+      "median": 0.225,
+      "p25": 0.2,
+      "p75": 0.44,
+      "evidence_gap_drugs": 1005,
+      "evidence_gap_fraction": 0.5843
     }
   },
   "results": null

@@ -22,6 +22,7 @@ import base64
 import io
 import logging
 import math
+import re
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote
@@ -473,6 +474,22 @@ def _structure_png(molecule) -> tuple[str | None, str | None]:
         return None, str(error)
 
 
+def _formula_parts(formula: str | None) -> list[dict[str, Any]]:
+    """Split a Hill-order molecular formula into element/count pairs.
+
+    Used to render subscripts without inventing any chemistry: the counts come
+    straight from RDKit's formula for the recorded SMILES.
+    """
+    if not formula:
+        return []
+    parts: list[dict[str, Any]] = []
+    for element, count in re.findall(r"([A-Z][a-z]?)(\d*)", str(formula)):
+        if not element:
+            continue
+        parts.append({"element": element, "count": int(count) if count else 1})
+    return parts
+
+
 def analyse_molecule(smiles: str | None) -> dict[str, Any]:
     """Compute RDKit descriptors and a Morgan fingerprint summary.
 
@@ -489,6 +506,8 @@ def analyse_molecule(smiles: str | None) -> dict[str, Any]:
             "svg": None,
             "structure_png": None,
             "drawing_error": None,
+            "molecular_formula": None,
+            "formula_parts": [],
         }
     try:
         from rdkit import Chem, RDLogger
@@ -503,6 +522,8 @@ def analyse_molecule(smiles: str | None) -> dict[str, Any]:
             "svg": None,
             "structure_png": None,
             "drawing_error": None,
+            "molecular_formula": None,
+            "formula_parts": [],
         }
 
     RDLogger.DisableLog("rdApp.*")
@@ -516,6 +537,8 @@ def analyse_molecule(smiles: str | None) -> dict[str, Any]:
             "svg": None,
             "structure_png": None,
             "drawing_error": None,
+            "molecular_formula": None,
+            "formula_parts": [],
         }
 
     descriptors = {
@@ -557,11 +580,14 @@ def analyse_molecule(smiles: str | None) -> dict[str, Any]:
         drawing_error = None
 
     structure_png, png_error = _structure_png(molecule)
+    formula = rdMolDescriptors.CalcMolFormula(molecule)
 
     return {
         "available": True,
         "reason": None,
         "canonical_smiles": Chem.MolToSmiles(molecule, canonical=True),
+        "molecular_formula": formula,
+        "formula_parts": _formula_parts(formula),
         "scaffold": scaffold or None,
         "structure_png": structure_png,
         "descriptors": descriptors,
@@ -916,6 +942,15 @@ def build_drug_profile(
     profile["faers"] = faers_evidence(drug_id)
     profile["availability"] = availability_for(drug_id)
     profile["name_key"] = name_key
+    identity = profile.get("identity") or {}
+    molecular = profile.get("molecular") or {}
+    if not identity.get("molecular_formula") and molecular.get("available"):
+        identity["molecular_formula"] = molecular.get("molecular_formula")
+    if not identity.get("molecular_weight") and molecular.get("available"):
+        identity["molecular_weight"] = (
+            molecular.get("descriptors") or {}
+        ).get("molecular_weight")
+    profile["identity"] = identity
     profile["evidence_counts"] = {
         "adr_terms": profile["adr"].get("term_count", 0),
         "pregnancy_records": profile["pregnancy"].get("record_count", 0),
