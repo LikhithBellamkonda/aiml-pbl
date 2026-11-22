@@ -2,19 +2,59 @@
 
 This repository contains an evidence-processing prototype for drug safety research in pregnancy. It is not a clinical decision-support or prescribing system.
 
-## Windows PowerShell setup
+## Setup
 
-From the project directory:
+From the project directory (Windows PowerShell):
 
 ```powershell
-cd "D:\aiml final\aiml-pbl"
-py -3.14 -m venv .venv
+py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-For environments that cannot use Python 3.14, use a Python version supported by the installed PyTorch and RDKit wheels.
+Linux / macOS:
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+For CPU-only machines, install the PyTorch CPU wheel first to avoid CUDA
+packages: `pip install --index-url https://download.pytorch.org/whl/cpu torch==2.10.0`,
+then `pip install -r requirements.txt`.
+
+Molecular structure rendering needs the RDKit drawing backend and its native
+graphics libraries (for example `libXrender`). Descriptors and Morgan
+fingerprints work without it; the dashboard simply omits the structure image
+when the backend is unavailable.
+
+## Full pipeline (one command)
+
+```bash
+python -m src.run_pipeline            # offline: local sources + committed resolutions
+python -m src.run_pipeline --download-missing --online-pubchem --max-pubchem-queries 25
+```
+
+The pipeline runs four validated stages and records each outcome in
+`data/pipeline_run.json`:
+
+1. `ingest` — source-specific ingestion, identifier standardization and
+   `data/standardized_master_evidence.csv`.
+2. `process` — name resolution, SIDER/OnSIDES ADR evidence, pregnancy outcome
+   extraction, FAERS summaries, source availability and model features.
+3. `features` — builds `PregnancyDataset`, validates modality availability and
+   writes `data/model_ready_features.json` (including the count of validated
+   labels, currently 0).
+4. `feasibility` — writes `reports/pregnancy_dataset_feasibility.md` and
+   `data/dataset_feasibility.json`.
+
+A failed stage is recorded with its exception and later independent stages
+still run. Offline processing re-uses the committed identifier resolutions, so
+`--offline` reproduces the tracked data (1178 resolved drugs) instead of
+downgrading them to `not_queried`.
 
 ## Process available datasets
 
@@ -115,14 +155,27 @@ redistributing raw source data.
 ## Filtered evidence dashboard
 
 Run the Streamlit dashboard from the project root with
-`python -m streamlit run dashboard/app.py`. The Query Filter Control Panel selects one
-medication, one timing window, and either fetal or maternal outcomes. Evidence records
-and their provenance are filtered to those selections; trimester timing is never
+`python -m streamlit run dashboard/app.py`. The sidebar accepts a drug name, PubChem
+CID, InChIKey or project `drug_id`, or a pick from the mapped names. The resolved drug
+page has sections for Overview, General ADR, Molecular, Reproductive toxicity,
+Pregnancy evidence, MEPRank results, Evidence comparison and System status. Evidence
+records and their provenance are filtered to the selection; trimester timing is never
 inferred from an untimed record. `Q_cov` is the fraction of tracked pregnancy-evidence
 source families represented in the filtered evidence, not a risk or quality score.
 No pregnancy outcome is currently trainable, so risk scores and model variance
 (`sigma`) remain unavailable; the dashboard abstains rather than substituting
-unvalidated values.
+unvalidated values. The dashboard reports *observed* aggregate report-term counts
+per outcome together with an explicit "Unavailable" status for risk, confidence
+and trimester-wise risk. No risk score, confidence value or pseudo-label metric is
+computed anywhere in the pipeline; an earlier deterministic scoring engine that
+derived scores from report counts plus a hash modifier was removed because it
+produced numbers that were not model outputs.
+
+Aggregate report counts are keyed by PubChem `CID…` identifiers, while drugs that
+only appear in the Mendeley supplement are keyed `NAME:…` (60 CID-keyed versus 59
+name-keyed drugs in the generated evidence master). For name-keyed drugs the count
+panel therefore reports the source as unavailable rather than zero. Resolving those
+two key spaces is an open task, not a modelling result.
 
 Key processed outputs include:
 
@@ -137,15 +190,50 @@ Fusion receives source availability masks plus source-specific metadata-complete
 
 ## Tests, training, and dashboard
 
-```powershell
-python -m pytest -q
-python -m src.train
-streamlit run dashboard/app.py
+```bash
+python -m pytest -q                       # full suite
+python -m src.train                       # exits 2 while labels are unavailable
+python -m src.train_reproductive_tox      # requires datasets/Supplementary_S3_Raw data.xlsx
+python -m streamlit run dashboard/app.py
 ```
+
+`python -m src.train` refuses to run without `data/pregnancy_labels.csv`. The file
+must contain `drug_id`, `label_<outcome>` and `mask_<outcome>` columns for the four
+outcomes in `src.data_preprocessing.OUTCOME_NAMES`, plus the provenance columns
+`source_dataset`, `source_reference`, `outcome_definition` and `evidence_type`
+(`human_observed_outcome` or `human_controlled_outcome`). Aggregate report counts and
+regulatory classifications are not accepted as labels.
 
 The available sources do not provide validated binary human pregnancy-outcome labels with defensible negative examples. Training therefore remains blocked rather than learning from classifications, aggregate report counts, or fabricated labels. The Mendeley supplement supplies aggregate spontaneous-report terms, not case-level exposed and comparator counts. For that reason a valid 2x2 table for ROR/PRR cannot be constructed, and no such ratios are emitted. TGA pregnancy categories are classifications, not outcome labels; general adverse-effect term associations do not supply a compatible comparator denominator. No continuous fetal or maternal risk target, predictive score, or model confidence can be trained from these data.
 
 Before training, obtain endpoint-specific human pregnancy cohort or case-level pharmacovigilance data with validated exposure/outcome definitions, report-level denominators and comparators, documented exposure timing, linkable drug identifiers, and provenance. Preserve all unknown outcomes as missing. Keep drug/scaffold groups disjoint across training and testing and evaluate only targets with adequate validated support. The dashboard continues to distinguish software validation and evidence availability from model evaluation and prediction uncertainty; it withholds risk scores when no validated model exists.
+
+## Prediction service and abstention
+
+`src/services/` contains the application logic used by the dashboard:
+
+- `drug_service.py` resolves a query, computes RDKit descriptors and Morgan
+  fingerprints, and assembles general ADR, human pregnancy, nonclinical
+toxicity, FAERS and source-availability evidence. Human and animal evidence are
+  returned separately, and absent evidence is `None`/empty rather than zero.
+- `inference.py` is the only prediction entry point. It returns a probability
+  only when a trained checkpoint for that exact target exists; otherwise it
+  returns `status="abstained"` or `status="unsupported"` with reasons. Human
+  pregnancy targets always abstain while `data/pregnancy_labels.csv` is absent.
+  Nonclinical toxicity probabilities, when available, carry an explicit
+  animal-only warning and no uncertainty (no calibrated MC-dropout model exists).
+- `status.py` reports dataset presence, model checkpoints, training readiness and
+  the last pipeline execution.
+
+Example:
+
+```python
+from src.services import build_drug_profile, predict
+
+profile = build_drug_profile("tretinoin")
+print(profile["evidence_counts"])
+print(predict("CID000444795", "fetal_death")["status"])  # abstained
+```
 
 ## Important limitations
 

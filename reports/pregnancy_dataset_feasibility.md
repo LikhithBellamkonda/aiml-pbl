@@ -1,10 +1,10 @@
 # Pregnancy dataset feasibility and model-training readiness
 
-Generated: 2026-10-31T08:19:37.562032+00:00
+Generated: 2026-11-22T04:11:53.196674+00:00
 
 ## Executive decision
 
-**No human pregnancy outcome target is trainable.** Preserve the pregnancy-model safeguard; do not train the pregnancy fusion model on aggregate tables. The new workbook does allow a separate, exploratory structure-based nonclinical assay task, but its label source/meaning is not documented. It is not a pregnancy prediction model, and the scaffold-held-out baselines did not achieve high accuracy over the majority-class baseline. No human pregnancy model accuracy, AUROC, AUPRC, precision, recall, F1, Brier/ECE, or calibrated uncertainty results exist.
+**No human pregnancy outcome target is trainable.** Preserve the pregnancy-model safeguard; do not train the pregnancy fusion model on aggregate tables. The nonclinical TG assay workbook `datasets/Supplementary_S3_Raw data.xlsx` is **absent from this checkout**, so the exploratory structure-based assay task cannot be re-run and its saved metrics cannot be reproduced here. No human pregnancy model accuracy, AUROC, AUPRC, precision, recall, F1, Brier/ECE, or calibrated uncertainty results exist.
 
 The inventory contains an anti-seizure medication study supplementary-tables document and an additional raw assay workbook, but no patient-level Dryad cohort file. The anti-seizure document has aggregate study statistics only. The file `datasets/supplemental_data.docx` is an infection-diagnosis/drug definition supplement, while `datasets/medicines-pregnancy-current-database-2026-10-21.csv` contains pregnancy classifications and narrative statements.
 
@@ -15,7 +15,7 @@ The inventory contains an anti-seizure medication study supplementary-tables doc
 | Mendeley dermatology FAERS supplement | 116 parsed report-total drug names; 93 with outcome-term rows | 2083 aggregate outcome-term rows | 0 |
 | Anti-seizure medication study supplement | 16205 children; 5637 in epilepsy subgroup | Aggregate ASD/ADHD hazard ratios; no individual outcome records | 0 |
 | Pregnancy classification catalog | 1725 names; 30 antiepileptic-category names | Classifications / narrative statements, not observations | 0 |
-| Nonclinical TG assay workbook | 2244 unique structures | 5 binary TG assay endpoints | Exploratory labels only |
+| Nonclinical TG assay workbook | 0 unique structures | 0 binary TG assay endpoints | Exploratory labels only |
 
 ### Mendeley dermatology FAERS supplement
 
@@ -161,19 +161,11 @@ Missing-value percentages in the processed outcome-term table: `reported_count` 
 
 ### Anti-seizure medication study supplement
 
-No patient-level Dryad cohort file was found under `datasets/`. A related-looking supplementary document is present: `datasets/Supplemental_tables.docx` (“Anti-seizure medication use during pregnancy and risk of ASD and ADHD in children”). It summarizes **16205** children overall (**12661** without ASM and **12661** with ASM) and reports associations in a subgroup of **5637** children. Its endpoints are autism spectrum disorder and ADHD; the medication groups include any ASM, valproic acid, lamotrigine, and carbamazepine. The tables report hazard ratios and confidence intervals, not event counts, participant-level labels, or drug-level positive/negative observations. It is therefore **not trainable** for either endpoint from the supplied data. The local medication classification catalog has 30 antiepileptic-category names, but these classifications are not outcomes.
+No patient-level Dryad cohort file was found under `datasets/`. A related-looking supplementary document is present: `datasets/Supplemental_tables.docx` (“Anti-seizure medication use during pregnancy and risk of ASD and ADHD in children”). It summarizes **16205** children overall (**12661** without ASM and **3544** with ASM) and reports associations in a subgroup of **5637** children. Its endpoints are autism spectrum disorder and ADHD; the medication groups include any ASM, valproic acid, lamotrigine, and carbamazepine. The tables report hazard ratios and confidence intervals, not event counts, participant-level labels, or drug-level positive/negative observations. It is therefore **not trainable** for either endpoint from the supplied data. The local medication classification catalog has 30 antiepileptic-category names, but these classifications are not outcomes.
 
 ### New nonclinical TG assay workbook
 
-Source: `datasets/Supplementary_S3_Raw data.xlsx`. It contains `10` sheets: paired `*_smiles3` and `*_smiles4` versions of five TG endpoints. The training experiment reads the binary target from `*_smiles4` and uses only molecular structure (RDKit Morgan fingerprints) as input. The binary conversion/endpoint semantics are not documented in the workbook or accompanying files, so the models below are exploratory and the dataset is **limited**, not validated for scientific or clinical use. There are 2244 unique canonical structures across endpoints; 11 also exactly match a local PubChem SMILES, corresponding to 11 mapped local drug IDs. This structure overlap does not convert assay labels into human outcomes.
-
-| Endpoint | Usable structures | Encoded positive | Encoded negative | Positive % | Scaffold groups | Readiness |
-| --- | --- | --- | --- | --- | --- | --- |
-| TG414 | 1242 | 370 | 872 | 29.79% | 927 | limited |
-| TG416 | 264 | 74 | 190 | 28.03% | 215 | limited |
-| TG421t | 510 | 95 | 415 | 18.63% | 399 | limited |
-| TG422t | 946 | 191 | 755 | 20.19% | 677 | limited |
-| TG443t | 144 | 29 | 115 | 20.14% | 117 | limited |
+The nonclinical TG assay workbook `datasets/Supplementary_S3_Raw data.xlsx` is **not present in this checkout**. No nonclinical assay endpoint can be regenerated or evaluated from the local files. Metrics already stored in `data/reproductive_tox_training_metrics.json` were produced from a source file that is unavailable here and must not be presented as reproducible results.
 
 ### Exploratory scaffold-held-out baseline results
 
@@ -220,11 +212,6 @@ The separate `datasets/drug.target.interaction.tsv.gz` source contains 19378 dru
 | Preterm birth / prematurity | 64 | 64 | 0 | 0 | not_trainable |
 | Fetal growth restriction | 123 | 56 | 0 | 0 | not_trainable |
 | Congenital anomaly | 1597 | 84 | 0 | 0 | not_trainable |
-| TG414 encoded assay class | 1242 | 0 | 0 | 0 | limited |
-| TG416 encoded assay class | 264 | 0 | 0 | 0 | limited |
-| TG421t encoded assay class | 510 | 0 | 0 | 0 | limited |
-| TG422t encoded assay class | 946 | 0 | 0 | 0 | limited |
-| TG443t encoded assay class | 144 | 0 | 0 | 0 | limited |
 | Autism spectrum disorder | 0 | 0 | 0 | 0 | not_trainable |
 | ADHD | 0 | 0 | 0 | 0 | not_trainable |
 | Dryad antiepileptic study endpoints | 0 | 0 | 0 | 0 | not_trainable |
@@ -247,6 +234,6 @@ For each Mendeley outcome, the listed term rows and drug counts are reported evi
 - **Dataset validation:** this report records file presence, schemas/granularity, missingness, and identifier coverage.
 - **Model training:** blocked because no compatible validated binary labels are present.
 - **Model evaluation:** no evaluation metrics exist; do not report accuracy, precision, recall, or confidence as model results.
-- **Nonclinical assay training:** exploratory scaffold-held-out models have been trained; their metrics are in the table above and are not pregnancy outcome performance.
+- **Nonclinical assay training:** the source workbook is absent, so the assay metrics table below is unverified against a local source and is not reproducible in this checkout.
 - **Stored model files:** checkpoint present=True; metadata present=False; evaluation metrics present=False. A checkpoint by itself is not treated as a trained/evaluated model.
 - **Prediction uncertainty:** unavailable for human pregnancy outcomes. Evidence completeness and MC-dropout variance are not calibrated confidence intervals.

@@ -82,7 +82,8 @@ def _study_supplement_summary(path: Path) -> dict[str, Any]:
         ),
         "overall_children": count(r"target sample of n\s*=\s*([\d,]+)\s+children"),
         "no_asm_children": count(r"No ASM\s+n\s*=\s*([\d,]+)"),
-        "asm_children": count(r"ASM\s+n\s*=\s*([\d,]+)"),
+        # Lookbehind prevents this from matching inside "No ASM n=12661"
+        "asm_children": count(r"(?<!No )ASM\s+n\s*=\s*([\d,]+)"),
         "epilepsy_subgroup_children": count(
             r"Associations among n\s*=\s*([\d,]+)\s+children"
         ),
@@ -804,13 +805,50 @@ def render_markdown(report: dict[str, Any]) -> str:
         else "No nonclinical assay training run has been recorded yet."
     )
 
+    if assay.get("status") == "not_found":
+        assay_decision_note = (
+            "The nonclinical TG assay workbook "
+            "`datasets/Supplementary_S3_Raw data.xlsx` is **absent from this "
+            "checkout**, so the exploratory structure-based assay task cannot be "
+            "re-run and its saved metrics cannot be reproduced here."
+        )
+        assay_section = (
+            "The nonclinical TG assay workbook "
+            "`datasets/Supplementary_S3_Raw data.xlsx` is **not present in this "
+            "checkout**. No nonclinical assay endpoint can be regenerated or "
+            "evaluated from the local files. Metrics already stored in "
+            "`data/reproductive_tox_training_metrics.json` were produced from a "
+            "source file that is unavailable here and must not be presented as "
+            "reproducible results."
+        )
+        assay_training_note = (
+            "- **Nonclinical assay training:** the source workbook is absent, so the "
+            "assay metrics table below is unverified against a local source and is "
+            "not reproducible in this checkout."
+        )
+    else:
+        assay_decision_note = (
+            "The new workbook does allow a separate, exploratory structure-based "
+            "nonclinical assay task, but its label source/meaning is not documented. "
+            "It is not a pregnancy prediction model, and the scaffold-held-out "
+            "baselines did not achieve high accuracy over the majority-class baseline."
+        )
+        assay_section = f"""Source: `{assay['file']}`. It contains `{assay['sheets']}` sheets: paired `*_smiles3` and `*_smiles4` versions of five TG endpoints. The training experiment reads the binary target from `*_smiles4` and uses only molecular structure (RDKit Morgan fingerprints) as input. The binary conversion/endpoint semantics are not documented in the workbook or accompanying files, so the models below are exploratory and the dataset is **limited**, not validated for scientific or clinical use. There are {assay['unique_structures_across_endpoints']} unique canonical structures across endpoints; {assay['structures_matching_local_pubchem_smiles']} also exactly match a local PubChem SMILES, corresponding to {assay['local_drug_ids_matching_assay_structures']} mapped local drug IDs. This structure overlap does not convert assay labels into human outcomes.
+
+{assay_table}"""
+        assay_training_note = (
+            "- **Nonclinical assay training:** exploratory scaffold-held-out models "
+            "have been trained; their metrics are in the table above and are not "
+            "pregnancy outcome performance."
+        )
+
     return f"""# Pregnancy dataset feasibility and model-training readiness
 
 Generated: {report['generated_at']}
 
 ## Executive decision
 
-**No human pregnancy outcome target is trainable.** Preserve the pregnancy-model safeguard; do not train the pregnancy fusion model on aggregate tables. The new workbook does allow a separate, exploratory structure-based nonclinical assay task, but its label source/meaning is not documented. It is not a pregnancy prediction model, and the scaffold-held-out baselines did not achieve high accuracy over the majority-class baseline. No human pregnancy model accuracy, AUROC, AUPRC, precision, recall, F1, Brier/ECE, or calibrated uncertainty results exist.
+**No human pregnancy outcome target is trainable.** Preserve the pregnancy-model safeguard; do not train the pregnancy fusion model on aggregate tables. {assay_decision_note} No human pregnancy model accuracy, AUROC, AUPRC, precision, recall, F1, Brier/ECE, or calibrated uncertainty results exist.
 
 The inventory contains an anti-seizure medication study supplementary-tables document and an additional raw assay workbook, but no patient-level Dryad cohort file. The anti-seizure document has aggregate study statistics only. The file `datasets/supplemental_data.docx` is an infection-diagnosis/drug definition supplement, while `datasets/medicines-pregnancy-current-database-2026-10-21.csv` contains pregnancy classifications and narrative statements.
 
@@ -844,9 +882,7 @@ No patient-level Dryad cohort file was found under `datasets/`. A related-lookin
 
 ### New nonclinical TG assay workbook
 
-Source: `{assay['file']}`. It contains `{assay['sheets']}` sheets: paired `*_smiles3` and `*_smiles4` versions of five TG endpoints. The training experiment reads the binary target from `*_smiles4` and uses only molecular structure (RDKit Morgan fingerprints) as input. The binary conversion/endpoint semantics are not documented in the workbook or accompanying files, so the models below are exploratory and the dataset is **limited**, not validated for scientific or clinical use. There are {assay['unique_structures_across_endpoints']} unique canonical structures across endpoints; {assay['structures_matching_local_pubchem_smiles']} also exactly match a local PubChem SMILES, corresponding to {assay['local_drug_ids_matching_assay_structures']} mapped local drug IDs. This structure overlap does not convert assay labels into human outcomes.
-
-{assay_table}
+{assay_section}
 
 ### Exploratory scaffold-held-out baseline results
 
@@ -891,7 +927,7 @@ For each Mendeley outcome, the listed term rows and drug counts are reported evi
 - **Dataset validation:** this report records file presence, schemas/granularity, missingness, and identifier coverage.
 - **Model training:** blocked because no compatible validated binary labels are present.
 - **Model evaluation:** no evaluation metrics exist; do not report accuracy, precision, recall, or confidence as model results.
-- **Nonclinical assay training:** exploratory scaffold-held-out models have been trained; their metrics are in the table above and are not pregnancy outcome performance.
+{assay_training_note}
 - **Stored model files:** checkpoint present={artifacts['checkpoint_present']}; metadata present={artifacts['metadata_present']}; evaluation metrics present={artifacts['evaluation_metrics_present']}. A checkpoint by itself is not treated as a trained/evaluated model.
 - **Prediction uncertainty:** unavailable for human pregnancy outcomes. Evidence completeness and MC-dropout variance are not calibrated confidence intervals.
 """

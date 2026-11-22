@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-31T08:19:37.562032+00:00",
+  "generated_at": "2026-11-22T04:11:53.196674+00:00",
   "sources": {
     "mendeley_dermatology": {
       "status": "present",
@@ -1191,7 +1191,7 @@
       "study_title": "Anti-seizure medication use during pregnancy and risk of ASD and ADHD in children",
       "overall_children": 16205,
       "no_asm_children": 12661,
-      "asm_children": 12661,
+      "asm_children": 3544,
       "epilepsy_subgroup_children": 5637,
       "outcome_names": [
         "autism spectrum disorder",
@@ -1210,125 +1210,8 @@
       "reason_not_trainable": "The supplied tables provide aggregate hazard ratios and exposed-subgroup sizes, not patient-level outcomes, outcome event counts, or per-drug positive/negative labels."
     },
     "nonclinical_toxicity_assay": {
-      "status": "present",
-      "file": "datasets/Supplementary_S3_Raw data.xlsx",
-      "sheets": 10,
-      "sheet_variants": "Each TG endpoint has a *_smiles3 and *_smiles4 variant. Modeling uses the *_smiles4 version because it contains binary target columns; the source does not document the binary-label derivation.",
-      "unique_structures_across_endpoints": 2244,
-      "structures_matching_local_pubchem_smiles": 11,
-      "local_drug_ids_matching_assay_structures": 11,
-      "outcomes_are_human_pregnancy_outcomes": false,
-      "endpoint_granularity": "Chemical-structure level",
-      "endpoint_decisions": [
-        {
-          "endpoint": "TG414",
-          "sheet": "414smiles4",
-          "records": 1242,
-          "positive": 370,
-          "negative": 872,
-          "positive_percent": 29.79,
-          "scaffold_groups": 927,
-          "excluded_invalid_or_duplicate_rows": 0,
-          "label_values_are_binary": true,
-          "decision": "limited",
-          "decision_reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
-        },
-        {
-          "endpoint": "TG416",
-          "sheet": "416smiles4",
-          "records": 264,
-          "positive": 74,
-          "negative": 190,
-          "positive_percent": 28.03,
-          "scaffold_groups": 215,
-          "excluded_invalid_or_duplicate_rows": 0,
-          "label_values_are_binary": true,
-          "decision": "limited",
-          "decision_reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
-        },
-        {
-          "endpoint": "TG421t",
-          "sheet": "421smiles4",
-          "records": 510,
-          "positive": 95,
-          "negative": 415,
-          "positive_percent": 18.63,
-          "scaffold_groups": 399,
-          "excluded_invalid_or_duplicate_rows": 0,
-          "label_values_are_binary": true,
-          "decision": "limited",
-          "decision_reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
-        },
-        {
-          "endpoint": "TG422t",
-          "sheet": "422smiles4",
-          "records": 946,
-          "positive": 191,
-          "negative": 755,
-          "positive_percent": 20.19,
-          "scaffold_groups": 677,
-          "excluded_invalid_or_duplicate_rows": 0,
-          "label_values_are_binary": true,
-          "decision": "limited",
-          "decision_reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
-        },
-        {
-          "endpoint": "TG443t",
-          "sheet": "443smiles4",
-          "records": 144,
-          "positive": 29,
-          "negative": 115,
-          "positive_percent": 20.14,
-          "scaffold_groups": 117,
-          "excluded_invalid_or_duplicate_rows": 1,
-          "label_values_are_binary": true,
-          "decision": "limited",
-          "decision_reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
-        }
-      ],
-      "variant_consistency": [
-        {
-          "endpoint": "TG414",
-          "paired_structures": 1242,
-          "label_disagreements": 17,
-          "nonbinary_smiles3_labels": 17,
-          "missing_smiles4_label_percent": 0.0,
-          "missing_smiles_percent": 0.0
-        },
-        {
-          "endpoint": "TG416",
-          "paired_structures": 264,
-          "label_disagreements": 2,
-          "nonbinary_smiles3_labels": 2,
-          "missing_smiles4_label_percent": 0.0,
-          "missing_smiles_percent": 0.0
-        },
-        {
-          "endpoint": "TG421t",
-          "paired_structures": 510,
-          "label_disagreements": 0,
-          "nonbinary_smiles3_labels": 0,
-          "missing_smiles4_label_percent": 0.0,
-          "missing_smiles_percent": 0.0
-        },
-        {
-          "endpoint": "TG422t",
-          "paired_structures": 946,
-          "label_disagreements": 0,
-          "nonbinary_smiles3_labels": 0,
-          "missing_smiles4_label_percent": 0.0,
-          "missing_smiles_percent": 0.0
-        },
-        {
-          "endpoint": "TG443t",
-          "paired_structures": 145,
-          "label_disagreements": 0,
-          "nonbinary_smiles3_labels": 0,
-          "missing_smiles4_label_percent": 0.0,
-          "missing_smiles_percent": 0.0
-        }
-      ],
-      "source_definition_status": "No dataset citation or codebook/label definition was found in the workbook or accompanying files."
+      "status": "not_found",
+      "endpoint_decisions": []
     },
     "drug_target_interactions": {
       "status": "present",
@@ -1395,56 +1278,6 @@
       "verified_negative_labels": 0,
       "decision": "not_trainable",
       "reason": "Only aggregate spontaneous-report term counts are present; no exposed-pregnancy denominator or validated outcome-negative observations are supplied."
-    },
-    {
-      "outcome": "nonclinical TG414 chemical assay label",
-      "label": "TG414 encoded assay class",
-      "aggregate_term_rows": 1242,
-      "drugs_with_reported_terms": 0,
-      "verified_positive_labels": 0,
-      "verified_negative_labels": 0,
-      "decision": "limited",
-      "reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
-    },
-    {
-      "outcome": "nonclinical TG416 chemical assay label",
-      "label": "TG416 encoded assay class",
-      "aggregate_term_rows": 264,
-      "drugs_with_reported_terms": 0,
-      "verified_positive_labels": 0,
-      "verified_negative_labels": 0,
-      "decision": "limited",
-      "reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
-    },
-    {
-      "outcome": "nonclinical TG421t chemical assay label",
-      "label": "TG421t encoded assay class",
-      "aggregate_term_rows": 510,
-      "drugs_with_reported_terms": 0,
-      "verified_positive_labels": 0,
-      "verified_negative_labels": 0,
-      "decision": "limited",
-      "reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
-    },
-    {
-      "outcome": "nonclinical TG422t chemical assay label",
-      "label": "TG422t encoded assay class",
-      "aggregate_term_rows": 946,
-      "drugs_with_reported_terms": 0,
-      "verified_positive_labels": 0,
-      "verified_negative_labels": 0,
-      "decision": "limited",
-      "reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
-    },
-    {
-      "outcome": "nonclinical TG443t chemical assay label",
-      "label": "TG443t encoded assay class",
-      "aggregate_term_rows": 144,
-      "drugs_with_reported_terms": 0,
-      "verified_positive_labels": 0,
-      "verified_negative_labels": 0,
-      "decision": "limited",
-      "reason": "Adequate labels for an exploratory structure-based split, but the workbook's label provenance/definition is not supplied and these are nonclinical toxicology endpoints."
     },
     {
       "outcome": "ASD among offspring in the anti-seizure medication study",
