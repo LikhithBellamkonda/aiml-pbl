@@ -241,3 +241,62 @@ For TG assays, separately obtain the original citation/download URL, source data
 **Do not begin or enable training for the intended human pregnancy prediction model with the currently supplied data.** There is no validated human pregnancy endpoint with both positive and negative observations and adequate provenance. Keep the existing pregnancy-training safeguard unchanged.
 
 The TG sheets provide enough rows to run exploratory numerical classification, and prior scaffold-grouped CV has already been run, but the original dataset provenance and label semantics are unresolved. Do not start further TG model training or present the current TG artifacts as scientifically validated until those definitions are established. Even after verification, those endpoints would remain nonclinical toxicity tasks and would not establish pregnancy-safety prediction.
+
+## Addendum — implementation audit, 2026-11-20
+
+Scope: execution of the checked-in scripts in a fresh checkout (Python 3.12, project-local venv, `pip install` of the declared dependencies plus `joblib`). No dataset contents were altered and no pregnancy model was trained.
+
+### Commands actually run
+
+| Command | Exit | Observed result |
+|---|---:|---|
+| `python -m src.acquire_datasets` (local/cached, no downloads) | 0 | 2,297 evidence records; 119 mapped drugs; 0 pregnancy endpoints trainable; PubChem requests performed: 0 |
+| `python -m src.dataset_feasibility` | 0 (after fix 1) | status `pregnancy_model_blocked_nonclinical_experiment_available`; 7 targets assessed |
+| `python -m src.train` | 2 (by design) | `Training skipped: no validated binary human pregnancy-outcome labels are available` |
+| `python -m pytest -q` | 0 | 38 passed |
+| `streamlit.testing.v1.AppTest("dashboard/app.py")` | n/a | page renders with no exception; abstention notice displayed |
+
+### Fix 1 — feasibility report crashed whenever the TG workbook was absent
+
+`render_markdown()` interpolated `assay['file']`, `assay['sheets']` and four other keys unconditionally, but `build_feasibility_report()` sets `assay_summary = {"status": "not_found", "endpoint_decisions": []}` when `datasets/Supplementary_S3_Raw data.xlsx` is missing. Result: `KeyError: 'file'` at `src/dataset_feasibility.py:847`, after the JSON had already been written — so `reports/pregnancy_dataset_feasibility.md` could not be regenerated at all in a checkout without the workbook, while `data/dataset_feasibility.json` was silently refreshed.
+
+`render_markdown()` now branches on `assay['status']` and, when the workbook is absent, states that no nonclinical endpoint can be regenerated here and that the saved metrics in `data/reproductive_tox_training_metrics.json` are not reproducible from local files. The script exits 0 and the report is regenerated.
+
+### Fix 2 — the dashboard emitted fabricated risk scores and confidence
+
+`src/ml_risk_model.py` produced a "foetal risk" and "maternal risk" percentage from `0.50*sigmoid(normalised report count) + 0.18*… + 0.06*(SHA-256 hash − 0.5)` multiplied by hard-coded per-trimester constants, plus a hash-perturbed "confidence", and routed each drug between "ML" and "AI fallback". `_evaluate_split()` then scored those numbers against pseudo-labels generated from the same feature columns (`base == 1 or hash > 0.88`) and reported the result as accuracy/precision/recall/F1 in `data/ml_risk_metrics.json`. `dashboard/app.py` displayed these as "Overall foetus risk", "Maternal risk" and "Confidence".
+
+This contradicted the repository's own safeguard and the README claim that risk scores are unavailable. It has been replaced by `src/ml_risk_model.py`, which reports only what the sources record for a drug — observed aggregate report-term counts per outcome, ADR term count, FAERS report total — with `None` for every source that has no record, and always `risk_score=None`, `confidence=None`, `model_used="none"`, `abstain=True`. `src/mepr_reasoning.py` returns `risk_score=None`, `model_prediction_variance=None`, `ml_prediction_active=False` and an `evidence_summary`; its dead `sigma` placeholder expression was removed. The dashboard now shows observed counts plus an explicit "Unavailable" status instead of percentages, and its `training_status` (previously computed and never rendered) is displayed.
+
+The two tests that asserted a float `risk_score` were updated to assert that no score, confidence or prediction is produced.
+
+### Fix 3 — the anti-seizure supplement count was mis-parsed
+
+The pattern `ASM\s+n\s*=\s*([\d,]+)` matched inside the string `No ASM n=12661`, so `asm_children` was reported as 12,661 instead of 3,544 and the generated report stated that both arms contained 12,661 children. The pattern now uses a `(?<!No )` lookbehind; the regenerated report reads 16,205 children overall, 12,661 without ASM and 3,544 with ASM, matching the supplement.
+
+### Verified dataset facts
+
+| Quantity | Value |
+|---|---:|
+| Standardized drug rows (`data/drug_mapping.csv`) | 1,726 rows / 1,720 unique `drug_id` |
+| Drugs with PubChem identity and SMILES | 1,173 resolved (1,178 mapping rows) |
+| Drugs with general ADR term evidence | 685 |
+| Drugs with FAERS report totals | 75 |
+| Drugs with aggregate pregnancy outcome counts | 67 |
+| Evidence master records / mapped drugs | 2,297 / 119 (60 CID-keyed, 59 `NAME:`-keyed) |
+| Records with a known trimester | 0 (all 2,297 are `trimester = unknown`) |
+| Validated binary human pregnancy outcome labels | 0 |
+
+Because every evidence record is untimed, any trimester-filtered dashboard query correctly returns no records and abstains; trimester-specific prioritisation cannot be evaluated from the current data.
+
+### Remaining blockers, in order
+
+1. **No human outcome labels.** `data/pregnancy_labels.csv` does not exist; `src/train.py` requires per-outcome `label_*`/`mask_*` columns plus `source_dataset`, `source_reference`, `outcome_definition` and `evidence_type`, restricted to `human_observed_outcome`/`human_controlled_outcome`.
+2. **No exposure timing anywhere.** All 2,297 records are untimed, so the trimester-conditioned target the project proposes has zero support.
+3. **Two identifier key spaces.** Aggregate count tables are `CID…`-keyed, Mendeley-only drugs are `NAME:…`-keyed; a query on a name-keyed drug reports its counts as unavailable rather than zero. Resolving this requires a documented identifier-resolution step, not a silent name join.
+4. **The nonclinical TG workbook is absent**, so the saved TG metrics cannot be reproduced and must not be cited.
+5. **Generated artifacts are gitignored.** `data/` is ignored, so a fresh clone has no `standardized_master_evidence.csv` and two tests fail until `python -m src.acquire_datasets` has run. `requirements.txt` was also missing `joblib`, which `src/train_reproductive_tox.py` imports.
+
+### Next step (unchanged in substance)
+
+Obtain an outcome-specific human cohort with exposed/unexposed denominators and documented gestational timing, then write `data/pregnancy_labels.csv` in the schema `src/train.py` validates. Until that exists, the correct behaviour — now enforced end to end — is to report observed evidence and abstain.

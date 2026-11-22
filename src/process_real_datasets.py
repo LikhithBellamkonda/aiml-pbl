@@ -68,25 +68,115 @@ def _is_combination(name: str) -> bool:
 
 
 def _pubchem_record_from_local_csv(path: Path) -> dict[str, dict[str, Any]]:
+    """Read a local PubChem chemical table in either supported schema.
+
+    Two files share this purpose in the project: the raw PubChem property
+    export (``CID``/``Title``/``ConnectivitySMILES``) and the ingestion
+    pipeline's standardized table (``pubchem_cid``/``drug_name``/``smiles``).
+    Accepting both keeps offline processing reproducible from either artefact.
+    """
     if not path.exists():
         return {}
-    frame = pd.read_csv(path)
+    frame = pd.read_csv(path, low_memory=False)
     records: dict[str, dict[str, Any]] = {}
-    for row in frame.to_dict("records"):
-        try:
-            cid = int(row["CID"])
-        except (KeyError, TypeError, ValueError):
+    if {"CID", "Title"}.issubset(frame.columns):
+        for row in frame.to_dict("records"):
+            try:
+                cid = int(row["CID"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            name = "aspirin" if cid == 2244 else str(row.get("Title", ""))
+            records[_name_key(name)] = {
+                "cid": cid,
+                "title": name,
+                "smiles": row.get("ConnectivitySMILES") or row.get("SMILES"),
+                "inchikey": "",
+                "molecular_formula": row.get("MolecularFormula", ""),
+                "molecular_weight": row.get("MolecularWeight", np.nan),
+                "resolution_status": "resolved_local_source",
+                "resolution_source": path.name,
+            }
+        return records
+
+    required = {"pubchem_cid", "drug_name"}
+    if required.issubset(frame.columns):
+        for row in frame.to_dict("records"):
+            try:
+                cid = int(float(row["pubchem_cid"]))
+            except (TypeError, ValueError):
+                continue
+            name = str(row.get("drug_name") or "")
+            if not name or cid <= 0:
+                continue
+            records[_name_key(name)] = {
+                "cid": cid,
+                "title": name,
+                "smiles": row.get("smiles"),
+                "inchikey": row.get("inchikey") or "",
+                "molecular_formula": row.get("molecular_formula", ""),
+                "molecular_weight": row.get(
+                    "pubchem_molecular_weight", np.nan
+                ),
+                "resolution_status": "resolved_local_source",
+                "resolution_source": path.name,
+            }
+    return records
+
+
+def _existing_project_records(
+    mapping_path: Path, pubchem_path: Path
+) -> dict[str, dict[str, Any]]:
+    """Seed offline resolution from already-resolved project artefacts.
+
+    The committed ``drug_mapping.csv`` contains identifier resolutions whose
+    original PubChem cache is not part of the repository. Re-using those
+    resolved rows makes an offline pipeline run reproducible instead of
+    silently downgrading every drug to ``not_queried``.
+    """
+    records: dict[str, dict[str, Any]] = {}
+    if not mapping_path.exists():
+        return records
+    mapping = pd.read_csv(mapping_path)
+    name_column = "original_name" if "original_name" in mapping else None
+    if name_column is None or "pubchem_cid" not in mapping:
+        return records
+
+    pubchem_by_id: dict[str, dict[str, Any]] = {}
+    if pubchem_path.exists():
+        pubchem = pd.read_csv(pubchem_path, low_memory=False)
+        if {"drug_id", "smiles"}.issubset(pubchem.columns):
+            pubchem_by_id = {
+                str(row["drug_id"]): row for row in pubchem.to_dict("records")
+            }
+
+    for row in mapping.to_dict("records"):
+        name = str(row.get(name_column) or "")
+        if not name:
             continue
-        name = "aspirin" if cid == 2244 else str(row.get("Title", ""))
+        try:
+            cid = int(float(row.get("pubchem_cid")))
+        except (TypeError, ValueError):
+            cid = 0
+        if cid <= 0:
+            # Preserve the previously recorded status (unresolved/ambiguous)
+            # instead of downgrading it to an undifferentiated not_queried.
+            records[_name_key(name)] = {
+                "resolution_status": row.get("resolution_status") or "unresolved",
+                "resolution_source": row.get("resolution_source")
+                or "existing project mapping",
+            }
+            continue
+        processed = pubchem_by_id.get(str(row.get("drug_id")), {})
         records[_name_key(name)] = {
             "cid": cid,
-            "title": name,
-            "smiles": row.get("ConnectivitySMILES") or row.get("SMILES"),
-            "inchikey": "",
-            "molecular_formula": row.get("MolecularFormula", ""),
-            "molecular_weight": row.get("MolecularWeight", np.nan),
-            "resolution_status": "resolved_local_source",
-            "resolution_source": path.name,
+            "title": processed.get("title") or name,
+            "smiles": processed.get("smiles") or row.get("canonical_smiles"),
+            "inchikey": row.get("inchikey") or processed.get("inchikey", ""),
+            "molecular_formula": processed.get("molecular_formula", ""),
+            "molecular_weight": processed.get("molecular_weight", np.nan),
+            "resolution_status": row.get("resolution_status") or "resolved",
+            "resolution_source": row.get("resolution_source")
+            or "existing project mapping",
         }
     return records
 
@@ -163,7 +253,19 @@ def resolve_names(
         except json.JSONDecodeError as error:
             LOGGER.warning("Ignoring invalid PubChem cache %s: %s", cache_path, error)
 
-    local_records = _pubchem_record_from_local_csv(DATASET_DIR / "CSV.csv")
+    local_records: dict[str, dict[str, Any]] = {}
+    for path in (
+        DATASET_DIR / "CSV.csv",
+        DATA_DIR / "pubchem_chemicals.csv",
+    ):
+        local_records.update(_pubchem_record_from_local_csv(path))
+    # Existing resolved artefacts take precedence over the raw local caches:
+    # they were validated against PubChem and are committed to the repository.
+    local_records.update(
+        _existing_project_records(
+            DATA_DIR / "drug_mapping.csv", DATA_DIR / "real_pubchem.csv"
+        )
+    )
     name_by_key: dict[str, str] = {}
     for candidate in names:
         key = _name_key(candidate)

@@ -5,7 +5,7 @@ from typing import Any
 
 import pandas as pd
 
-from src.ml_risk_model import score_drug  # deterministic ML + AI routing engine
+from src.ml_risk_model import summarise_drug  # observed-evidence summary, not a score
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -150,12 +150,12 @@ def _classify_adverse_level(report_count: int) -> str:
     return "Low"
 
 
-def _compute_exploratory_confidence(report_count: int) -> float:
-    """Compute an exploratory confidence score (0–1) from report counts.
+def _report_volume_index(report_count: int) -> float:
+    """Relative report-volume index (0-1), capped at ten term records.
 
-    NOT clinical confidence — a relative signal strength derived from the
-    number of spontaneous reports available for this drug–side-effect pair.
-    Clearly labeled as exploratory when displayed.
+    This is not confidence, probability or severity: it only expresses how
+    many separate source records mention a term, and is labelled as such
+    wherever it is displayed.
     """
     return round(min(report_count / 10.0, 1.0), 4)
 
@@ -164,7 +164,7 @@ def _load_side_effects_for_drug(drug_id: str) -> list[dict[str, Any]]:
     """Load reported side effects for a drug from real_adr_evidence.csv.
 
     Returns a list of dicts with: term, meddra_id, source_dataset,
-    report_count, level (High/Moderate/Low), confidence (exploratory 0–1).
+    report_count, level (High/Moderate/Low), report_volume_index (0-1).
     Sorted by report_count descending.
     """
     if not ADR_EVIDENCE_PATH.is_file() or not drug_id:
@@ -211,7 +211,7 @@ def _load_side_effects_for_drug(drug_id: str) -> list[dict[str, Any]]:
                     "source_dataset": row["source_dataset"],
                     "report_count": count,
                     "level": _classify_adverse_level(count),
-                    "confidence": _compute_exploratory_confidence(count),
+                    "report_volume_index": _report_volume_index(count),
                 }
             )
 
@@ -326,11 +326,11 @@ def evaluate_drug_safety(
         else []
     )
 
-    # Determine ML vs AI fallback (Stage 2 input-driven routing)
-    ml_prediction_active = True
-    # Placeholder variance - in real model would be computed; using None if not available
-    sigma = result_variance if (result_variance := None) is not None else None
-    # Fallback conditions: low coverage, high variance, or unavailable human-validated source
+    # No validated human pregnancy-outcome model exists, so no prediction and
+    # therefore no prediction variance can be reported.
+    ml_prediction_active = False
+    sigma = None
+    # Fallback condition: no trained human-outcome model, or low evidence coverage.
     fallback_trigger = (
         (coverage_score is not None and coverage_score < 0.40)
         or (sigma is not None and sigma > 0.35)
@@ -347,34 +347,26 @@ def evaluate_drug_safety(
         ai_evidence_synthesis = {
             "missing_source_families": missing_families,
             "explanation": (
-                "AI fallback activated due to insufficient ML evidence. "
-                "Missing human evidence sources include: " + ", ".join(missing_families)
+                "No validated human pregnancy-outcome model is available. "
+                "Missing human evidence sources (no record for this query): "
+                + (", ".join(missing_families) if missing_families else "none")
             ),
             "details": {
-                "OnSIDES": "Side effect reports from OnSIDES are unavailable for this query.",
-                "Mendeley": "Case count data from Mendeley is missing.",
-                "TGA": "Regulatory notes from TGA are not present."
+                "Evidence coverage (Q_cov)": (
+                    f"{coverage_score:.0%}" if coverage_score is not None else "Unavailable"
+                ),
+                "Sources represented": (
+                    ", ".join(source_families) if source_families else "None"
+                ),
             },
         }
 
-    # Deterministic risk scores (foetus trimester-wise + maternal) and
-    # dynamic runtime model routing (ML vs AI fallback). Computed per query
-    # so results are consistent for identical inputs and routing is not
-    # hardcoded per drug.
-    drug_risk = score_drug(drug_id) if drug_id else {
-        "drug_id": drug_id,
-        "drug_name": drug_name,
-        "foetus_risk": {"overall_foetus_risk": 0.0, "trimester_wise": {}},
-        "maternal_risk": {"maternal_risk": 0.0},
-        "overall_confidence": 0.0,
-        "model_used": "ai_fallback",
-        "ml_available": False,
-    }
+    # Observed-evidence summary. This is not a prediction: no risk score,
+    # confidence value or trimester-wise risk is produced anywhere in the
+    # pipeline, because no validated human-outcome model has been trained.
+    evidence_summary = summarise_drug(drug_id, drug_name)
 
-    confidence = drug_risk["overall_confidence"]
-    model_used = drug_risk["model_used"]
-
-    # Side effects for this drug (from input data, exploratory level + confidence)
+    # Side effects for this drug (observed term records, not severity)
     side_effects = _load_side_effects_for_drug(drug_id) if drug_id else []
 
     # --- Dynamic abstention alert (computed from actual input data, not hardcoded) ---
@@ -412,17 +404,17 @@ def evaluate_drug_safety(
             f"are represented for '{drug_name}'. "
             "Model abstains from risk scoring."
         )
-    elif confidence < 0.35:
-        abstention_alert = (
-            f"Prediction confidence below threshold ({confidence:.0%}) "
-            f"for {trimester} for '{drug_name}'. "
-            "Model abstains from risk scoring."
-        )
     elif timed_support_count == 0 and trimester != "All":
         abstention_alert = (
             f"No timed outcome support available for {trimester} "
             f"for '{drug_name}'. "
             "Model abstains from risk scoring."
+        )
+    else:
+        abstention_alert = (
+            "No validated human pregnancy-outcome model is available, so no risk "
+            "score is produced. The records below are observed source evidence, "
+            "not predictions."
         )
 
     return {
@@ -437,22 +429,18 @@ def evaluate_drug_safety(
         "timed_outcome_support_count": timed_support_count,
         "provenance_badges": provenance,
         "abstention_alert": abstention_alert,
-        "risk_score": drug_risk["foetus_risk"]["overall_foetus_risk"],
-        "model_prediction_variance": sigma,
+        "risk_score": None,
+        "model_prediction_variance": None,
         "risk_scoring_status": (
-            "Exploratory deterministic risk scores; not a clinically validated predictor."
+            "No validated human pregnancy-outcome model exists. Risk scores, "
+            "model confidence and trimester-wise risk are unavailable; recorded "
+            "counts are observed evidence, not risk."
         ),
         "ml_prediction_active": ml_prediction_active,
         "ai_evidence_synthesis": ai_evidence_synthesis,
-        # New: foetus risk (trimester-wise), maternal risk, confidence, routing.
-        "foetus_risk": drug_risk["foetus_risk"],
-        "trimester_wise_risk": drug_risk["foetus_risk"]["trimester_wise"],
-        "maternal_risk": drug_risk["maternal_risk"],
-        "confidence": drug_risk["overall_confidence"],
-        "model_used": drug_risk["model_used"],
-        "ml_available": drug_risk["ml_available"],
-        "drug_name": drug_risk["drug_name"],
-        # Side effects with exploratory adverse level and confidence
+        "evidence_summary": evidence_summary,
+        "drug_name": evidence_summary["drug_name"],
+        # Observed adverse-term records with derived reporting level
         "side_effects": side_effects,
         # Evidence quality (separate from prediction confidence)
         "evidence_quality": drug_risk.get("overall_evidence_quality", 0.0),
