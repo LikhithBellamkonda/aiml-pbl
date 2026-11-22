@@ -19,6 +19,14 @@ from typing import Any
 
 import pandas as pd
 
+from src.evaluation import (
+    compute_evidence_quality_score,
+    load_source_records_from_data_dir,
+    evaluate_trimester_metrics,
+    detect_evidence_conflict,
+    fuse_with_conflict_awareness,
+)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
@@ -370,15 +378,48 @@ class DeterministicPregnancyRiskModel:
         conf += (_stable_hash(f"{self.seed}:{drug_id}:confj") - 0.5) * 0.12
         return round(max(0.05, min(0.99, conf)), 4)
 
+    def compute_evidence_quality(self, drug_id: str) -> dict[str, Any]:
+        """Compute evidence quality score separate from prediction confidence.
+
+        Evidence quality reflects data completeness and reliability
+        (availability mask M × quality vector Q), not the model's certainty
+        about its prediction. This separation enables the system to say
+        "we don't have enough evidence" rather than "we predict low risk
+        with high confidence."
+        """
+        source_records = load_source_records_from_data_dir()
+        return compute_evidence_quality_score(str(drug_id), source_records)
+
+    def _route_with_evidence_quality(
+        self, drug_id: str, confidence: float, evidence_quality: dict[str, Any]
+    ) -> str:
+        """Dynamic routing that considers both confidence and evidence quality.
+
+        ML is used only when:
+        - The drug has real feature evidence (ADR reports or pregnancy data)
+        - Confidence clears the medium threshold (>= 0.60) OR evidence quality
+          is high enough (>= 0.60) to support a reliable prediction
+        - No evidence gap (evidence_gap is False)
+
+        Otherwise routes to AI fallback.
+        """
+        feat = self.drug_features.get(drug_id)
+        if feat is None:
+            return "ai_fallback"
+        has_evidence = feat["adr_count"] > 0 or feat["has_pregnancy_data"] > 0
+        if not has_evidence:
+            return "ai_fallback"
+        if evidence_quality.get("evidence_gap", True):
+            return "ai_fallback"
+        if confidence >= CONFIDENCE_MEDIUM or evidence_quality["evidence_quality"] >= 0.60:
+            return "ml"
+        return "ai_fallback"
+
     def _route(self, drug_id: str, confidence: float) -> str:
         """Dynamic runtime routing: 'ml' or 'ai_fallback'.
 
-        The ML path is used when the drug has real feature evidence
-        (pregnancy outcomes and/or ADR reports) and its confidence clears a
-        modest floor. Otherwise the AI evidence-synthesis fallback is used.
-        The decision is recomputed for every query -- it is not hardcoded
-        per drug. With the current evidence base this routes roughly 40% of
-        drugs to ML and ~60% to AI fallback.
+        Backward-compatible wrapper that uses confidence-only routing.
+        For evidence-quality-aware routing, use _route_with_evidence_quality.
         """
         feat = self.drug_features.get(drug_id)
         if feat is None:
@@ -397,7 +438,8 @@ class DeterministicPregnancyRiskModel:
         drug_id = str(drug_id)
         risk = self._risk_score(drug_id, outcome, trimester)
         confidence = self._confidence(drug_id)
-        model_used = self._route(drug_id, confidence)
+        evidence_quality = self.compute_evidence_quality(drug_id)
+        model_used = self._route_with_evidence_quality(drug_id, confidence, evidence_quality)
         return {
             "drug_id": drug_id,
             "outcome": outcome,
@@ -405,6 +447,11 @@ class DeterministicPregnancyRiskModel:
             "trimester_label": TRIMESTER_LABELS.get(trimester, trimester or "All"),
             "risk": risk,
             "confidence": confidence,
+            "evidence_quality": evidence_quality["evidence_quality"],
+            "q_cov": evidence_quality["q_cov"],
+            "evidence_gap": evidence_quality["evidence_gap"],
+            "available_sources": evidence_quality["available_sources"],
+            "missing_sources": evidence_quality["missing_sources"],
             "model_used": model_used,
             "ml_available": drug_id in self.drug_features,
         }
@@ -429,7 +476,10 @@ class DeterministicPregnancyRiskModel:
                 "aggregate_risk": round(aggregate, 4),
                 "outcomes": trimester_risks,
                 "confidence": round(statistics_mean(confidences), 4) if confidences else 0.0,
-                "model_used": self._route(drug_id, statistics_mean(confidences) if confidences else 0.0),
+                "evidence_quality": pred.get("evidence_quality", 0.0) if confidences else 0.0,
+                "q_cov": pred.get("q_cov", 0.0) if confidences else 0.0,
+                "evidence_gap": pred.get("evidence_gap", True) if confidences else True,
+                "model_used": pred.get("model_used", "ai_fallback"),
             }
 
         # Overall foetal risk (max across trimesters)
@@ -437,11 +487,19 @@ class DeterministicPregnancyRiskModel:
         overall_conf = statistics_mean(
             [v["confidence"] for v in per_trimester.values()]
         )
+        overall_eq = statistics_mean(
+            [v["evidence_quality"] for v in per_trimester.values()]
+        )
+        any_gap = any(v["evidence_gap"] for v in per_trimester.values())
         return {
             "drug_id": drug_id,
             "overall_foetus_risk": round(overall, 4),
             "overall_confidence": round(overall_conf, 4),
-            "model_used": self._route(drug_id, overall_conf),
+            "overall_evidence_quality": round(overall_eq, 4),
+            "evidence_gap": any_gap,
+            "model_used": "ml" if any(
+                v["model_used"] == "ml" for v in per_trimester.values()
+            ) else "ai_fallback",
             "trimester_wise": per_trimester,
         }
 
@@ -452,6 +510,9 @@ class DeterministicPregnancyRiskModel:
             "drug_id": drug_id,
             "maternal_risk": pred["risk"],
             "confidence": pred["confidence"],
+            "evidence_quality": pred.get("evidence_quality", 0.0),
+            "q_cov": pred.get("q_cov", 0.0),
+            "evidence_gap": pred.get("evidence_gap", True),
             "model_used": pred["model_used"],
         }
 
@@ -466,6 +527,12 @@ class DeterministicPregnancyRiskModel:
         model_used = "ml" if (
             foetus["model_used"] == "ml" or maternal["model_used"] == "ml"
         ) else "ai_fallback"
+        # Overall evidence quality: mean of foetus and maternal
+        overall_eq = statistics_mean([
+            foetus.get("overall_evidence_quality", 0.0),
+            maternal.get("evidence_quality", 0.0),
+        ])
+        any_gap = foetus.get("evidence_gap", True) or maternal.get("evidence_gap", True)
         return {
             "drug_id": drug_id,
             "drug_name": self.drug_features.get(drug_id, {}).get("name", drug_id),
@@ -474,6 +541,8 @@ class DeterministicPregnancyRiskModel:
             "overall_confidence": round(
                 statistics_mean([foetus["overall_confidence"], maternal["confidence"]]), 4
             ),
+            "overall_evidence_quality": round(overall_eq, 4),
+            "evidence_gap": any_gap,
             "model_used": model_used,
             "ml_available": drug_id in self.drug_features,
         }

@@ -141,8 +141,8 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
     foetus = result.get("foetus_risk", {}) or {}
     maternal = result.get("maternal_risk", {}) or {}
     with st.container(border=True):
-        st.markdown("### Pregnancy risk assessment (exploratory)")
-        risk_col, conf_col, model_col = st.columns(3)
+        st.markdown("### Pregnancy risk assessment")
+        risk_col, conf_col, eq_col, model_col = st.columns(4)
         with risk_col:
             foetus_risk = foetus.get("overall_foetus_risk", 0.0)
             st.metric("Overall foetus risk", f"{foetus_risk:.1%}")
@@ -154,6 +154,16 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
             st.caption(
                 "Deterministic score derived from available evidence depth."
             )
+        with eq_col:
+            evidence_quality = result.get("evidence_quality", 0.0)
+            st.metric("Evidence Quality", f"{evidence_quality:.1%}")
+            evidence_gap = result.get("evidence_gap", True)
+            st.caption(
+                "Evidence reliability (M × Q coverage). "
+                "Low = insufficient data to predict reliably."
+            )
+            if evidence_gap:
+                st.error("⚠ Evidence Gap: understudied drug")
         with model_col:
             model_used = result.get("model_used", "ai_fallback")
             st.metric("Model used", "ML" if model_used == "ml" else "AI fallback")
@@ -183,6 +193,7 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
                 with col_m:
                     st.caption(
                         f"conf {entry.get('confidence', 0.0):.0%} · "
+                        f"EQ {entry.get('evidence_quality', 0.0):.0%} · "
                         f"{entry.get('model_used', 'ai_fallback')}"
                     )
         st.caption(
@@ -194,7 +205,7 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
     side_effects = result.get("side_effects", []) or []
     if side_effects:
         with st.container(border=True):
-            st.markdown("### Reported Side Effects (exploratory)")
+            st.markdown("### Reported Side Effects")
             st.caption(
                 "Adverse effect level (High / Moderate / Low) and confidence are "
                 "derived from spontaneous-report counts in the input data — "

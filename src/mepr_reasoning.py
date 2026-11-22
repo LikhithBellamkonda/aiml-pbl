@@ -454,4 +454,17 @@ def evaluate_drug_safety(
         "drug_name": drug_risk["drug_name"],
         # Side effects with exploratory adverse level and confidence
         "side_effects": side_effects,
+        # Evidence quality (separate from prediction confidence)
+        "evidence_quality": drug_risk.get("overall_evidence_quality", 0.0),
+        "evidence_gap": drug_risk.get("evidence_gap", True),
+        # Trimester-wise metrics for evaluation
+        "trimester_metrics": {
+            t: {
+                "evidence_quality": v.get("evidence_quality", 0.0),
+                "q_cov": v.get("q_cov", 0.0),
+                "evidence_gap": v.get("evidence_gap", True),
+                "model_used": v.get("model_used", "ai_fallback"),
+            }
+            for t, v in (drug_risk.get("foetus_risk", {}).get("trimester_wise", {}) or {}).items()
+        },
     }

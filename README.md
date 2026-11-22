@@ -1,20 +1,103 @@
-# Pregnancy drug-safety research prototype
+# Evidence-Aware Multimodal Learning for Trimester-Specific Prioritization of Pregnancy Drug-Safety Signals
 
-This repository contains an evidence-processing prototype for drug safety research in pregnancy. It is not a clinical decision-support or prescribing system.
+This repository contains an evidence-processing prototype for prioritizing potential
+pregnancy-stage-specific drug safety signals. It is not a clinical decision-support
+or prescribing system. All outputs are exploratory research signals requiring
+clinical and epidemiological confirmation.
 
-## Windows PowerShell setup
+## Reframed Problem Statement
 
-From the project directory:
+**Evidence-aware prioritization of potential pregnancy-stage-specific safety signals.**
+
+Instead of predicting binary pregnancy outcomes (which is not possible with current
+data — no validated human pregnancy labels exist), the system:
+
+1. **Prioritizes drug–ADR signals** by trimester (T1, T2, T3, Entire Pregnancy)
+2. **Separates prediction confidence from evidence reliability** — a model can be
+   confident but working with poor-quality evidence, or uncertain but working with
+   rich evidence
+3. **Flags evidence gaps** — drugs where data is too sparse for any reliable prediction
+4. **Provides trimester-aware risk** — recognises that teratogenicity is most relevant
+   in T1 (organogenesis), while growth and functional effects may be more relevant later
+
+## What Is Implemented
+
+| Component | Status | Description |
+|-----------|--------|-------------|
+| Human-only data pipeline | ✅ | OnSIDES, Mendeley, TGA, FAERS, PubChem (animal/nonclinical data purged) |
+| ROR/PRR disproportionality signals | ✅ | Reporting Odds Ratio and Proportional Reporting Ratio per drug–outcome |
+| Availability Mask (M) & Quality Vector (Q) | ✅ | Per-drug, per-source evidence availability and completeness |
+| Q_cov coverage score | ✅ | Evidence coverage = mean(M × Q) across source families |
+| Mask-Aware Cross-Attention Gating | ✅ | Multimodal fusion conditioned on M and Q |
+| Scientific safeguard | ✅ | Training blocked without validated human pregnancy labels |
+| 2-stage evaluation (drug × trimester × outcome) | ✅ | Stage 1: filter evidence; Stage 2: Q_cov < 0.40 → AI fallback |
+| Dynamic ML ↔ AI fallback routing | ✅ | Recomputed per query, not hardcoded per drug |
+| Trimester-wise foetal risk + maternal risk | ✅ | Separate fetal (4 outcomes) and maternal risk per trimester |
+| Side effects with adverse level + confidence | ✅ | High/Moderate/Low levels from report counts |
+| Evidence quality head (separate from confidence) | ✅ | M × Q based evidence reliability score |
+| Evidence gap flag | ✅ | Explicit "understudied drug" warning |
+| Evidence-aware abstention alerts | ✅ | Dynamic messages based on root cause |
+| Streamlit dashboard | ✅ | Query filter panel, risk panel, side effects, provenance badges |
+| Architecture diagram | ✅ | 4-tier human-only system (reports/figures/) |
+| Curated benchmark (25 drugs) | ✅ | Known teratogens + safe drugs (data/curated_benchmark.csv) |
+| Case studies | ✅ | docs/CASE_STUDIES.md |
+| Unit tests (38 passing) | ✅ | pytest suite |
+
+## What Is NOT Implemented (and why)
+
+| Feature | Status | Reason / Alternative |
+|-----------|--------|---------------------|
+| Dirichlet evidential deep learning | ❌ | Requires labeled training data (blocked). Alternative: heuristic confidence + evidence quality score |
+| Multi-task learning neural network | ❌ | No labeled human pregnancy outcomes (blocked by design). Alternative: deterministic risk model |
+| SHAP / Integrated Gradients | ❌ | No trained GNN + molecular graph pipeline. Alternative: side effect terms + provenance badges |
+| Expert validation (clinician) | ❌ | No experts available. Alternative: case studies with known teratogens |
+| External validation (SIDER, DailyMed) | ❌ | Not available locally. Alternative: real FAERS/OnSIDES in pipeline |
+| Drug-disjoint / temporal splits | ❌ | No labeled data. Alternative: deterministic hash-based split |
+| RAG / literature branch | ❌ | No literature corpus available. Alternative: PubChem + ADR evidence |
+| DMPNN / AttentiveFP | ❌ | Needs graph training data + labels. Alternative: basic MolecularGNN |
+| Public benchmark release | ⚠️ | Data not curated to publication level. Alternative: curated_benchmark.csv (25 drugs) |
+| Conflict-resolution module | ⚠️ | No labeled contradictory pairs. Alternative: conflict detection heuristic implemented |
+| Mechanism-aware explanations | ❌ | No mechanism database. Alternative: SMILES-based features |
+| Prospective evaluation | ❌ | No temporal outcome data. Not feasible |
+
+## Installation & Usage
+
+See the original setup instructions below. After installation, run:
 
 ```powershell
-cd "D:\aiml final\aiml-pbl"
-py -3.14 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+# Process datasets
+python -m src.process_real_datasets --offline
+
+# Run dashboard
+streamlit run dashboard/app.py
+
+# Run tests
+python -m pytest -q
 ```
 
-For environments that cannot use Python 3.14, use a Python version supported by the installed PyTorch and RDKit wheels.
+## Key Outputs
+
+For any drug query, the system returns:
+
+- **Foetus risk** (trimester-wise: T1, T2, T3, Entire Pregnancy) for 4 fetal outcomes
+- **Maternal risk** (entire pregnancy)
+- **Prediction confidence** (0–1, how sure the model is)
+- **Evidence quality** (0–1, how reliable the underlying data is — separate from confidence)
+- **Evidence gap flag** (True if data too sparse for reliable prediction)
+- **Model used** (ML vs AI fallback, decided dynamically per query)
+- **Side effects** with High/Moderate/Low adverse levels and exploratory confidence
+- **Abstention alert** (dynamic message explaining why scoring is withheld, if applicable)
+
+## Important Limitations
+
+- Spontaneous reporting data (FAERS, OnSIDES) has stimulated reporting, under-reporting,
+  and confounding by indication. Associations are not causal.
+- No validated human pregnancy outcome labels exist; training is blocked by design.
+- All scores are exploratory and not clinically validated.
+- This is a screening/prioritization tool, not a clinical decision tool.
+
+## Original Setup Instructions
+
 
 ## Process available datasets
 
