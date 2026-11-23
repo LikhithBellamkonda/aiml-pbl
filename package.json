@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build",
+    "build:cache": "tsx server/buildAnalogueCache.ts",
     "start": "NODE_ENV=production tsx server.ts",
     "lint": "tsc --noEmit",
     "test": "tsx --test server/pipeline.test.ts"

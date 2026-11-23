@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 import { parse } from 'csv-parse/sync';
 
@@ -67,7 +68,16 @@ export interface DataStore {
   };
 }
 
-const ROOT = process.cwd();
+function resolveProjectRoot(): string {
+  const cwd = process.cwd();
+  if (fs.existsSync(path.join(cwd, 'data'))) return cwd;
+  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+  const candidate = path.resolve(moduleDir, '..');
+  if (fs.existsSync(path.join(candidate, 'data'))) return candidate;
+  return cwd;
+}
+
+const ROOT = resolveProjectRoot();
 const DATA_DIR = path.join(ROOT, 'data');
 const DATASETS_DIR = path.join(ROOT, 'datasets');
 

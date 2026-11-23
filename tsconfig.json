@@ -14,5 +14,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["server.ts", "server/**/*", "client/**/*"]
+  "include": ["server.ts", "server/**/*", "client/**/*", "api/**/*"]
 }

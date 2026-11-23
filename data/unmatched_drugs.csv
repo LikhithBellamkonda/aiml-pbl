@@ -1,0 +1,549 @@
+original_name,normalized_name,name_key,drug_id,pubchem_cid,pubchem_title,inchikey,canonical_smiles,resolution_status,resolution_source
+abacavir / dolutegravir / lamivudine,abacavir / dolutegravir / lamivudine,abacavir dolutegravir lamivudine,NAME:abacavir%20dolutegravir%20lamivudine,,,,,combination_not_resolved,not queried: combination product
+abacavir/ lamivudine,abacavir/ lamivudine,abacavir lamivudine,NAME:abacavir%20lamivudine,,,,,unresolved,PubChem PUG REST
+abacavir / lamivudine / zidovudine,abacavir / lamivudine / zidovudine,abacavir lamivudine zidovudine,NAME:abacavir%20lamivudine%20zidovudine,,,,,combination_not_resolved,not queried: combination product
+abatacept,abatacept,abatacept,NAME:abatacept,,,,,unresolved,PubChem PUG REST
+abciximab,abciximab,abciximab,NAME:abciximab,,,,,unresolved,PubChem PUG REST
+acetazolamide (ophthalmic),acetazolamide (ophthalmic),acetazolamide ophthalmic,NAME:acetazolamide%20ophthalmic,,,,,unresolved,PubChem PUG REST
+acetylcysteine (inhaled),acetylcysteine (inhaled),acetylcysteine inhaled,NAME:acetylcysteine%20inhaled,,,,,unresolved,PubChem PUG REST
+acetylcysteine (intravenous),acetylcysteine (intravenous),acetylcysteine intravenous,NAME:acetylcysteine%20intravenous,,,,,unresolved,PubChem PUG REST
+aciclovir (topical),aciclovir (topical),aciclovir topical,NAME:aciclovir%20topical,,,,,unresolved,PubChem PUG REST
+aclidinium bromide / eformoterol fumarate,aclidinium bromide / eformoterol fumarate,aclidinium bromide eformoterol fumarate,NAME:aclidinium%20bromide%20eformoterol%20fumarate,,,,,combination_not_resolved,not queried: combination product
+adalimumab,adalimumab,adalimumab,NAME:adalimumab,,,,,unresolved,PubChem PUG REST
+adrenaline (epinephrine),adrenaline (epinephrine),adrenaline epinephrine,NAME:adrenaline%20epinephrine,,,,,unresolved,PubChem PUG REST
+aflibercept,aflibercept,aflibercept,NAME:aflibercept,,,,,unresolved,PubChem PUG REST
+agalsidase beta,agalsidase beta,agalsidase beta,NAME:agalsidase%20beta,,,,,unresolved,PubChem PUG REST
+albutrepenonacog alfa,albutrepenonacog alfa,albutrepenonacog alfa,NAME:albutrepenonacog%20alfa,,,,,unresolved,PubChem PUG REST
+aldesleukin,aldesleukin,aldesleukin,NAME:aldesleukin,,,,,unresolved,PubChem PUG REST
+alefacept,alefacept,alefacept,NAME:alefacept,,,,,unresolved,PubChem PUG REST
+alemtuzumab,alemtuzumab,alemtuzumab,NAME:alemtuzumab,,,,,unresolved,PubChem PUG REST
+alginates/antacids,alginates/antacids,alginates antacids,NAME:alginates%20antacids,,,,,unresolved,PubChem PUG REST
+alglucerase,alglucerase,alglucerase,NAME:alglucerase,,,,,unresolved,PubChem PUG REST
+alglucosidase alfa,alglucosidase alfa,alglucosidase alfa,NAME:alglucosidase%20alfa,,,,,unresolved,PubChem PUG REST
+alirocumab,alirocumab,alirocumab,NAME:alirocumab,,,,,unresolved,PubChem PUG REST
+allergen pollen extract of 5 grasses,allergen pollen extract of 5 grasses,allergen pollen extract of 5 grasses,NAME:allergen%20pollen%20extract%20of%205%20grasses,,,,,unresolved,PubChem PUG REST
+alogliptin / metformin,alogliptin / metformin,alogliptin metformin,NAME:alogliptin%20metformin,,,,,combination_not_resolved,not queried: combination product
+alpha-1-proteinase inhibitor,alpha-1-proteinase inhibitor,alpha 1 proteinase inhibitor,NAME:alpha%201%20proteinase%20inhibitor,,,,,unresolved,PubChem PUG REST
+alteplase,alteplase,alteplase,NAME:alteplase,,,,,unresolved,PubChem PUG REST
+altretamine (hexamethylmelamine),altretamine (hexamethylmelamine),altretamine hexamethylmelamine,NAME:altretamine%20hexamethylmelamine,,,,,unresolved,PubChem PUG REST
+amethocaine (tetracaine),amethocaine (tetracaine),amethocaine tetracaine,NAME:amethocaine%20tetracaine,,,,,unresolved,PubChem PUG REST
+amivantamab,amivantamab,amivantamab,NAME:amivantamab,,,,,unresolved,PubChem PUG REST
+amlodipine / atorvastatin,amlodipine / atorvastatin,amlodipine atorvastatin,NAME:amlodipine%20atorvastatin,,,,,combination_not_resolved,not queried: combination product
+amlodipine / hydrochlorothiazide /valsartan,amlodipine / hydrochlorothiazide /valsartan,amlodipine hydrochlorothiazide valsartan,NAME:amlodipine%20hydrochlorothiazide%20valsartan,,,,,combination_not_resolved,not queried: combination product
+amlodipine / olmesartan medoxomil,amlodipine / olmesartan medoxomil,amlodipine olmesartan medoxomil,NAME:amlodipine%20olmesartan%20medoxomil,,,,,combination_not_resolved,not queried: combination product
+amlodipine / olmesartan medoxomil / hydrochlorothiazide,amlodipine / olmesartan medoxomil / hydrochlorothiazide,amlodipine olmesartan medoxomil hydrochlorothiazide,NAME:amlodipine%20olmesartan%20medoxomil%20hydrochlorothiazide,,,,,combination_not_resolved,not queried: combination product
+amlodipine / telmisartan,amlodipine / telmisartan,amlodipine telmisartan,NAME:amlodipine%20telmisartan,,,,,combination_not_resolved,not queried: combination product
+amlodipine / valsartan,amlodipine / valsartan,amlodipine valsartan,NAME:amlodipine%20valsartan,,,,,combination_not_resolved,not queried: combination product
+amphotericin B (liposomal),amphotericin b (liposomal),amphotericin b liposomal,NAME:amphotericin%20b%20liposomal,,,,,unresolved,PubChem PUG REST
+amylobarbitone (amobarbital),amylobarbitone (amobarbital),amylobarbitone amobarbital,NAME:amylobarbitone%20amobarbital,,,,,unresolved,PubChem PUG REST
+anacaulase-bcdb,anacaulase-bcdb,anacaulase bcdb,NAME:anacaulase%20bcdb,,,,,unresolved,PubChem PUG REST
+Anacaulase-bcdb,anacaulase-bcdb,anacaulase bcdb,NAME:anacaulase%20bcdb,,,,,unresolved,PubChem PUG REST
+anakinra,anakinra,anakinra,NAME:anakinra,,,,,unresolved,PubChem PUG REST
+ancestim,ancestim,ancestim,NAME:ancestim,,,,,unresolved,PubChem PUG REST
+andexanet alfa,andexanet alfa,andexanet alfa,NAME:andexanet%20alfa,,,,,unresolved,PubChem PUG REST
+anifrolumab,anifrolumab,anifrolumab,NAME:anifrolumab,,,,,unresolved,PubChem PUG REST
+anistreplase,anistreplase,anistreplase,NAME:anistreplase,,,,,unresolved,PubChem PUG REST
+anti-thymocyte immunoglobulin,anti-thymocyte immunoglobulin,anti thymocyte immunoglobulin,NAME:anti%20thymocyte%20immunoglobulin,,,,,unresolved,PubChem PUG REST
+antithrombin III,antithrombin iii,antithrombin iii,NAME:antithrombin%20iii,,,,,unresolved,PubChem PUG REST
+apadamtase alfa / cinaxadamtase alfa,apadamtase alfa / cinaxadamtase alfa,apadamtase alfa cinaxadamtase alfa,NAME:apadamtase%20alfa%20cinaxadamtase%20alfa,,,,,combination_not_resolved,not queried: combination product
+artemether with lumefantine,artemether with lumefantine,artemether with lumefantine,NAME:artemether%20with%20lumefantine,,,,,unresolved,PubChem PUG REST
+articaine / adrenaline,articaine / adrenaline,articaine adrenaline,NAME:articaine%20adrenaline,,,,,combination_not_resolved,not queried: combination product
+asfotase alfa (rch),asfotase alfa (rch),asfotase alfa rch,NAME:asfotase%20alfa%20rch,,,,,unresolved,PubChem PUG REST
+asparaginase,asparaginase,asparaginase,NAME:asparaginase,,,,,unresolved,PubChem PUG REST
+aspirin / dipyridamole,aspirin / dipyridamole,aspirin dipyridamole,NAME:aspirin%20dipyridamole,,,,,combination_not_resolved,not queried: combination product
+atazanavir / cobicistat,atazanavir / cobicistat,atazanavir cobicistat,NAME:atazanavir%20cobicistat,,,,,combination_not_resolved,not queried: combination product
+atezolizumab,atezolizumab,atezolizumab,NAME:atezolizumab,,,,,unresolved,PubChem PUG REST
+atorvastatin / ezetimibe,atorvastatin / ezetimibe,atorvastatin ezetimibe,NAME:atorvastatin%20ezetimibe,,,,,combination_not_resolved,not queried: combination product
+avalglucosidase alfa,avalglucosidase alfa,avalglucosidase alfa,NAME:avalglucosidase%20alfa,,,,,unresolved,PubChem PUG REST
+avelumab,avelumab,avelumab,NAME:avelumab,,,,,unresolved,PubChem PUG REST
+axatilimab,axatilimab,axatilimab,NAME:axatilimab,,,,,unresolved,PubChem PUG REST
+axicabtagene ciloleucel,axicabtagene ciloleucel,axicabtagene ciloleucel,NAME:axicabtagene%20ciloleucel,,,,,unresolved,PubChem PUG REST
+azelastine hydrochloride / fluticasone propionate,azelastine hydrochloride / fluticasone propionate,azelastine hydrochloride fluticasone propionate,NAME:azelastine%20hydrochloride%20fluticasone%20propionate,,,,,combination_not_resolved,not queried: combination product
+basiliximab,basiliximab,basiliximab,NAME:basiliximab,,,,,unresolved,PubChem PUG REST
+BCG (Mycobacterium bovis),bcg (mycobacterium bovis),bcg mycobacterium bovis,NAME:bcg%20mycobacterium%20bovis,,,,,unresolved,PubChem PUG REST
+becaplermin,becaplermin,becaplermin,NAME:becaplermin,,,,,unresolved,PubChem PUG REST
+belantamab mafodotin,belantamab mafodotin,belantamab mafodotin,NAME:belantamab%20mafodotin,,,,,unresolved,PubChem PUG REST
+belatacept,belatacept,belatacept,NAME:belatacept,,,,,unresolved,PubChem PUG REST
+belimumab,belimumab,belimumab,NAME:belimumab,,,,,unresolved,PubChem PUG REST
+belladonna,belladonna,belladonna,NAME:belladonna,,,,,unresolved,PubChem PUG REST
+benralizumab,benralizumab,benralizumab,NAME:benralizumab,,,,,unresolved,PubChem PUG REST
+benserazide / levodopa,benserazide / levodopa,benserazide levodopa,NAME:benserazide%20levodopa,,,,,combination_not_resolved,not queried: combination product
+benzathine penicillin,benzathine penicillin,benzathine penicillin,NAME:benzathine%20penicillin,,,,,unresolved,PubChem PUG REST
+benzhexol (trihexyphenidyl),benzhexol (trihexyphenidyl),benzhexol trihexyphenidyl,NAME:benzhexol%20trihexyphenidyl,,,,,unresolved,PubChem PUG REST
+benzoyl peroxide / adapalene,benzoyl peroxide / adapalene,benzoyl peroxide adapalene,NAME:benzoyl%20peroxide%20adapalene,,,,,combination_not_resolved,not queried: combination product
+benzoyl peroxide / clindamycin,benzoyl peroxide / clindamycin,benzoyl peroxide clindamycin,NAME:benzoyl%20peroxide%20clindamycin,,,,,combination_not_resolved,not queried: combination product
+benzydamine (topical oropharyngeal),benzydamine (topical oropharyngeal),benzydamine topical oropharyngeal,NAME:benzydamine%20topical%20oropharyngeal,,,,,unresolved,PubChem PUG REST
+betamethasone acetate / betamethasone,betamethasone acetate / betamethasone,betamethasone acetate betamethasone,NAME:betamethasone%20acetate%20betamethasone,,,,,combination_not_resolved,not queried: combination product
+betamethasone dipropionate / calcipotriol,betamethasone dipropionate / calcipotriol,betamethasone dipropionate calcipotriol,NAME:betamethasone%20dipropionate%20calcipotriol,,,,,combination_not_resolved,not queried: combination product
+betaxolol (ophthalmic),betaxolol (ophthalmic),betaxolol ophthalmic,NAME:betaxolol%20ophthalmic,,,,,unresolved,PubChem PUG REST
+bevacizumab,bevacizumab,bevacizumab,NAME:bevacizumab,,,,,unresolved,PubChem PUG REST
+bezlotoxumab,bezlotoxumab,bezlotoxumab,NAME:bezlotoxumab,,,,,unresolved,PubChem PUG REST
+bictegravir/emtricitabine/tenofovir alafenamide,bictegravir/emtricitabine/tenofovir alafenamide,bictegravir emtricitabine tenofovir alafenamide,NAME:bictegravir%20emtricitabine%20tenofovir%20alafenamide,,,,,unresolved,PubChem PUG REST
+bimatoprost / timolol,bimatoprost / timolol,bimatoprost timolol,NAME:bimatoprost%20timolol,,,,,combination_not_resolved,not queried: combination product
+bimekizumab,bimekizumab,bimekizumab,NAME:bimekizumab,,,,,unresolved,PubChem PUG REST
+birch bark dry extract,birch bark dry extract,birch bark dry extract,NAME:birch%20bark%20dry%20extract,,,,,unresolved,PubChem PUG REST
+blinatumomab (rch),blinatumomab (rch),blinatumomab rch,NAME:blinatumomab%20rch,,,,,unresolved,PubChem PUG REST
+boceprevir with ribavirin and peginterferon alfa,boceprevir with ribavirin and peginterferon alfa,boceprevir with ribavirin and peginterferon alfa,NAME:boceprevir%20with%20ribavirin%20and%20peginterferon%20alfa,,,,,combination_not_resolved,not queried: combination product
+botulinum toxin type A,botulinum toxin type a,botulinum toxin type a,NAME:botulinum%20toxin%20type%20a,,,,,unresolved,PubChem PUG REST
+brentuximab vedotin,brentuximab vedotin,brentuximab vedotin,NAME:brentuximab%20vedotin,,,,,unresolved,PubChem PUG REST
+brexucabtagene autoleucel,brexucabtagene autoleucel,brexucabtagene autoleucel,NAME:brexucabtagene%20autoleucel,,,,,unresolved,PubChem PUG REST
+brimonidine / brinzolamide,brimonidine / brinzolamide,brimonidine brinzolamide,NAME:brimonidine%20brinzolamide,,,,,combination_not_resolved,not queried: combination product
+brimonidine / timolol,brimonidine / timolol,brimonidine timolol,NAME:brimonidine%20timolol,,,,,combination_not_resolved,not queried: combination product
+brinzolamide / timolol,brinzolamide / timolol,brinzolamide timolol,NAME:brinzolamide%20timolol,,,,,combination_not_resolved,not queried: combination product
+brolucizumab,brolucizumab,brolucizumab,NAME:brolucizumab,,,,,unresolved,PubChem PUG REST
+bromocriptine (injection),bromocriptine (injection),bromocriptine injection,NAME:bromocriptine%20injection,,,,,unresolved,PubChem PUG REST
+bromocriptine (oral),bromocriptine (oral),bromocriptine oral,NAME:bromocriptine%20oral,,,,,unresolved,PubChem PUG REST
+budesonide (systemic),budesonide (systemic),budesonide systemic,NAME:budesonide%20systemic,,,,,unresolved,PubChem PUG REST
+bupivacaine / fentanyl,bupivacaine / fentanyl,bupivacaine fentanyl,NAME:bupivacaine%20fentanyl,,,,,combination_not_resolved,not queried: combination product
+burosumab,burosumab,burosumab,NAME:burosumab,,,,,unresolved,PubChem PUG REST
+canakinumab,canakinumab,canakinumab,NAME:canakinumab,,,,,unresolved,PubChem PUG REST
+caplacizumab,caplacizumab,caplacizumab,NAME:caplacizumab,,,,,unresolved,PubChem PUG REST
+carbidopa / entacapone / levodopa,carbidopa / entacapone / levodopa,carbidopa entacapone levodopa,NAME:carbidopa%20entacapone%20levodopa,,,,,combination_not_resolved,not queried: combination product
+carbidopa / levodopa,carbidopa / levodopa,carbidopa levodopa,NAME:carbidopa%20levodopa,,,,,combination_not_resolved,not queried: combination product
+cascara,cascara,cascara,NAME:cascara,,,,,unresolved,PubChem PUG REST
+casirivimab / imdevimab,casirivimab / imdevimab,casirivimab imdevimab,NAME:casirivimab%20imdevimab,,,,,combination_not_resolved,not queried: combination product
+ceftazidime / avibactam,ceftazidime / avibactam,ceftazidime avibactam,NAME:ceftazidime%20avibactam,,,,,combination_not_resolved,not queried: combination product
+ceftolozane/tazobactam,ceftolozane/tazobactam,ceftolozane tazobactam,NAME:ceftolozane%20tazobactam,,,,,unresolved,PubChem PUG REST
+cemiplimab,cemiplimab,cemiplimab,NAME:cemiplimab,,,,,unresolved,PubChem PUG REST
+cerliponase alfa,cerliponase alfa,cerliponase alfa,NAME:cerliponase%20alfa,,,,,unresolved,PubChem PUG REST
+certolizumab,certolizumab,certolizumab,NAME:certolizumab,,,,,unresolved,PubChem PUG REST
+cetuximab,cetuximab,cetuximab,NAME:cetuximab,,,,,unresolved,PubChem PUG REST
+chloramphenicol (ophthalmic),chloramphenicol (ophthalmic),chloramphenicol ophthalmic,NAME:chloramphenicol%20ophthalmic,,,,,unresolved,PubChem PUG REST
+chloroquine (prophylaxis),chloroquine (prophylaxis),chloroquine prophylaxis,NAME:chloroquine%20prophylaxis,,,,,unresolved,PubChem PUG REST
+chloroquine (treatment),chloroquine (treatment),chloroquine treatment,NAME:chloroquine%20treatment,,,,,unresolved,PubChem PUG REST
+cholera vaccine (killed),cholera vaccine (killed),cholera vaccine killed,NAME:cholera%20vaccine%20killed,,,,,unresolved,PubChem PUG REST
+choriogonadotropin alfa (rch),choriogonadotropin alfa (rch),choriogonadotropin alfa rch,NAME:choriogonadotropin%20alfa%20rch,,,,,unresolved,PubChem PUG REST
+ciltacabtagene autoleucel,ciltacabtagene autoleucel,ciltacabtagene autoleucel,NAME:ciltacabtagene%20autoleucel,,,,,unresolved,PubChem PUG REST
+cipaglucosidase alfa / miglustat,cipaglucosidase alfa / miglustat,cipaglucosidase alfa miglustat,NAME:cipaglucosidase%20alfa%20miglustat,,,,,combination_not_resolved,not queried: combination product
+clindamycin / tretinoin,clindamycin / tretinoin,clindamycin tretinoin,NAME:clindamycin%20tretinoin,,,,,combination_not_resolved,not queried: combination product
+clomifene,clomifene,clomifene,NAME:clomifene,,,,,ambiguous,PubChem PUG REST
+clopidogrel / aspirin,clopidogrel / aspirin,clopidogrel aspirin,NAME:clopidogrel%20aspirin,,,,,combination_not_resolved,not queried: combination product
+colaspase (asparaginase),colaspase (asparaginase),colaspase asparaginase,NAME:colaspase%20asparaginase,,,,,unresolved,PubChem PUG REST
+colestipol,colestipol,colestipol,NAME:colestipol,,,,,unresolved,PubChem PUG REST
+colestyramine,colestyramine,colestyramine,NAME:colestyramine,,,,,unresolved,PubChem PUG REST
+colistimethate,colistimethate,colistimethate,NAME:colistimethate,,,,,unresolved,PubChem PUG REST
+colistin IV with colistimethate,colistin iv with colistimethate,colistin iv with colistimethate,NAME:colistin%20iv%20with%20colistimethate,,,,,unresolved,PubChem PUG REST
+collagenase clostridium histolyticum,collagenase clostridium histolyticum,collagenase clostridium histolyticum,NAME:collagenase%20clostridium%20histolyticum,,,,,unresolved,PubChem PUG REST
+concizumab,concizumab,concizumab,NAME:concizumab,,,,,unresolved,PubChem PUG REST
+corifollitropin alfa,corifollitropin alfa,corifollitropin alfa,NAME:corifollitropin%20alfa,,,,,unresolved,PubChem PUG REST
+COVID-19 Vaccine (Ad26.COV2.S),covid-19 vaccine (ad26.cov2.s),covid 19 vaccine ad26 cov2 s,NAME:covid%2019%20vaccine%20ad26%20cov2%20s,,,,,unresolved,PubChem PUG REST
+COVID-19 Vaccine (ChAdOx1-S),covid-19 vaccine (chadox1-s),covid 19 vaccine chadox1 s,NAME:covid%2019%20vaccine%20chadox1%20s,,,,,unresolved,PubChem PUG REST
+COVID-19 Vaccine (mRNA),covid-19 vaccine (mrna),covid 19 vaccine mrna,NAME:covid%2019%20vaccine%20mrna,,,,,unresolved,PubChem PUG REST
+COVID-19 Vaccine (recombinant protein),covid-19 vaccine (recombinant protein),covid 19 vaccine recombinant protein,NAME:covid%2019%20vaccine%20recombinant%20protein,,,,,unresolved,PubChem PUG REST
+crisantaspase,crisantaspase,crisantaspase,NAME:crisantaspase,,,,,unresolved,PubChem PUG REST
+crizanlizumab,crizanlizumab,crizanlizumab,NAME:crizanlizumab,,,,,unresolved,PubChem PUG REST
+cyproterone acetate (10 mg daily or higher PO),cyproterone acetate (10 mg daily or higher po),cyproterone acetate 10 mg daily or higher po,NAME:cyproterone%20acetate%2010%20mg%20daily%20or%20higher%20po,,,,,unresolved,PubChem PUG REST
+cyproterone acetate (2 mg daily PO),cyproterone acetate (2 mg daily po),cyproterone acetate 2 mg daily po,NAME:cyproterone%20acetate%202%20mg%20daily%20po,,,,,unresolved,PubChem PUG REST
+cysteamine bitartrate (mercaptamine bitartrate),cysteamine bitartrate (mercaptamine bitartrate),cysteamine bitartrate mercaptamine bitartrate,NAME:cysteamine%20bitartrate%20mercaptamine%20bitartrate,,,,,unresolved,PubChem PUG REST
+daclizumab,daclizumab,daclizumab,NAME:daclizumab,,,,,unresolved,PubChem PUG REST
+dalfopristin with quinupristin,dalfopristin with quinupristin,dalfopristin with quinupristin,NAME:dalfopristin%20with%20quinupristin,,,,,unresolved,PubChem PUG REST
+dalteparin,dalteparin,dalteparin,NAME:dalteparin,,,,,unresolved,PubChem PUG REST
+damoctocog alfa pegol,damoctocog alfa pegol,damoctocog alfa pegol,NAME:damoctocog%20alfa%20pegol,,,,,unresolved,PubChem PUG REST
+danaparoid,danaparoid,danaparoid,NAME:danaparoid,,,,,unresolved,PubChem PUG REST
+dapagliflozin /metformin,dapagliflozin /metformin,dapagliflozin metformin,NAME:dapagliflozin%20metformin,,,,,unresolved,PubChem PUG REST
+dapagliflozin / saxagliptin,dapagliflozin / saxagliptin,dapagliflozin saxagliptin,NAME:dapagliflozin%20saxagliptin,,,,,combination_not_resolved,not queried: combination product
+daratumumab,daratumumab,daratumumab,NAME:daratumumab,,,,,unresolved,PubChem PUG REST
+darbepoetin alfa,darbepoetin alfa,darbepoetin alfa,NAME:darbepoetin%20alfa,,,,,unresolved,PubChem PUG REST
+datopotamab deruxtecan,datopotamab deruxtecan,datopotamab deruxtecan,NAME:datopotamab%20deruxtecan,,,,,unresolved,PubChem PUG REST
+daxibotulinumtoxinA,daxibotulinumtoxina,daxibotulinumtoxina,NAME:daxibotulinumtoxina,,,,,unresolved,PubChem PUG REST
+decitabine / cedazuridine,decitabine / cedazuridine,decitabine cedazuridine,NAME:decitabine%20cedazuridine,,,,,combination_not_resolved,not queried: combination product
+defibrotide,defibrotide,defibrotide,NAME:defibrotide,,,,,unresolved,PubChem PUG REST
+delgocitinib (dermal),delgocitinib (dermal),delgocitinib dermal,NAME:delgocitinib%20dermal,,,,,unresolved,PubChem PUG REST
+dengue tetravalent vaccine,dengue tetravalent vaccine,dengue tetravalent vaccine,NAME:dengue%20tetravalent%20vaccine,,,,,unresolved,PubChem PUG REST
+denosumab,denosumab,denosumab,NAME:denosumab,,,,,unresolved,PubChem PUG REST
+desogestrel with ethinylestradiol,desogestrel with ethinylestradiol,desogestrel with ethinylestradiol,NAME:desogestrel%20with%20ethinylestradiol,,,,,unresolved,PubChem PUG REST
+dexchlorphenamine (dexchlorpheniramine ),dexchlorphenamine (dexchlorpheniramine ),dexchlorphenamine dexchlorpheniramine,NAME:dexchlorphenamine%20dexchlorpheniramine,,,,,unresolved,PubChem PUG REST
+dienogest with ethinylestradiol,dienogest with ethinylestradiol,dienogest with ethinylestradiol,NAME:dienogest%20with%20ethinylestradiol,,,,,unresolved,PubChem PUG REST
+dienosliterol,dienosliterol,dienosliterol,NAME:dienosliterol,,,,,unresolved,PubChem PUG REST
+digoxin and other cardiac glycosides,digoxin and other cardiac glycosides,digoxin and other cardiac glycosides,NAME:digoxin%20and%20other%20cardiac%20glycosides,,,,,combination_not_resolved,not queried: combination product
+digoxin immune fab,digoxin immune fab,digoxin immune fab,NAME:digoxin%20immune%20fab,,,,,unresolved,PubChem PUG REST
+digoxin-specific antibody fragment F(Ab) (Ovine),digoxin-specific antibody fragment f(ab) (ovine),digoxin specific antibody fragment f ab ovine,NAME:digoxin%20specific%20antibody%20fragment%20f%20ab%20ovine,,,,,unresolved,PubChem PUG REST
+dinutuximab beta,dinutuximab beta,dinutuximab beta,NAME:dinutuximab%20beta,,,,,unresolved,PubChem PUG REST
+diphtheria-tetanus-pertussis-hepatitis B- inactivated poliomyelitis-Haemophilus influenzae type b conjugate vaccine,diphtheria-tetanus-pertussis-hepatitis b- inactivated poliomyelitis-haemophilus influenzae type b conjugate vaccine,diphtheria tetanus pertussis hepatitis b inactivated poliomyelitis haemophilus influenzae type b conjugate vaccine,NAME:diphtheria%20tetanus%20pertussis%20hepatitis%20b%20inactivated%20poliomyelitis%20haemophilus%20influenzae%20type%20b%20conjugate%20vaccine,,,,,unresolved,PubChem PUG REST
+diphtheria-tetanus-pertussis-hepatitis B- inactivated poliomyelitis-Haemophilus influenzae type b vaccine,diphtheria-tetanus-pertussis-hepatitis b- inactivated poliomyelitis-haemophilus influenzae type b vaccine,diphtheria tetanus pertussis hepatitis b inactivated poliomyelitis haemophilus influenzae type b vaccine,NAME:diphtheria%20tetanus%20pertussis%20hepatitis%20b%20inactivated%20poliomyelitis%20haemophilus%20influenzae%20type%20b%20vaccine,,,,,unresolved,PubChem PUG REST
+diphtheria-tetanus-pertussis-inactivated poliomyelitis vaccine,diphtheria-tetanus-pertussis-inactivated poliomyelitis vaccine,diphtheria tetanus pertussis inactivated poliomyelitis vaccine,NAME:diphtheria%20tetanus%20pertussis%20inactivated%20poliomyelitis%20vaccine,,,,,unresolved,PubChem PUG REST
+diphtheria-tetanus-pertussis vaccine,diphtheria-tetanus-pertussis vaccine,diphtheria tetanus pertussis vaccine,NAME:diphtheria%20tetanus%20pertussis%20vaccine,,,,,unresolved,PubChem PUG REST
+diphtheria-tetanus vaccine,diphtheria-tetanus vaccine,diphtheria tetanus vaccine,NAME:diphtheria%20tetanus%20vaccine,,,,,unresolved,PubChem PUG REST
+dolutegravir / abacavir / lamivudine,dolutegravir / abacavir / lamivudine,dolutegravir abacavir lamivudine,NAME:dolutegravir%20abacavir%20lamivudine,,,,,combination_not_resolved,not queried: combination product
+donidalorsen,donidalorsen,donidalorsen,NAME:donidalorsen,,,,,unresolved,PubChem PUG REST
+dornase alfa,dornase alfa,dornase alfa,NAME:dornase%20alfa,,,,,unresolved,PubChem PUG REST
+dorzolamide / timolol,dorzolamide / timolol,dorzolamide timolol,NAME:dorzolamide%20timolol,,,,,combination_not_resolved,not queried: combination product
+dostarlimab,dostarlimab,dostarlimab,NAME:dostarlimab,,,,,unresolved,PubChem PUG REST
+dothiepin (dosulepin),dothiepin (dosulepin),dothiepin dosulepin,NAME:dothiepin%20dosulepin,,,,,unresolved,PubChem PUG REST
+doxycycline (antimalarial),doxycycline (antimalarial),doxycycline antimalarial,NAME:doxycycline%20antimalarial,,,,,unresolved,PubChem PUG REST
+drospirenone with ethinylestradiol,drospirenone with ethinylestradiol,drospirenone with ethinylestradiol,NAME:drospirenone%20with%20ethinylestradiol,,,,,unresolved,PubChem PUG REST
+drotrecogin alfa,drotrecogin alfa,drotrecogin alfa,NAME:drotrecogin%20alfa,,,,,unresolved,PubChem PUG REST
+dulaglutide,dulaglutide,dulaglutide,NAME:dulaglutide,,,,,unresolved,PubChem PUG REST
+dupilumab,dupilumab,dupilumab,NAME:dupilumab,,,,,unresolved,PubChem PUG REST
+durvalumab,durvalumab,durvalumab,NAME:durvalumab,,,,,unresolved,PubChem PUG REST
+dydrogesterone with estradiol,dydrogesterone with estradiol,dydrogesterone with estradiol,NAME:dydrogesterone%20with%20estradiol,,,,,unresolved,PubChem PUG REST
+eculizumab,eculizumab,eculizumab,NAME:eculizumab,,,,,unresolved,PubChem PUG REST
+efalizumab,efalizumab,efalizumab,NAME:efalizumab,,,,,unresolved,PubChem PUG REST
+efanesoctocog alfa,efanesoctocog alfa,efanesoctocog alfa,NAME:efanesoctocog%20alfa,,,,,unresolved,PubChem PUG REST
+efgartigimod alfa,efgartigimod alfa,efgartigimod alfa,NAME:efgartigimod%20alfa,,,,,unresolved,PubChem PUG REST
+eformoterol (formoterol),eformoterol (formoterol),eformoterol formoterol,NAME:eformoterol%20formoterol,,,,,unresolved,PubChem PUG REST
+efraloctocog alfa (rhu),efraloctocog alfa (rhu),efraloctocog alfa rhu,NAME:efraloctocog%20alfa%20rhu,,,,,unresolved,PubChem PUG REST
+eftrenonacog alfa (rhu),eftrenonacog alfa (rhu),eftrenonacog alfa rhu,NAME:eftrenonacog%20alfa%20rhu,,,,,unresolved,PubChem PUG REST
+elbasvir / grazoprevir,elbasvir / grazoprevir,elbasvir grazoprevir,NAME:elbasvir%20grazoprevir,,,,,combination_not_resolved,not queried: combination product
+elosulfase alfa (rch),elosulfase alfa (rch),elosulfase alfa rch,NAME:elosulfase%20alfa%20rch,,,,,unresolved,PubChem PUG REST
+elotuzumab,elotuzumab,elotuzumab,NAME:elotuzumab,,,,,unresolved,PubChem PUG REST
+elranatamab,elranatamab,elranatamab,NAME:elranatamab,,,,,unresolved,PubChem PUG REST
+elvitegravir / cobicistat / emtricitabine / tenofovir alafenamide,elvitegravir / cobicistat / emtricitabine / tenofovir alafenamide,elvitegravir cobicistat emtricitabine tenofovir alafenamide,NAME:elvitegravir%20cobicistat%20emtricitabine%20tenofovir%20alafenamide,,,,,combination_not_resolved,not queried: combination product
+emicizumab,emicizumab,emicizumab,NAME:emicizumab,,,,,unresolved,PubChem PUG REST
+empagliflozin / linagliptin,empagliflozin / linagliptin,empagliflozin linagliptin,NAME:empagliflozin%20linagliptin,,,,,combination_not_resolved,not queried: combination product
+empagliflozin / metformin,empagliflozin / metformin,empagliflozin metformin,NAME:empagliflozin%20metformin,,,,,combination_not_resolved,not queried: combination product
+emtricitabine / ripilvirine / tenofovir alafenamide,emtricitabine / ripilvirine / tenofovir alafenamide,emtricitabine ripilvirine tenofovir alafenamide,NAME:emtricitabine%20ripilvirine%20tenofovir%20alafenamide,,,,,combination_not_resolved,not queried: combination product
+emtricitabine / tenofovir alafenamide,emtricitabine / tenofovir alafenamide,emtricitabine tenofovir alafenamide,NAME:emtricitabine%20tenofovir%20alafenamide,,,,,combination_not_resolved,not queried: combination product
+emtricitabine / tenofovir disoproxil fumarate,emtricitabine / tenofovir disoproxil fumarate,emtricitabine tenofovir disoproxil fumarate,NAME:emtricitabine%20tenofovir%20disoproxil%20fumarate,,,,,combination_not_resolved,not queried: combination product
+emtricitabine / tenofovir disoproxil fumarate / rilpivirine,emtricitabine / tenofovir disoproxil fumarate / rilpivirine,emtricitabine tenofovir disoproxil fumarate rilpivirine,NAME:emtricitabine%20tenofovir%20disoproxil%20fumarate%20rilpivirine,,,,,combination_not_resolved,not queried: combination product
+emtricitabine / tenofovir disoproxil maleate,emtricitabine / tenofovir disoproxil maleate,emtricitabine tenofovir disoproxil maleate,NAME:emtricitabine%20tenofovir%20disoproxil%20maleate,,,,,combination_not_resolved,not queried: combination product
+enfortumab vedotin,enfortumab vedotin,enfortumab vedotin,NAME:enfortumab%20vedotin,,,,,unresolved,PubChem PUG REST
+enoxaparin,enoxaparin,enoxaparin,NAME:enoxaparin,,,,,unresolved,PubChem PUG REST
+epcoritamab,epcoritamab,epcoritamab,NAME:epcoritamab,,,,,unresolved,PubChem PUG REST
+eplontersen,eplontersen,eplontersen,NAME:eplontersen,,,,,unresolved,PubChem PUG REST
+epoetin beta (rch),epoetin beta (rch),epoetin beta rch,NAME:epoetin%20beta%20rch,,,,,unresolved,PubChem PUG REST
+epoetin lambda (rch),epoetin lambda (rch),epoetin lambda rch,NAME:epoetin%20lambda%20rch,,,,,unresolved,PubChem PUG REST
+eptacog alfa (activated Factor VII - rch),eptacog alfa (activated factor vii - rch),eptacog alfa activated factor vii rch,NAME:eptacog%20alfa%20activated%20factor%20vii%20rch,,,,,unresolved,PubChem PUG REST
+eptinezumab,eptinezumab,eptinezumab,NAME:eptinezumab,,,,,unresolved,PubChem PUG REST
+eptotermin alfa,eptotermin alfa,eptotermin alfa,NAME:eptotermin%20alfa,,,,,unresolved,PubChem PUG REST
+erenumab,erenumab,erenumab,NAME:erenumab,,,,,unresolved,PubChem PUG REST
+ertugliflozin pyroglutamic acid,ertugliflozin pyroglutamic acid,ertugliflozin pyroglutamic acid,NAME:ertugliflozin%20pyroglutamic%20acid,,,,,unresolved,PubChem PUG REST
+ertugliflozin pyroglutamic acid; Metformin hydrochloride,ertugliflozin pyroglutamic acid; metformin hydrochloride,ertugliflozin pyroglutamic acid metformin hydrochloride,NAME:ertugliflozin%20pyroglutamic%20acid%20metformin%20hydrochloride,,,,,unresolved,PubChem PUG REST
+ertugliflozin pyroglutamic acid; sitagliptin phosphate monohydrate,ertugliflozin pyroglutamic acid; sitagliptin phosphate monohydrate,ertugliflozin pyroglutamic acid sitagliptin phosphate monohydrate,NAME:ertugliflozin%20pyroglutamic%20acid%20sitagliptin%20phosphate%20monohydrate,,,,,unresolved,PubChem PUG REST
+estetrol (as monohydrate),estetrol (as monohydrate),estetrol as monohydrate,NAME:estetrol%20as%20monohydrate,,,,,unresolved,PubChem PUG REST
+etanercept,etanercept,etanercept,NAME:etanercept,,,,,unresolved,PubChem PUG REST
+etranacogene dezaparvovec,etranacogene dezaparvovec,etranacogene dezaparvovec,NAME:etranacogene%20dezaparvovec,,,,,unresolved,PubChem PUG REST
+evolocumab (rch),evolocumab (rch),evolocumab rch,NAME:evolocumab%20rch,,,,,unresolved,PubChem PUG REST
+factor IX (human),factor ix (human),factor ix human,NAME:factor%20ix%20human,,,,,unresolved,PubChem PUG REST
+factor IX (r CHO),factor ix (r cho),factor ix r cho,NAME:factor%20ix%20r%20cho,,,,,unresolved,PubChem PUG REST
+faricimab,faricimab,faricimab,NAME:faricimab,,,,,unresolved,PubChem PUG REST
+fentanyl / ropivacaine,fentanyl / ropivacaine,fentanyl ropivacaine,NAME:fentanyl%20ropivacaine,,,,,combination_not_resolved,not queried: combination product
+ferric carboxymaltose,ferric carboxymaltose,ferric carboxymaltose,NAME:ferric%20carboxymaltose,,,,,unresolved,PubChem PUG REST
+ferucarbotran,ferucarbotran,ferucarbotran,NAME:ferucarbotran,,,,,unresolved,PubChem PUG REST
+fibrinogen,fibrinogen,fibrinogen,NAME:fibrinogen,,,,,unresolved,PubChem PUG REST
+fibrinogen / thrombin,fibrinogen / thrombin,fibrinogen thrombin,NAME:fibrinogen%20thrombin,,,,,combination_not_resolved,not queried: combination product
+filgrastim,filgrastim,filgrastim,NAME:filgrastim,,,,,unresolved,PubChem PUG REST
+fludrocortisone (systemic),fludrocortisone (systemic),fludrocortisone systemic,NAME:fludrocortisone%20systemic,,,,,unresolved,PubChem PUG REST
+fludrocortisone (topical),fludrocortisone (topical),fludrocortisone topical,NAME:fludrocortisone%20topical,,,,,unresolved,PubChem PUG REST
+fluorescein sodium (systemic),fluorescein sodium (systemic),fluorescein sodium systemic,NAME:fluorescein%20sodium%20systemic,,,,,unresolved,PubChem PUG REST
+fluticasone furoate / vilanterol trifenatate,fluticasone furoate / vilanterol trifenatate,fluticasone furoate vilanterol trifenatate,NAME:fluticasone%20furoate%20vilanterol%20trifenatate,,,,,combination_not_resolved,not queried: combination product
+fluticasone propionate / eformoterol fumarate,fluticasone propionate / eformoterol fumarate,fluticasone propionate eformoterol fumarate,NAME:fluticasone%20propionate%20eformoterol%20fumarate,,,,,combination_not_resolved,not queried: combination product
+fluticasone propionate / salmeterol xinafoate,fluticasone propionate / salmeterol xinafoate,fluticasone propionate salmeterol xinafoate,NAME:fluticasone%20propionate%20salmeterol%20xinafoate,,,,,combination_not_resolved,not queried: combination product
+folinic acid (leucovorin),folinic acid (leucovorin),folinic acid leucovorin,NAME:folinic%20acid%20leucovorin,,,,,unresolved,PubChem PUG REST
+follicle stimulating hormone (recombinant human),follicle stimulating hormone (recombinant human),follicle stimulating hormone recombinant human,NAME:follicle%20stimulating%20hormone%20recombinant%20human,,,,,unresolved,PubChem PUG REST
+follitropin alfa,follitropin alfa,follitropin alfa,NAME:follitropin%20alfa,,,,,unresolved,PubChem PUG REST
+follitropin beta,follitropin beta,follitropin beta,NAME:follitropin%20beta,,,,,unresolved,PubChem PUG REST
+follitropin delta,follitropin delta,follitropin delta,NAME:follitropin%20delta,,,,,unresolved,PubChem PUG REST
+fomivirsen,fomivirsen,fomivirsen,NAME:fomivirsen,,,,,unresolved,PubChem PUG REST
+foslevodopa / foscarbidopa,foslevodopa / foscarbidopa,foslevodopa foscarbidopa,NAME:foslevodopa%20foscarbidopa,,,,,combination_not_resolved,not queried: combination product
+fremanezumab,fremanezumab,fremanezumab,NAME:fremanezumab,,,,,unresolved,PubChem PUG REST
+frusemide (furosemide),frusemide (furosemide),frusemide furosemide,NAME:frusemide%20furosemide,,,,,unresolved,PubChem PUG REST
+FVIII inhibitor bypassing fraction,fviii inhibitor bypassing fraction,fviii inhibitor bypassing fraction,NAME:fviii%20inhibitor%20bypassing%20fraction,,,,,unresolved,PubChem PUG REST
+gadobenate,gadobenate,gadobenate,NAME:gadobenate,,,,,ambiguous,PubChem PUG REST
+gadoxetate,gadoxetate,gadoxetate,NAME:gadoxetate,,,,,ambiguous,PubChem PUG REST
+galactose with palmitic acid,galactose with palmitic acid,galactose with palmitic acid,NAME:galactose%20with%20palmitic%20acid,,,,,unresolved,PubChem PUG REST
+galcanezumab,galcanezumab,galcanezumab,NAME:galcanezumab,,,,,unresolved,PubChem PUG REST
+galsulfase,galsulfase,galsulfase,NAME:galsulfase,,,,,unresolved,PubChem PUG REST
+garadacimab,garadacimab,garadacimab,NAME:garadacimab,,,,,unresolved,PubChem PUG REST
+gemtuzumab ozogamicin,gemtuzumab ozogamicin,gemtuzumab ozogamicin,NAME:gemtuzumab%20ozogamicin,,,,,unresolved,PubChem PUG REST
+givosiran,givosiran,givosiran,NAME:givosiran,,,,,unresolved,PubChem PUG REST
+glatiramer,glatiramer,glatiramer,NAME:glatiramer,,,,,unresolved,PubChem PUG REST
+glecaprevir / pibrentasvir,glecaprevir / pibrentasvir,glecaprevir pibrentasvir,NAME:glecaprevir%20pibrentasvir,,,,,combination_not_resolved,not queried: combination product
+glibenclamide / metformin,glibenclamide / metformin,glibenclamide metformin,NAME:glibenclamide%20metformin,,,,,combination_not_resolved,not queried: combination product
+glofitamab,glofitamab,glofitamab,NAME:glofitamab,,,,,unresolved,PubChem PUG REST
+glycopyrronium bromide / formoterol fumarate,glycopyrronium bromide / formoterol fumarate,glycopyrronium bromide formoterol fumarate,NAME:glycopyrronium%20bromide%20formoterol%20fumarate,,,,,combination_not_resolved,not queried: combination product
+golimumab,golimumab,golimumab,NAME:golimumab,,,,,unresolved,PubChem PUG REST
+gonadotrophin - human chorionic,gonadotrophin - human chorionic,gonadotrophin human chorionic,NAME:gonadotrophin%20human%20chorionic,,,,,unresolved,PubChem PUG REST
+gonadotrophin - human menopausal,gonadotrophin - human menopausal,gonadotrophin human menopausal,NAME:gonadotrophin%20human%20menopausal,,,,,unresolved,PubChem PUG REST
+granisetron,granisetron,granisetron,NAME:granisetron,,,,,ambiguous,PubChem PUG REST
+guselkumab,guselkumab,guselkumab,NAME:guselkumab,,,,,unresolved,PubChem PUG REST
+Haemophilus influenzae type b conjugate vaccine,haemophilus influenzae type b conjugate vaccine,haemophilus influenzae type b conjugate vaccine,NAME:haemophilus%20influenzae%20type%20b%20conjugate%20vaccine,,,,,unresolved,PubChem PUG REST
+Haemophilus influenzae type b-meningococcal group C conjugate vaccine,haemophilus influenzae type b-meningococcal group c conjugate vaccine,haemophilus influenzae type b meningococcal group c conjugate vaccine,NAME:haemophilus%20influenzae%20type%20b%20meningococcal%20group%20c%20conjugate%20vaccine,,,,,unresolved,PubChem PUG REST
+heparin,heparin,heparin,NAME:heparin,,,,,unresolved,PubChem PUG REST
+hepatitis A vaccine,hepatitis a vaccine,hepatitis a vaccine,NAME:hepatitis%20a%20vaccine,,,,,unresolved,PubChem PUG REST
+house dust mite allergen extract,house dust mite allergen extract,house dust mite allergen extract,NAME:house%20dust%20mite%20allergen%20extract,,,,,unresolved,PubChem PUG REST
+human papillomavirus vaccine,human papillomavirus vaccine,human papillomavirus vaccine,NAME:human%20papillomavirus%20vaccine,,,,,unresolved,PubChem PUG REST
+hydroxychloroquine (antimalarial),hydroxychloroquine (antimalarial),hydroxychloroquine antimalarial,NAME:hydroxychloroquine%20antimalarial,,,,,unresolved,PubChem PUG REST
+hydroxyurea (hydroxycarbamide),hydroxyurea (hydroxycarbamide),hydroxyurea hydroxycarbamide,NAME:hydroxyurea%20hydroxycarbamide,,,,,unresolved,PubChem PUG REST
+hyoscine hydrobromide,hyoscine hydrobromide,hyoscine hydrobromide,NAME:hyoscine%20hydrobromide,,,,,ambiguous,PubChem PUG REST
+hyoscyamine,hyoscyamine,hyoscyamine,NAME:hyoscyamine,,,,,ambiguous,PubChem PUG REST
+idarucizumab,idarucizumab,idarucizumab,NAME:idarucizumab,,,,,unresolved,PubChem PUG REST
+idoxuridine (ophthalmic),idoxuridine (ophthalmic),idoxuridine ophthalmic,NAME:idoxuridine%20ophthalmic,,,,,unresolved,PubChem PUG REST
+idoxuridine (topical),idoxuridine (topical),idoxuridine topical,NAME:idoxuridine%20topical,,,,,unresolved,PubChem PUG REST
+idursulfase,idursulfase,idursulfase,NAME:idursulfase,,,,,unresolved,PubChem PUG REST
+imiglucerase,imiglucerase,imiglucerase,NAME:imiglucerase,,,,,unresolved,PubChem PUG REST
+imipenem with cilastatin,imipenem with cilastatin,imipenem with cilastatin,NAME:imipenem%20with%20cilastatin,,,,,unresolved,PubChem PUG REST
+imlifidase,imlifidase,imlifidase,NAME:imlifidase,,,,,unresolved,PubChem PUG REST
+inclisiran,inclisiran,inclisiran,NAME:inclisiran,,,,,unresolved,PubChem PUG REST
+incobotulinumtoxinA,incobotulinumtoxina,incobotulinumtoxina,NAME:incobotulinumtoxina,,,,,unresolved,PubChem PUG REST
+indacaterol/glycopyrronium,indacaterol/glycopyrronium,indacaterol glycopyrronium,NAME:indacaterol%20glycopyrronium,,,,,unresolved,PubChem PUG REST
+indacaterol maleate / glycopyrronium bromide,indacaterol maleate / glycopyrronium bromide,indacaterol maleate glycopyrronium bromide,NAME:indacaterol%20maleate%20glycopyrronium%20bromide,,,,,combination_not_resolved,not queried: combination product
+inebilizumab,inebilizumab,inebilizumab,NAME:inebilizumab,,,,,unresolved,PubChem PUG REST
+infliximab,infliximab,infliximab,NAME:infliximab,,,,,unresolved,PubChem PUG REST
+"influenza vaccine, inactivated (pandemic)","influenza vaccine, inactivated (pandemic)",influenza vaccine inactivated pandemic,NAME:influenza%20vaccine%20inactivated%20pandemic,,,,,unresolved,PubChem PUG REST
+"influenza vaccine, inactivated (prepandemic)","influenza vaccine, inactivated (prepandemic)",influenza vaccine inactivated prepandemic,NAME:influenza%20vaccine%20inactivated%20prepandemic,,,,,unresolved,PubChem PUG REST
+"influenza vaccine, inactivated (seasonal)","influenza vaccine, inactivated (seasonal)",influenza vaccine inactivated seasonal,NAME:influenza%20vaccine%20inactivated%20seasonal,,,,,unresolved,PubChem PUG REST
+"influenza vaccine, recombinant (seasonal)","influenza vaccine, recombinant (seasonal)",influenza vaccine recombinant seasonal,NAME:influenza%20vaccine%20recombinant%20seasonal,,,,,unresolved,PubChem PUG REST
+Inotuzumab ozogamicin,inotuzumab ozogamicin,inotuzumab ozogamicin,NAME:inotuzumab%20ozogamicin,,,,,unresolved,PubChem PUG REST
+insulin aspart / insulin degludec,insulin aspart / insulin degludec,insulin aspart insulin degludec,NAME:insulin%20aspart%20insulin%20degludec,,,,,combination_not_resolved,not queried: combination product
+insulin icodec,insulin icodec,insulin icodec,NAME:insulin%20icodec,,,,,unresolved,PubChem PUG REST
+interferon alpha-2a,interferon alpha-2a,interferon alpha 2a,NAME:interferon%20alpha%202a,,,,,unresolved,PubChem PUG REST
+interferon alpha-2b,interferon alpha-2b,interferon alpha 2b,NAME:interferon%20alpha%202b,,,,,unresolved,PubChem PUG REST
+interferon beta-1a,interferon beta-1a,interferon beta 1a,NAME:interferon%20beta%201a,,,,,unresolved,PubChem PUG REST
+interferon beta-1b,interferon beta-1b,interferon beta 1b,NAME:interferon%20beta%201b,,,,,unresolved,PubChem PUG REST
+interferon gamma-1b,interferon gamma-1b,interferon gamma 1b,NAME:interferon%20gamma%201b,,,,,unresolved,PubChem PUG REST
+iodoform with bismuth subnitrate,iodoform with bismuth subnitrate,iodoform with bismuth subnitrate,NAME:iodoform%20with%20bismuth%20subnitrate,,,,,unresolved,PubChem PUG REST
+ipecacuanha,ipecacuanha,ipecacuanha,NAME:ipecacuanha,,,,,unresolved,PubChem PUG REST
+ipilimumab,ipilimumab,ipilimumab,NAME:ipilimumab,,,,,unresolved,PubChem PUG REST
+ipratropium bromide,ipratropium bromide,ipratropium bromide,NAME:ipratropium%20bromide,,,,,ambiguous,PubChem PUG REST
+irinotecan (nanoliposomal as sucrosofate),irinotecan (nanoliposomal as sucrosofate),irinotecan nanoliposomal as sucrosofate,NAME:irinotecan%20nanoliposomal%20as%20sucrosofate,,,,,unresolved,PubChem PUG REST
+iron [as ferric derisomaltose] (parenteral),iron [as ferric derisomaltose] (parenteral),iron as ferric derisomaltose parenteral,NAME:iron%20as%20ferric%20derisomaltose%20parenteral,,,,,unresolved,PubChem PUG REST
+iron polymaltose (oral),iron polymaltose (oral),iron polymaltose oral,NAME:iron%20polymaltose%20oral,,,,,unresolved,PubChem PUG REST
+iron polymaltose (parenteral),iron polymaltose (parenteral),iron polymaltose parenteral,NAME:iron%20polymaltose%20parenteral,,,,,unresolved,PubChem PUG REST
+iron sucrose (parenteral),iron sucrose (parenteral),iron sucrose parenteral,NAME:iron%20sucrose%20parenteral,,,,,unresolved,PubChem PUG REST
+isatuximab,isatuximab,isatuximab,NAME:isatuximab,,,,,unresolved,PubChem PUG REST
+isotretinoin (systemic),isotretinoin (systemic),isotretinoin systemic,NAME:isotretinoin%20systemic,,,,,unresolved,PubChem PUG REST
+isotretinoin (topical),isotretinoin (topical),isotretinoin topical,NAME:isotretinoin%20topical,,,,,unresolved,PubChem PUG REST
+ivacaftor / tezacaftor / elexacaftor,ivacaftor / tezacaftor / elexacaftor,ivacaftor tezacaftor elexacaftor,NAME:ivacaftor%20tezacaftor%20elexacaftor,,,,,combination_not_resolved,not queried: combination product
+ivermectin,ivermectin,ivermectin,NAME:ivermectin,,,,,unresolved,PubChem PUG REST
+ixekizumab,ixekizumab,ixekizumab,NAME:ixekizumab,,,,,unresolved,PubChem PUG REST
+Japanese encephalitis vaccine (inactivated),japanese encephalitis vaccine (inactivated),japanese encephalitis vaccine inactivated,NAME:japanese%20encephalitis%20vaccine%20inactivated,,,,,unresolved,PubChem PUG REST
+"Japanese encephalitis vaccine (live, attenuated)","japanese encephalitis vaccine (live, attenuated)",japanese encephalitis vaccine live attenuated,NAME:japanese%20encephalitis%20vaccine%20live%20attenuated,,,,,unresolved,PubChem PUG REST
+lanadelumab,lanadelumab,lanadelumab,NAME:lanadelumab,,,,,unresolved,PubChem PUG REST
+laronidase,laronidase,laronidase,NAME:laronidase,,,,,unresolved,PubChem PUG REST
+latanoprost / timolol,latanoprost / timolol,latanoprost timolol,NAME:latanoprost%20timolol,,,,,combination_not_resolved,not queried: combination product
+lebrikizumab,lebrikizumab,lebrikizumab,NAME:lebrikizumab,,,,,unresolved,PubChem PUG REST
+ledipasvir / sofosbuvir,ledipasvir / sofosbuvir,ledipasvir sofosbuvir,NAME:ledipasvir%20sofosbuvir,,,,,combination_not_resolved,not queried: combination product
+ledipasvir / sofosbuvir with ribavirin,ledipasvir / sofosbuvir with ribavirin,ledipasvir sofosbuvir with ribavirin,NAME:ledipasvir%20sofosbuvir%20with%20ribavirin,,,,,combination_not_resolved,not queried: combination product
+lenograstim,lenograstim,lenograstim,NAME:lenograstim,,,,,unresolved,PubChem PUG REST
+letibotulinumtoxinA,letibotulinumtoxina,letibotulinumtoxina,NAME:letibotulinumtoxina,,,,,unresolved,PubChem PUG REST
+levobunolol (ophthalmic),levobunolol (ophthalmic),levobunolol ophthalmic,NAME:levobunolol%20ophthalmic,,,,,unresolved,PubChem PUG REST
+levocabastine (ophthalmic),levocabastine (ophthalmic),levocabastine ophthalmic,NAME:levocabastine%20ophthalmic,,,,,unresolved,PubChem PUG REST
+levonorgestrel / ethinyloestradiol,levonorgestrel / ethinyloestradiol,levonorgestrel ethinyloestradiol,NAME:levonorgestrel%20ethinyloestradiol,,,,,combination_not_resolved,not queried: combination product
+lignocaine (lidocaine),lignocaine (lidocaine),lignocaine lidocaine,NAME:lignocaine%20lidocaine,,,,,unresolved,PubChem PUG REST
+linagliptin / metformin,linagliptin / metformin,linagliptin metformin,NAME:linagliptin%20metformin,,,,,combination_not_resolved,not queried: combination product
+lipegfilgrastim,lipegfilgrastim,lipegfilgrastim,NAME:lipegfilgrastim,,,,,unresolved,PubChem PUG REST
+liraglutide (rys),liraglutide (rys),liraglutide rys,NAME:liraglutide%20rys,,,,,unresolved,PubChem PUG REST
+lithium salts,lithium salts,lithium salts,NAME:lithium%20salts,,,,,unresolved,PubChem PUG REST
+lixisenatide with insulin glargine,lixisenatide with insulin glargine,lixisenatide with insulin glargine,NAME:lixisenatide%20with%20insulin%20glargine,,,,,unresolved,PubChem PUG REST
+lonapegsomatropin,lonapegsomatropin,lonapegsomatropin,NAME:lonapegsomatropin,,,,,unresolved,PubChem PUG REST
+loncastuximab tesirine,loncastuximab tesirine,loncastuximab tesirine,NAME:loncastuximab%20tesirine,,,,,unresolved,PubChem PUG REST
+lonoctocog alfa,lonoctocog alfa,lonoctocog alfa,NAME:lonoctocog%20alfa,,,,,unresolved,PubChem PUG REST
+lopinavir with ritonavir,lopinavir with ritonavir,lopinavir with ritonavir,NAME:lopinavir%20with%20ritonavir,,,,,unresolved,PubChem PUG REST
+lumacaftor/ivacaftor,lumacaftor/ivacaftor,lumacaftor ivacaftor,NAME:lumacaftor%20ivacaftor,,,,,unresolved,PubChem PUG REST
+lumasiran,lumasiran,lumasiran,NAME:lumasiran,,,,,unresolved,PubChem PUG REST
+luspatercept,luspatercept,luspatercept,NAME:luspatercept,,,,,unresolved,PubChem PUG REST
+lutetium (177Lu),lutetium (177lu),lutetium 177lu,NAME:lutetium%20177lu,,,,,unresolved,PubChem PUG REST
+lutropin alfa,lutropin alfa,lutropin alfa,NAME:lutropin%20alfa,,,,,unresolved,PubChem PUG REST
+marstacimab,marstacimab,marstacimab,NAME:marstacimab,,,,,unresolved,PubChem PUG REST
+measles-mumps-rubella vaccine,measles-mumps-rubella vaccine,measles mumps rubella vaccine,NAME:measles%20mumps%20rubella%20vaccine,,,,,unresolved,PubChem PUG REST
+measles-mumps-rubella-varicella vaccine,measles-mumps-rubella-varicella vaccine,measles mumps rubella varicella vaccine,NAME:measles%20mumps%20rubella%20varicella%20vaccine,,,,,unresolved,PubChem PUG REST
+mecasermin,mecasermin,mecasermin,NAME:mecasermin,,,,,unresolved,PubChem PUG REST
+medroxyprogesterone (IM contraceptive dose),medroxyprogesterone (im contraceptive dose),medroxyprogesterone im contraceptive dose,NAME:medroxyprogesterone%20im%20contraceptive%20dose,,,,,unresolved,PubChem PUG REST
+medroxyprogesterone (oral and IM high dose),medroxyprogesterone (oral and im high dose),medroxyprogesterone oral and im high dose,NAME:medroxyprogesterone%20oral%20and%20im%20high%20dose,,,,,combination_not_resolved,not queried: combination product
+medroxyprogesterone (oral & SC high dose),medroxyprogesterone (oral & sc high dose),medroxyprogesterone oral sc high dose,NAME:medroxyprogesterone%20oral%20sc%20high%20dose,,,,,unresolved,PubChem PUG REST
+meningococcal group B vaccine,meningococcal group b vaccine,meningococcal group b vaccine,NAME:meningococcal%20group%20b%20vaccine,,,,,unresolved,PubChem PUG REST
+meningococcal group C conjugate vaccine,meningococcal group c conjugate vaccine,meningococcal group c conjugate vaccine,NAME:meningococcal%20group%20c%20conjugate%20vaccine,,,,,unresolved,PubChem PUG REST
+"meningococcal serogroups A, C, W-135 and Y polysaccharide or conjugate vaccine","meningococcal serogroups a, c, w-135 and y polysaccharide or conjugate vaccine",meningococcal serogroups a c w 135 and y polysaccharide or conjugate vaccine,NAME:meningococcal%20serogroups%20a%20c%20w%20135%20and%20y%20polysaccharide%20or%20conjugate%20vaccine,,,,,combination_not_resolved,not queried: combination product
+mepolizumab,mepolizumab,mepolizumab,NAME:mepolizumab,,,,,unresolved,PubChem PUG REST
+methoxsalen (ECP extracorporeal photopheresis),methoxsalen (ecp extracorporeal photopheresis),methoxsalen ecp extracorporeal photopheresis,NAME:methoxsalen%20ecp%20extracorporeal%20photopheresis,,,,,unresolved,PubChem PUG REST
+methoxy polyethylene glycol-epoetin beta,methoxy polyethylene glycol-epoetin beta,methoxy polyethylene glycol epoetin beta,NAME:methoxy%20polyethylene%20glycol%20epoetin%20beta,,,,,unresolved,PubChem PUG REST
+methylphenobarbitone (methylphenobarbital),methylphenobarbitone (methylphenobarbital),methylphenobarbitone methylphenobarbital,NAME:methylphenobarbitone%20methylphenobarbital,,,,,unresolved,PubChem PUG REST
+mirikizumab,mirikizumab,mirikizumab,NAME:mirikizumab,,,,,unresolved,PubChem PUG REST
+mogamulizumab,mogamulizumab,mogamulizumab,NAME:mogamulizumab,,,,,unresolved,PubChem PUG REST
+molgramostim,molgramostim,molgramostim,NAME:molgramostim,,,,,unresolved,PubChem PUG REST
+moroctocog alfa (factor VIII - rch),moroctocog alfa (factor viii - rch),moroctocog alfa factor viii rch,NAME:moroctocog%20alfa%20factor%20viii%20rch,,,,,unresolved,PubChem PUG REST
+"multicomponent meningococcal group B vaccine (recombinant, adsorbed)","multicomponent meningococcal group b vaccine (recombinant, adsorbed)",multicomponent meningococcal group b vaccine recombinant adsorbed,NAME:multicomponent%20meningococcal%20group%20b%20vaccine%20recombinant%20adsorbed,,,,,unresolved,PubChem PUG REST
+nadroparin,nadroparin,nadroparin,NAME:nadroparin,,,,,unresolved,PubChem PUG REST
+natalizumab,natalizumab,natalizumab,NAME:natalizumab,,,,,unresolved,PubChem PUG REST
+nemolizumab,nemolizumab,nemolizumab,NAME:nemolizumab,,,,,unresolved,PubChem PUG REST
+netupitant / palonosetron,netupitant / palonosetron,netupitant palonosetron,NAME:netupitant%20palonosetron,,,,,combination_not_resolved,not queried: combination product
+nirsevimab,nirsevimab,nirsevimab,NAME:nirsevimab,,,,,unresolved,PubChem PUG REST
+nitrofurantoin (short term therapy),nitrofurantoin (short term therapy),nitrofurantoin short term therapy,NAME:nitrofurantoin%20short%20term%20therapy,,,,,unresolved,PubChem PUG REST
+nivolumab,nivolumab,nivolumab,NAME:nivolumab,,,,,unresolved,PubChem PUG REST
+nomegestrol with estradiol,nomegestrol with estradiol,nomegestrol with estradiol,NAME:nomegestrol%20with%20estradiol,,,,,unresolved,PubChem PUG REST
+nonacog alfa (rch),nonacog alfa (rch),nonacog alfa rch,NAME:nonacog%20alfa%20rch,,,,,unresolved,PubChem PUG REST
+nonacog gamma (rch),nonacog gamma (rch),nonacog gamma rch,NAME:nonacog%20gamma%20rch,,,,,unresolved,PubChem PUG REST
+norelgestromin with ethinylestradiol,norelgestromin with ethinylestradiol,norelgestromin with ethinylestradiol,NAME:norelgestromin%20with%20ethinylestradiol,,,,,unresolved,PubChem PUG REST
+nusinersen,nusinersen,nusinersen,NAME:nusinersen,,,,,unresolved,PubChem PUG REST
+nystatin,nystatin,nystatin,NAME:nystatin,,,,,ambiguous,PubChem PUG REST
+obinutuzumab,obinutuzumab,obinutuzumab,NAME:obinutuzumab,,,,,unresolved,PubChem PUG REST
+ocrelizumab,ocrelizumab,ocrelizumab,NAME:ocrelizumab,,,,,unresolved,PubChem PUG REST
+ocriplasmin,ocriplasmin,ocriplasmin,NAME:ocriplasmin,,,,,unresolved,PubChem PUG REST
+octocog alfa (factor VIII - rch),octocog alfa (factor viii - rch),octocog alfa factor viii rch,NAME:octocog%20alfa%20factor%20viii%20rch,,,,,unresolved,PubChem PUG REST
+ofatumumab (rmc),ofatumumab (rmc),ofatumumab rmc,NAME:ofatumumab%20rmc,,,,,unresolved,PubChem PUG REST
+olipudase alfa,olipudase alfa,olipudase alfa,NAME:olipudase%20alfa,,,,,unresolved,PubChem PUG REST
+olodaterol (olodaterol hydrochloride),olodaterol (olodaterol hydrochloride),olodaterol olodaterol hydrochloride,NAME:olodaterol%20olodaterol%20hydrochloride,,,,,unresolved,PubChem PUG REST
+olodaterol / tiotropium bromide,olodaterol / tiotropium bromide,olodaterol tiotropium bromide,NAME:olodaterol%20tiotropium%20bromide,,,,,combination_not_resolved,not queried: combination product
+omalizumab,omalizumab,omalizumab,NAME:omalizumab,,,,,unresolved,PubChem PUG REST
+omega-3-acid ethyl esters 90,omega-3-acid ethyl esters 90,omega 3 acid ethyl esters 90,NAME:omega%203%20acid%20ethyl%20esters%2090,,,,,unresolved,PubChem PUG REST
+onasemnogene abeparvovec,onasemnogene abeparvovec,onasemnogene abeparvovec,NAME:onasemnogene%20abeparvovec,,,,,unresolved,PubChem PUG REST
+opium alkaloids and derivatives,opium alkaloids and derivatives,opium alkaloids and derivatives,NAME:opium%20alkaloids%20and%20derivatives,,,,,combination_not_resolved,not queried: combination product
+"oral contraceptives, combined","oral contraceptives, combined",oral contraceptives combined,NAME:oral%20contraceptives%20combined,,,,,unresolved,PubChem PUG REST
+oxpentifylline (pentoxifylline),oxpentifylline (pentoxifylline),oxpentifylline pentoxifylline,NAME:oxpentifylline%20pentoxifylline,,,,,unresolved,PubChem PUG REST
+oxycodone / naloxone,oxycodone / naloxone,oxycodone naloxone,NAME:oxycodone%20naloxone,,,,,combination_not_resolved,not queried: combination product
+palifermin,palifermin,palifermin,NAME:palifermin,,,,,unresolved,PubChem PUG REST
+palopegteriparatide,palopegteriparatide,palopegteriparatide,NAME:palopegteriparatide,,,,,unresolved,PubChem PUG REST
+panitumumab,panitumumab,panitumumab,NAME:panitumumab,,,,,unresolved,PubChem PUG REST
+paracetomol / tramadol,paracetomol / tramadol,paracetomol tramadol,NAME:paracetomol%20tramadol,,,,,combination_not_resolved,not queried: combination product
+paritaprevir / ritonavir / ombitasvir,paritaprevir / ritonavir / ombitasvir,paritaprevir ritonavir ombitasvir,NAME:paritaprevir%20ritonavir%20ombitasvir,,,,,combination_not_resolved,not queried: combination product
+paritaprevir/ritonavir/ombitasvir/dasabuvir,paritaprevir/ritonavir/ombitasvir/dasabuvir,paritaprevir ritonavir ombitasvir dasabuvir,NAME:paritaprevir%20ritonavir%20ombitasvir%20dasabuvir,,,,,unresolved,PubChem PUG REST
+paritaprevir/ritonavir/ombitasvir/dasabuvir/ribavirin,paritaprevir/ritonavir/ombitasvir/dasabuvir/ribavirin,paritaprevir ritonavir ombitasvir dasabuvir ribavirin,NAME:paritaprevir%20ritonavir%20ombitasvir%20dasabuvir%20ribavirin,,,,,unresolved,PubChem PUG REST
+paritaprevir / ritonavir / ombitasvir with ribavirin,paritaprevir / ritonavir / ombitasvir with ribavirin,paritaprevir ritonavir ombitasvir with ribavirin,NAME:paritaprevir%20ritonavir%20ombitasvir%20with%20ribavirin,,,,,combination_not_resolved,not queried: combination product
+patiromer (as sorbitex calcium),patiromer (as sorbitex calcium),patiromer as sorbitex calcium,NAME:patiromer%20as%20sorbitex%20calcium,,,,,unresolved,PubChem PUG REST
+patisiran,patisiran,patisiran,NAME:patisiran,,,,,unresolved,PubChem PUG REST
+pegaspargase,pegaspargase,pegaspargase,NAME:pegaspargase,,,,,unresolved,PubChem PUG REST
+pegcetacoplan,pegcetacoplan,pegcetacoplan,NAME:pegcetacoplan,,,,,unresolved,PubChem PUG REST
+pegfilgrastim,pegfilgrastim,pegfilgrastim,NAME:pegfilgrastim,,,,,unresolved,PubChem PUG REST
+peginterferon alfa-2a,peginterferon alfa-2a,peginterferon alfa 2a,NAME:peginterferon%20alfa%202a,,,,,unresolved,PubChem PUG REST
+peginterferon alfa-2b,peginterferon alfa-2b,peginterferon alfa 2b,NAME:peginterferon%20alfa%202b,,,,,unresolved,PubChem PUG REST
+peginterferon beta-1a (rch),peginterferon beta-1a (rch),peginterferon beta 1a rch,NAME:peginterferon%20beta%201a%20rch,,,,,unresolved,PubChem PUG REST
+pegvisomant,pegvisomant,pegvisomant,NAME:pegvisomant,,,,,unresolved,PubChem PUG REST
+pembrolizumab,pembrolizumab,pembrolizumab,NAME:pembrolizumab,,,,,unresolved,PubChem PUG REST
+pentastarch,pentastarch,pentastarch,NAME:pentastarch,,,,,unresolved,PubChem PUG REST
+pentosan polysulfate sodium,pentosan polysulfate sodium,pentosan polysulfate sodium,NAME:pentosan%20polysulfate%20sodium,,,,,unresolved,PubChem PUG REST
+perampanel hemisesquihydrate,perampanel hemisesquihydrate,perampanel hemisesquihydrate,NAME:perampanel%20hemisesquihydrate,,,,,unresolved,PubChem PUG REST
+pertuzumab,pertuzumab,pertuzumab,NAME:pertuzumab,,,,,unresolved,PubChem PUG REST
+phenobarbitone (phenobarbital),phenobarbitone (phenobarbital),phenobarbitone phenobarbital,NAME:phenobarbitone%20phenobarbital,,,,,unresolved,PubChem PUG REST
+piperacillin with tazobactam,piperacillin with tazobactam,piperacillin with tazobactam,NAME:piperacillin%20with%20tazobactam,,,,,unresolved,PubChem PUG REST
+piperazine oestrone sulfate (estropipate),piperazine oestrone sulfate (estropipate),piperazine oestrone sulfate estropipate,NAME:piperazine%20oestrone%20sulfate%20estropipate,,,,,unresolved,PubChem PUG REST
+plozasiran,plozasiran,plozasiran,NAME:plozasiran,,,,,unresolved,PubChem PUG REST
+"pneumococcal vaccine, capsular polysaccharides","pneumococcal vaccine, capsular polysaccharides",pneumococcal vaccine capsular polysaccharides,NAME:pneumococcal%20vaccine%20capsular%20polysaccharides,,,,,unresolved,PubChem PUG REST
+"pneumococcal vaccine, polysaccharides conjugate","pneumococcal vaccine, polysaccharides conjugate",pneumococcal vaccine polysaccharides conjugate,NAME:pneumococcal%20vaccine%20polysaccharides%20conjugate,,,,,unresolved,PubChem PUG REST
+polatuzumab vedotin,polatuzumab vedotin,polatuzumab vedotin,NAME:polatuzumab%20vedotin,,,,,unresolved,PubChem PUG REST
+poliomyelitis vaccine (injection),poliomyelitis vaccine (injection),poliomyelitis vaccine injection,NAME:poliomyelitis%20vaccine%20injection,,,,,unresolved,PubChem PUG REST
+poliomyelitis vaccine (oral),poliomyelitis vaccine (oral),poliomyelitis vaccine oral,NAME:poliomyelitis%20vaccine%20oral,,,,,unresolved,PubChem PUG REST
+ponatinib (as hydrochloride),ponatinib (as hydrochloride),ponatinib as hydrochloride,NAME:ponatinib%20as%20hydrochloride,,,,,unresolved,PubChem PUG REST
+prabotulinumtoxinA,prabotulinumtoxina,prabotulinumtoxina,NAME:prabotulinumtoxina,,,,,unresolved,PubChem PUG REST
+prilocaine (with or without felypressin),prilocaine (with or without felypressin),prilocaine with or without felypressin,NAME:prilocaine%20with%20or%20without%20felypressin,,,,,unresolved,PubChem PUG REST
+procaine penicillin (procaine benzylpenicillin),procaine penicillin (procaine benzylpenicillin),procaine penicillin procaine benzylpenicillin,NAME:procaine%20penicillin%20procaine%20benzylpenicillin,,,,,unresolved,PubChem PUG REST
+progestogen only contraceptives,progestogen only contraceptives,progestogen only contraceptives,NAME:progestogen%20only%20contraceptives,,,,,unresolved,PubChem PUG REST
+protamine,protamine,protamine,NAME:protamine,,,,,unresolved,PubChem PUG REST
+protein c (human),protein c (human),protein c human,NAME:protein%20c%20human,,,,,unresolved,PubChem PUG REST
+Q fever vaccine,q fever vaccine,q fever vaccine,NAME:q%20fever%20vaccine,,,,,unresolved,PubChem PUG REST
+quinine (treatment),quinine (treatment),quinine treatment,NAME:quinine%20treatment,,,,,unresolved,PubChem PUG REST
+rabies vaccine (inactivated),rabies vaccine (inactivated),rabies vaccine inactivated,NAME:rabies%20vaccine%20inactivated,,,,,unresolved,PubChem PUG REST
+radium (223Ra) dichloride,radium (223ra) dichloride,radium 223ra dichloride,NAME:radium%20223ra%20dichloride,,,,,unresolved,PubChem PUG REST
+raltegravir (400mg BID),raltegravir (400mg bid),raltegravir 400mg bid,NAME:raltegravir%20400mg%20bid,,,,,unresolved,PubChem PUG REST
+raltegravir (excluding 400mg BID),raltegravir (excluding 400mg bid),raltegravir excluding 400mg bid,NAME:raltegravir%20excluding%20400mg%20bid,,,,,unresolved,PubChem PUG REST
+ramucirumab (rmc),ramucirumab (rmc),ramucirumab rmc,NAME:ramucirumab%20rmc,,,,,unresolved,PubChem PUG REST
+ranibizumab,ranibizumab,ranibizumab,NAME:ranibizumab,,,,,unresolved,PubChem PUG REST
+rasburicase,rasburicase,rasburicase,NAME:rasburicase,,,,,unresolved,PubChem PUG REST
+ravulizumab,ravulizumab,ravulizumab,NAME:ravulizumab,,,,,unresolved,PubChem PUG REST
+recombinant respiratory syncytial virus pre-fusion F protein vaccine - adjuvanted with AS01,recombinant respiratory syncytial virus pre-fusion f protein vaccine - adjuvanted with as01,recombinant respiratory syncytial virus pre fusion f protein vaccine adjuvanted with as01,NAME:recombinant%20respiratory%20syncytial%20virus%20pre%20fusion%20f%20protein%20vaccine%20adjuvanted%20with%20as01,,,,,unresolved,PubChem PUG REST
+recombinant respiratory syncytial virus pre-fusion F protein vaccine - non-adjuvanted vaccine,recombinant respiratory syncytial virus pre-fusion f protein vaccine - non-adjuvanted vaccine,recombinant respiratory syncytial virus pre fusion f protein vaccine non adjuvanted vaccine,NAME:recombinant%20respiratory%20syncytial%20virus%20pre%20fusion%20f%20protein%20vaccine%20non%20adjuvanted%20vaccine,,,,,unresolved,PubChem PUG REST
+regdanvimab,regdanvimab,regdanvimab,NAME:regdanvimab,,,,,unresolved,PubChem PUG REST
+relabotulinumtoxinA,relabotulinumtoxina,relabotulinumtoxina,NAME:relabotulinumtoxina,,,,,unresolved,PubChem PUG REST
+respiratory syncytial virus (RSV) F protein mRNA,respiratory syncytial virus (rsv) f protein mrna,respiratory syncytial virus rsv f protein mrna,NAME:respiratory%20syncytial%20virus%20rsv%20f%20protein%20mrna,,,,,unresolved,PubChem PUG REST
+reteplase,reteplase,reteplase,NAME:reteplase,,,,,unresolved,PubChem PUG REST
+risankizumab,risankizumab,risankizumab,NAME:risankizumab,,,,,unresolved,PubChem PUG REST
+rituximab,rituximab,rituximab,NAME:rituximab,,,,,unresolved,PubChem PUG REST
+romiplostim,romiplostim,romiplostim,NAME:romiplostim,,,,,unresolved,PubChem PUG REST
+romosozumab,romosozumab,romosozumab,NAME:romosozumab,,,,,unresolved,PubChem PUG REST
+rosiglitazone / metformin,rosiglitazone / metformin,rosiglitazone metformin,NAME:rosiglitazone%20metformin,,,,,combination_not_resolved,not queried: combination product
+rosuvastatin / ezetimibe,rosuvastatin / ezetimibe,rosuvastatin ezetimibe,NAME:rosuvastatin%20ezetimibe,,,,,combination_not_resolved,not queried: combination product
+rotavirus vaccine,rotavirus vaccine,rotavirus vaccine,NAME:rotavirus%20vaccine,,,,,unresolved,PubChem PUG REST
+rozanolixizumab,rozanolixizumab,rozanolixizumab,NAME:rozanolixizumab,,,,,unresolved,PubChem PUG REST
+sacituzumab govitecan,sacituzumab govitecan,sacituzumab govitecan,NAME:sacituzumab%20govitecan,,,,,unresolved,PubChem PUG REST
+safinamide (as mesilate),safinamide (as mesilate),safinamide as mesilate,NAME:safinamide%20as%20mesilate,,,,,unresolved,PubChem PUG REST
+salcatonin (calcitonin salmon),salcatonin (calcitonin salmon),salcatonin calcitonin salmon,NAME:salcatonin%20calcitonin%20salmon,,,,,unresolved,PubChem PUG REST
+samarium [153Sm],samarium [153sm],samarium 153sm,NAME:samarium%20153sm,,,,,unresolved,PubChem PUG REST
+satralizumab,satralizumab,satralizumab,NAME:satralizumab,,,,,unresolved,PubChem PUG REST
+saxagliptin / metformin,saxagliptin / metformin,saxagliptin metformin,NAME:saxagliptin%20metformin,,,,,combination_not_resolved,not queried: combination product
+sebelipase alfa,sebelipase alfa,sebelipase alfa,NAME:sebelipase%20alfa,,,,,unresolved,PubChem PUG REST
+secukinumab (rch),secukinumab (rch),secukinumab rch,NAME:secukinumab%20rch,,,,,unresolved,PubChem PUG REST
+sevelamer,sevelamer,sevelamer,NAME:sevelamer,,,,,unresolved,PubChem PUG REST
+siltuximab,siltuximab,siltuximab,NAME:siltuximab,,,,,unresolved,PubChem PUG REST
+simeprevir with ribavirin and peginterferon alfa,simeprevir with ribavirin and peginterferon alfa,simeprevir with ribavirin and peginterferon alfa,NAME:simeprevir%20with%20ribavirin%20and%20peginterferon%20alfa,,,,,combination_not_resolved,not queried: combination product
+sipavibart,sipavibart,sipavibart,NAME:sipavibart,,,,,unresolved,PubChem PUG REST
+sitagliptin / metformin,sitagliptin / metformin,sitagliptin metformin,NAME:sitagliptin%20metformin,,,,,combination_not_resolved,not queried: combination product
+smallpox (Vaccinia) vaccine,smallpox (vaccinia) vaccine,smallpox vaccinia vaccine,NAME:smallpox%20vaccinia%20vaccine,,,,,unresolved,PubChem PUG REST
+sodium fusidate (fusidic acid),sodium fusidate (fusidic acid),sodium fusidate fusidic acid,NAME:sodium%20fusidate%20fusidic%20acid,,,,,unresolved,PubChem PUG REST
+sodium iodide [131I],sodium iodide [131i],sodium iodide 131i,NAME:sodium%20iodide%20131i,,,,,unresolved,PubChem PUG REST
+sodium phosphate [32P],sodium phosphate [32p],sodium phosphate 32p,NAME:sodium%20phosphate%2032p,,,,,unresolved,PubChem PUG REST
+sodium valproate (valproic acid),sodium valproate (valproic acid),sodium valproate valproic acid,NAME:sodium%20valproate%20valproic%20acid,,,,,unresolved,PubChem PUG REST
+sofosbuvir / velpatasvir,sofosbuvir / velpatasvir,sofosbuvir velpatasvir,NAME:sofosbuvir%20velpatasvir,,,,,combination_not_resolved,not queried: combination product
+sofosbuvir /  velpatasvir / voxilaprevir,sofosbuvir / velpatasvir / voxilaprevir,sofosbuvir velpatasvir voxilaprevir,NAME:sofosbuvir%20velpatasvir%20voxilaprevir,,,,,combination_not_resolved,not queried: combination product
+sofosbuvir / velpatasvir with ribavirin,sofosbuvir / velpatasvir with ribavirin,sofosbuvir velpatasvir with ribavirin,NAME:sofosbuvir%20velpatasvir%20with%20ribavirin,,,,,combination_not_resolved,not queried: combination product
+sofosbuvir with peginterferon alfa and ribavirin,sofosbuvir with peginterferon alfa and ribavirin,sofosbuvir with peginterferon alfa and ribavirin,NAME:sofosbuvir%20with%20peginterferon%20alfa%20and%20ribavirin,,,,,combination_not_resolved,not queried: combination product
+sofosbuvir with ribavirin,sofosbuvir with ribavirin,sofosbuvir with ribavirin,NAME:sofosbuvir%20with%20ribavirin,,,,,unresolved,PubChem PUG REST
+somatrogon,somatrogon,somatrogon,NAME:somatrogon,,,,,unresolved,PubChem PUG REST
+somatropin,somatropin,somatropin,NAME:somatropin,,,,,unresolved,PubChem PUG REST
+sotatercept,sotatercept,sotatercept,NAME:sotatercept,,,,,unresolved,PubChem PUG REST
+sotrovimab,sotrovimab,sotrovimab,NAME:sotrovimab,,,,,unresolved,PubChem PUG REST
+spesolimab,spesolimab,spesolimab,NAME:spesolimab,,,,,unresolved,PubChem PUG REST
+streptokinase,streptokinase,streptokinase,NAME:streptokinase,,,,,unresolved,PubChem PUG REST
+succinylated gelatin,succinylated gelatin,succinylated gelatin,NAME:succinylated%20gelatin,,,,,unresolved,PubChem PUG REST
+sucralfate,sucralfate,sucralfate,NAME:sucralfate,,,,,unresolved,PubChem PUG REST
+sulesomab,sulesomab,sulesomab,NAME:sulesomab,,,,,unresolved,PubChem PUG REST
+susoctocog alfa,susoctocog alfa,susoctocog alfa,NAME:susoctocog%20alfa,,,,,unresolved,PubChem PUG REST
+tafasitamab,tafasitamab,tafasitamab,NAME:tafasitamab,,,,,unresolved,PubChem PUG REST
+talimogene laherparepvec (rmv),talimogene laherparepvec (rmv),talimogene laherparepvec rmv,NAME:talimogene%20laherparepvec%20rmv,,,,,unresolved,PubChem PUG REST
+talquetamab,talquetamab,talquetamab,NAME:talquetamab,,,,,unresolved,PubChem PUG REST
+tasonermin,tasonermin,tasonermin,NAME:tasonermin,,,,,unresolved,PubChem PUG REST
+tebentafusp,tebentafusp,tebentafusp,NAME:tebentafusp,,,,,unresolved,PubChem PUG REST
+technetium [99mTc],technetium [99mtc],technetium 99mtc,NAME:technetium%2099mtc,,,,,unresolved,PubChem PUG REST
+technetium [99mTc] albumin aggregated,technetium [99mtc] albumin aggregated,technetium 99mtc albumin aggregated,NAME:technetium%2099mtc%20albumin%20aggregated,,,,,unresolved,PubChem PUG REST
+technetium [99mTc] bicisate,technetium [99mtc] bicisate,technetium 99mtc bicisate,NAME:technetium%2099mtc%20bicisate,,,,,unresolved,PubChem PUG REST
+teclistamab,teclistamab,teclistamab,NAME:teclistamab,,,,,unresolved,PubChem PUG REST
+telotristat ethyl (as etiprate),telotristat ethyl (as etiprate),telotristat ethyl as etiprate,NAME:telotristat%20ethyl%20as%20etiprate,,,,,unresolved,PubChem PUG REST
+tenecteplase,tenecteplase,tenecteplase,NAME:tenecteplase,,,,,unresolved,PubChem PUG REST
+tenofovir disoproxil fumarate / emtricitabine / elvitegravir / cobicistat,tenofovir disoproxil fumarate / emtricitabine / elvitegravir / cobicistat,tenofovir disoproxil fumarate emtricitabine elvitegravir cobicistat,NAME:tenofovir%20disoproxil%20fumarate%20emtricitabine%20elvitegravir%20cobicistat,,,,,combination_not_resolved,not queried: combination product
+teprotumumab,teprotumumab,teprotumumab,NAME:teprotumumab,,,,,unresolved,PubChem PUG REST
+tetracosactrin (tetracosactide),tetracosactrin (tetracosactide),tetracosactrin tetracosactide,NAME:tetracosactrin%20tetracosactide,,,,,unresolved,PubChem PUG REST
+tezacaftor / ivacaftor,tezacaftor / ivacaftor,tezacaftor ivacaftor,NAME:tezacaftor%20ivacaftor,,,,,combination_not_resolved,not queried: combination product
+tezepelumab,tezepelumab,tezepelumab,NAME:tezepelumab,,,,,unresolved,PubChem PUG REST
+theophylline and derivatives,theophylline and derivatives,theophylline and derivatives,NAME:theophylline%20and%20derivatives,,,,,combination_not_resolved,not queried: combination product
+thrombin,thrombin,thrombin,NAME:thrombin,,,,,unresolved,PubChem PUG REST
+thyrotrophin,thyrotrophin,thyrotrophin,NAME:thyrotrophin,,,,,unresolved,PubChem PUG REST
+thyrotropin alfa,thyrotropin alfa,thyrotropin alfa,NAME:thyrotropin%20alfa,,,,,unresolved,PubChem PUG REST
+thyroxine (levothyroxine),thyroxine (levothyroxine),thyroxine levothyroxine,NAME:thyroxine%20levothyroxine,,,,,unresolved,PubChem PUG REST
+tildrakizumab,tildrakizumab,tildrakizumab,NAME:tildrakizumab,,,,,unresolved,PubChem PUG REST
+tilmanocept,tilmanocept,tilmanocept,NAME:tilmanocept,,,,,unresolved,PubChem PUG REST
+timolol (ophthalmic),timolol (ophthalmic),timolol ophthalmic,NAME:timolol%20ophthalmic,,,,,unresolved,PubChem PUG REST
+tinzaparin,tinzaparin,tinzaparin,NAME:tinzaparin,,,,,unresolved,PubChem PUG REST
+tirofiban hydrochloride,tirofiban hydrochloride,tirofiban hydrochloride,NAME:tirofiban%20hydrochloride,,,,,ambiguous,PubChem PUG REST
+tirzepatide,tirzepatide,tirzepatide,NAME:tirzepatide,,,,,ambiguous,PubChem PUG REST
+tisagenlecleucel,tisagenlecleucel,tisagenlecleucel,NAME:tisagenlecleucel,,,,,unresolved,PubChem PUG REST
+tislelizumab,tislelizumab,tislelizumab,NAME:tislelizumab,,,,,unresolved,PubChem PUG REST
+tixagevimab; cilgavimab,tixagevimab; cilgavimab,tixagevimab cilgavimab,NAME:tixagevimab%20cilgavimab,,,,,unresolved,PubChem PUG REST
+tocilizumab (rch),tocilizumab (rch),tocilizumab rch,NAME:tocilizumab%20rch,,,,,unresolved,PubChem PUG REST
+tofacitinib (as citrate),tofacitinib (as citrate),tofacitinib as citrate,NAME:tofacitinib%20as%20citrate,,,,,unresolved,PubChem PUG REST
+tofersen,tofersen,tofersen,NAME:tofersen,,,,,unresolved,PubChem PUG REST
+toripalimab,toripalimab,toripalimab,NAME:toripalimab,,,,,unresolved,PubChem PUG REST
+trastuzumab,trastuzumab,trastuzumab,NAME:trastuzumab,,,,,unresolved,PubChem PUG REST
+trastuzumab deruxtecan,trastuzumab deruxtecan,trastuzumab deruxtecan,NAME:trastuzumab%20deruxtecan,,,,,unresolved,PubChem PUG REST
+trastuzumab emtansine (rch),trastuzumab emtansine (rch),trastuzumab emtansine rch,NAME:trastuzumab%20emtansine%20rch,,,,,unresolved,PubChem PUG REST
+travoprost / timolol,travoprost / timolol,travoprost timolol,NAME:travoprost%20timolol,,,,,combination_not_resolved,not queried: combination product
+tremelimumab,tremelimumab,tremelimumab,NAME:tremelimumab,,,,,unresolved,PubChem PUG REST
+tretinoin (oral),tretinoin (oral),tretinoin oral,NAME:tretinoin%20oral,,,,,unresolved,PubChem PUG REST
+triamcinolone acetonide (ocular),triamcinolone acetonide (ocular),triamcinolone acetonide ocular,NAME:triamcinolone%20acetonide%20ocular,,,,,unresolved,PubChem PUG REST
+triamcinolone (inhaled),triamcinolone (inhaled),triamcinolone inhaled,NAME:triamcinolone%20inhaled,,,,,unresolved,PubChem PUG REST
+triamcinolone (systemic),triamcinolone (systemic),triamcinolone systemic,NAME:triamcinolone%20systemic,,,,,unresolved,PubChem PUG REST
+triamcinolone (topical),triamcinolone (topical),triamcinolone topical,NAME:triamcinolone%20topical,,,,,unresolved,PubChem PUG REST
+trifluridine / tipiracil hydrochloride,trifluridine / tipiracil hydrochloride,trifluridine tipiracil hydrochloride,NAME:trifluridine%20tipiracil%20hydrochloride,,,,,combination_not_resolved,not queried: combination product
+trimeprazine (alimemazine),trimeprazine (alimemazine),trimeprazine alimemazine,NAME:trimeprazine%20alimemazine,,,,,unresolved,PubChem PUG REST
+turoctocog alfa,turoctocog alfa,turoctocog alfa,NAME:turoctocog%20alfa,,,,,unresolved,PubChem PUG REST
+"typhoid vaccine (live attenuated, oral)","typhoid vaccine (live attenuated, oral)",typhoid vaccine live attenuated oral,NAME:typhoid%20vaccine%20live%20attenuated%20oral,,,,,unresolved,PubChem PUG REST
+typhoid vaccine (polysaccharide),typhoid vaccine (polysaccharide),typhoid vaccine polysaccharide,NAME:typhoid%20vaccine%20polysaccharide,,,,,unresolved,PubChem PUG REST
+ublituximab,ublituximab,ublituximab,NAME:ublituximab,,,,,unresolved,PubChem PUG REST
+umeclidinium bromide / fluticasone furoate / vilanterol trifenatate,umeclidinium bromide / fluticasone furoate / vilanterol trifenatate,umeclidinium bromide fluticasone furoate vilanterol trifenatate,NAME:umeclidinium%20bromide%20fluticasone%20furoate%20vilanterol%20trifenatate,,,,,combination_not_resolved,not queried: combination product
+umeclidinium bromide / vilanterol trifenatate,umeclidinium bromide / vilanterol trifenatate,umeclidinium bromide vilanterol trifenatate,NAME:umeclidinium%20bromide%20vilanterol%20trifenatate,,,,,combination_not_resolved,not queried: combination product
+urea [13C],urea [13c],urea 13c,NAME:urea%2013c,,,,,unresolved,PubChem PUG REST
+urokinase,urokinase,urokinase,NAME:urokinase,,,,,unresolved,PubChem PUG REST
+ustekinumab,ustekinumab,ustekinumab,NAME:ustekinumab,,,,,unresolved,PubChem PUG REST
+valsartan / hydrochlorothiazide,valsartan / hydrochlorothiazide,valsartan hydrochlorothiazide,NAME:valsartan%20hydrochlorothiazide,,,,,combination_not_resolved,not queried: combination product
+valsartan / sacubitril,valsartan / sacubitril,valsartan sacubitril,NAME:valsartan%20sacubitril,,,,,combination_not_resolved,not queried: combination product
+vanzacaftor + tezacaftor + deutivacaftor,vanzacaftor + tezacaftor + deutivacaftor,vanzacaftor tezacaftor deutivacaftor,NAME:vanzacaftor%20tezacaftor%20deutivacaftor,,,,,combination_not_resolved,not queried: combination product
+varicella vaccine,varicella vaccine,varicella vaccine,NAME:varicella%20vaccine,,,,,unresolved,PubChem PUG REST
+varicella vaccine (recombinant glycoprotein),varicella vaccine (recombinant glycoprotein),varicella vaccine recombinant glycoprotein,NAME:varicella%20vaccine%20recombinant%20glycoprotein,,,,,unresolved,PubChem PUG REST
+vasopressin,vasopressin,vasopressin,NAME:vasopressin,,,,,unresolved,PubChem PUG REST
+vedolizumab (rch),vedolizumab (rch),vedolizumab rch,NAME:vedolizumab%20rch,,,,,unresolved,PubChem PUG REST
+velaglucerase alfa,velaglucerase alfa,velaglucerase alfa,NAME:velaglucerase%20alfa,,,,,unresolved,PubChem PUG REST
+verteporfin,verteporfin,verteporfin,NAME:verteporfin,,,,,unresolved,PubChem PUG REST
+vildagliptin / metformin,vildagliptin / metformin,vildagliptin metformin,NAME:vildagliptin%20metformin,,,,,combination_not_resolved,not queried: combination product
+vitamin A (retinol),vitamin a (retinol),vitamin a retinol,NAME:vitamin%20a%20retinol,,,,,unresolved,PubChem PUG REST
+vonicog alfa,vonicog alfa,vonicog alfa,NAME:vonicog%20alfa,,,,,unresolved,PubChem PUG REST
+voretigene neparvovec,voretigene neparvovec,voretigene neparvovec,NAME:voretigene%20neparvovec,,,,,unresolved,PubChem PUG REST
+vutrisiran,vutrisiran,vutrisiran,NAME:vutrisiran,,,,,unresolved,PubChem PUG REST
+yellow fever vaccine (live attenuated),yellow fever vaccine (live attenuated),yellow fever vaccine live attenuated,NAME:yellow%20fever%20vaccine%20live%20attenuated,,,,,unresolved,PubChem PUG REST

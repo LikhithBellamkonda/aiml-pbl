@@ -191,3 +191,25 @@ test('10. <20% ML fallback triggers supplementary AI reasoning and keeps ML, AI,
   assert.equal(saltProfile.matched, true, 'Salt stripping should resolve abacavir sulfate -> abacavir');
   assert.equal(saltProfile.drug_id, 'CID000441300');
 });
+
+test('11. Vercel serverless entry (api/index.ts) serves /api/health, /api/bootstrap, and /api/drug cleanly', async () => {
+  const { default: vercelApp } = await import('../api/index.js');
+  const server = vercelApp.listen(0);
+  const address = server.address();
+  const port = typeof address === 'object' && address ? address.port : 0;
+  assert.ok(port > 0, 'Expected ephemeral port');
+
+  try {
+    const health = await fetch(`http://127.0.0.1:${port}/api/health`).then((r) => r.json());
+    assert.equal(health.ok, true);
+
+    const bootstrap = await fetch(`http://127.0.0.1:${port}/api/bootstrap`).then((r) => r.json());
+    assert.ok(Array.isArray(bootstrap.medicationNames) && bootstrap.medicationNames.length > 1000);
+
+    const drug = await fetch(`http://127.0.0.1:${port}/api/drug?query=tretinoin`).then((r) => r.json());
+    assert.equal(drug.mode, 'matched');
+    assert.ok(drug.evaluation.trimester_results.first_trimester.concern_score > 0);
+  } finally {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
+});

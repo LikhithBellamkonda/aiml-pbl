@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import OCL from 'openchemlib';
 import { getDataStore } from './dataLoader.js';
 
@@ -218,8 +221,14 @@ function normalise(value: string | null | undefined): string {
   return String(value).toLowerCase().trim().replace(/\s+/g, ' ');
 }
 
-function getIndexedAnaloguePool(): IndexedAnalogue[] {
-  if (cachedPool) return cachedPool;
+function resolveCachePath(): string {
+  const cwdPath = path.join(process.cwd(), 'data', 'analogue_fingerprints.json');
+  if (fs.existsSync(cwdPath)) return cwdPath;
+  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+  return path.resolve(moduleDir, '..', 'data', 'analogue_fingerprints.json');
+}
+
+export function computeAnaloguePool(): IndexedAnalogue[] {
   const store = getDataStore();
 
   const pregById = new Map<string, typeof store.pregnancy>();
@@ -347,8 +356,25 @@ function getIndexedAnaloguePool(): IndexedAnalogue[] {
     }
   }
 
-  cachedPool = results;
   return results;
+}
+
+function getIndexedAnaloguePool(): IndexedAnalogue[] {
+  if (cachedPool) return cachedPool;
+  const cachePath = resolveCachePath();
+  if (fs.existsSync(cachePath)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(cachePath, 'utf-8')) as IndexedAnalogue[];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        cachedPool = parsed;
+        return cachedPool;
+      }
+    } catch {
+      // Fall back to live OpenChemLib indexing if cache JSON is corrupt
+    }
+  }
+  cachedPool = computeAnaloguePool();
+  return cachedPool;
 }
 
 export const SIMILARITY_THRESHOLD = 0.2;
