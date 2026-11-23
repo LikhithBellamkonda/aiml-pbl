@@ -1,0 +1,5 @@
+{
+  "name": "MEPRank Research Dashboard",
+  "description": "Evidence-aware prioritization of potential pregnancy-stage-specific drug safety signals. Explores observed source records, molecular structure, and explicitly timed pregnancy evidence.",
+  "requestFramePermissions": []
+}

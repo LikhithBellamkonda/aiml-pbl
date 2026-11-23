@@ -1,0 +1,31 @@
+{
+  "name": "meprank-pregnancy-evidence-explorer",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx server.ts",
+    "build": "vite build",
+    "start": "NODE_ENV=production tsx server.ts",
+    "lint": "tsc --noEmit",
+    "test": "tsx --test server/pipeline.test.ts"
+  },
+  "dependencies": {
+    "csv-parse": "^5.6.0",
+    "express": "^4.21.2",
+    "lucide-react": "^0.475.0",
+    "openchemlib": "^8.17.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  }
+}
