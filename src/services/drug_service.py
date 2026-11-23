@@ -13,7 +13,8 @@ Design rules enforced here
   reported as separate key spaces; a name is never silently joined to a CID.
 * Nonclinical animal toxicity records and human pregnancy records are
   returned in separate structures, with species retained.
-* No risk score, probability or confidence is computed.
+* No pregnancy-risk score, probability or confidence is computed. The
+  research-priority index only counts missing evidence domains.
 """
 
 from __future__ import annotations
@@ -861,6 +862,214 @@ def pregnancy_evidence(
     }
 
 
+def research_priority_index(profile: dict[str, Any]) -> dict[str, Any]:
+    """Count missing evidence domains for research triage, not risk estimation."""
+    if not profile.get("matched") or profile.get("ambiguous"):
+        return {
+            "available": False,
+            "score": None,
+            "max_score": 3,
+            "components": [],
+            "reason": "Resolve one drug identity before assessing evidence gaps.",
+        }
+
+    pregnancy = profile.get("pregnancy") or {}
+    toxicity = profile.get("reproductive_toxicity") or {}
+    domains = [
+        (
+            "Drug-specific human pregnancy outcome records",
+            bool(pregnancy.get("available")),
+        ),
+        (
+            "Explicit gestational timing",
+            bool(pregnancy.get("available"))
+            and not bool(pregnancy.get("unknown_trimester", True)),
+        ),
+        (
+            "Drug-specific developmental/reproductive toxicity records",
+            bool(toxicity.get("available")),
+        ),
+    ]
+    components = [
+        {
+            "domain": domain,
+            "covered": covered,
+            "gap_points": 0 if covered else 1,
+        }
+        for domain, covered in domains
+    ]
+    return {
+        "available": True,
+        "score": sum(component["gap_points"] for component in components),
+        "max_score": len(components),
+        "components": components,
+        "reason": None,
+    }
+
+
+def structural_analogue_evidence(
+    drug_id: str | None,
+    smiles: str | None,
+    data_dir: Path | str = DATA_DIR,
+    limit: int = 5,
+) -> dict[str, Any]:
+    """Find structurally similar mapped compounds with pregnancy source rows.
+
+    Similarity is a chemical descriptor only. Returned pregnancy records belong
+    to the listed compound and must not be interpreted as outcomes for the query.
+    """
+    unavailable = {"available": False, "candidates": []}
+    if not isinstance(smiles, str) or not smiles.strip():
+        return {
+            **unavailable,
+            "reason": "No mapped structure is available for a structural comparison.",
+        }
+
+    try:
+        from rdkit import Chem, DataStructs, RDLogger
+        from rdkit.Chem import rdMolDescriptors
+    except ImportError as error:  # pragma: no cover - dependency is declared
+        return {
+            **unavailable,
+            "reason": f"RDKit is not installed: {error}",
+        }
+
+    RDLogger.DisableLog("rdApp.*")
+    query_molecule = Chem.MolFromSmiles(smiles.strip())
+    if query_molecule is None:
+        return {
+            **unavailable,
+            "reason": "The recorded SMILES could not be parsed for comparison.",
+        }
+
+    mapping = _read_table("mapping", data_dir)
+    pregnancy = _read_table("pregnancy", data_dir)
+    required_mapping = {"drug_id", "canonical_smiles"}
+    if mapping.empty or not required_mapping.issubset(mapping.columns):
+        return {
+            **unavailable,
+            "reason": "The local mapping has no structures for comparison.",
+        }
+    if pregnancy.empty or "drug_id" not in pregnancy.columns:
+        return {
+            **unavailable,
+            "reason": "The local pregnancy evidence table has no linked records.",
+        }
+
+    query_fingerprint = rdMolDescriptors.GetMorganFingerprintAsBitVect(
+        query_molecule, radius=2, nBits=2048
+    )
+    pregnancy = pregnancy.copy()
+    pregnancy["_drug_id"] = pregnancy["drug_id"].fillna("").astype(str).str.strip()
+    if "name_key" in pregnancy.columns:
+        pregnancy["_name_key"] = pregnancy["name_key"].map(normalise)
+    else:
+        pregnancy["_name_key"] = ""
+
+    candidates: list[dict[str, Any]] = []
+    for candidate_id, group in mapping.groupby("drug_id", dropna=True, sort=False):
+        candidate_id = str(candidate_id).strip()
+        if not candidate_id or candidate_id == str(drug_id or ""):
+            continue
+
+        candidate_rows = group[
+            group["canonical_smiles"].fillna("").astype(str).str.strip().ne("")
+        ]
+        if candidate_rows.empty:
+            continue
+
+        evidence = pregnancy[pregnancy["_drug_id"] == candidate_id]
+        if "name_key" in candidate_rows.columns:
+            exact_name_keys = {
+                normalise(value)
+                for value in candidate_rows["name_key"].dropna()
+                if normalise(value)
+            }
+            if exact_name_keys:
+                evidence = pd.concat(
+                    [
+                        evidence,
+                        pregnancy[
+                            pregnancy["_drug_id"].eq("")
+                            & pregnancy["_name_key"].isin(exact_name_keys)
+                        ],
+                    ]
+                ).drop_duplicates()
+        if evidence.empty:
+            continue
+
+        candidate_row = candidate_rows.iloc[0]
+        candidate_molecule = Chem.MolFromSmiles(
+            str(candidate_row["canonical_smiles"]).strip()
+        )
+        if candidate_molecule is None:
+            continue
+        candidate_fingerprint = rdMolDescriptors.GetMorganFingerprintAsBitVect(
+            candidate_molecule, radius=2, nBits=2048
+        )
+
+        outcome_summaries: list[dict[str, Any]] = []
+        if "outcome" in evidence.columns:
+            evidence = evidence.copy()
+            evidence["_outcome"] = evidence["outcome"].fillna("").astype(str)
+            for outcome, outcome_rows in evidence.groupby("_outcome", sort=True):
+                if not outcome.strip():
+                    continue
+                reported_count = None
+                if "reported_count" in outcome_rows.columns:
+                    values = pd.to_numeric(
+                        outcome_rows["reported_count"], errors="coerce"
+                    )
+                    if values.notna().any():
+                        reported_count = float(values.sum())
+                outcome_summaries.append(
+                    {
+                        "outcome": outcome,
+                        "source_rows": int(len(outcome_rows)),
+                        "reported_count": reported_count,
+                    }
+                )
+
+        candidates.append(
+            {
+                "drug_id": candidate_id,
+                "drug_name": _clean(candidate_row.get("original_name")) or candidate_id,
+                "similarity": float(
+                    DataStructs.TanimotoSimilarity(
+                        query_fingerprint, candidate_fingerprint
+                    )
+                ),
+                "source_record_count": int(len(evidence)),
+                "outcomes": outcome_summaries,
+                "sources": (
+                    sorted(
+                        {
+                            str(value)
+                            for value in evidence["source_file"].dropna()
+                            if str(value).strip()
+                        }
+                    )
+                    if "source_file" in evidence.columns
+                    else []
+                ),
+                "timing": "Not recorded in the local pregnancy source",
+            }
+        )
+
+    candidates.sort(key=lambda item: (-item["similarity"], item["drug_name"].casefold()))
+    candidates = candidates[: max(0, limit)]
+    return {
+        "available": bool(candidates),
+        "reason": (
+            None
+            if candidates
+            else "No mapped structurally related compounds have linked pregnancy source rows."
+        ),
+        "similarity_method": "Morgan radius 2, 2048-bit fingerprint; Tanimoto similarity",
+        "candidates": candidates,
+    }
+
+
 def faers_evidence(drug_id: str | None) -> dict[str, Any]:
     frame = _drug_rows(_read_table("faers"), drug_id)
     if frame.empty:
@@ -920,6 +1129,7 @@ def build_drug_profile(
         "adr": {"available": False, "terms": []},
         "reproductive_toxicity": {"available": False, "records": []},
         "pregnancy": {"available": False, "records": []},
+        "related_pregnancy_evidence": {"available": False, "candidates": []},
         "faers": {"available": False},
         "availability": {"available": False, "sources": {}, "missing_sources": []},
     }
@@ -939,6 +1149,12 @@ def build_drug_profile(
     profile["adr"] = adr_evidence(drug_id, name_key)
     profile["reproductive_toxicity"] = reproductive_toxicity_evidence(drug_id)
     profile["pregnancy"] = pregnancy_evidence(drug_id, name_key, data_dir)
+    if not profile["pregnancy"]["available"]:
+        profile["related_pregnancy_evidence"] = structural_analogue_evidence(
+            drug_id,
+            (profile.get("identity") or {}).get("smiles"),
+            data_dir,
+        )
     profile["faers"] = faers_evidence(drug_id)
     profile["availability"] = availability_for(drug_id)
     profile["name_key"] = name_key
@@ -959,6 +1175,7 @@ def build_drug_profile(
         ),
         "faers_reports": profile["faers"].get("report_count"),
     }
+    profile["research_priority"] = research_priority_index(profile)
     if not profile["pregnancy"]["available"]:
         profile["warnings"].append(
             "No human pregnancy-outcome evidence is recorded for this drug."

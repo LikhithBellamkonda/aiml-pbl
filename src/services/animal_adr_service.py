@@ -10,9 +10,12 @@ from __future__ import annotations
 import re
 import unicodedata
 import urllib.parse
+from pathlib import Path
 from typing import Any
 
-from src.animal_adr.features import evidence_for_drug, load_features
+from src.animal_adr.features import FEATURES_PATH, evidence_for_drug, load_features
+
+DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 
 EVIDENCE_DISTINCTION = (
     {
@@ -65,9 +68,10 @@ def _name_keyed_id(drug_name: str) -> str:
 def animal_evidence(
     drug_id: str | None = None,
     drug_name: str | None = None,
+    data_dir: Path | str = DATA_DIR,
 ) -> dict[str, Any]:
     """Return Animal ADR evidence for a drug, with explicit unavailability."""
-    features = load_features()
+    features = load_features(Path(data_dir) / FEATURES_PATH.name)
     candidate_ids = [str(drug_id)] if drug_id else []
     if drug_name:
         candidate_ids.append(_name_keyed_id(drug_name))

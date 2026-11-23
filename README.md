@@ -34,18 +34,17 @@ data — no validated human pregnancy labels exist), the system:
 | Evidence quality (separate from prediction) | ✅ | M × Q evidence reliability, never presented as confidence |
 | Evidence gap flag | ✅ | Explicit "understudied or single-source drug" warning |
 | Evidence-aware abstention messages | ✅ | Dynamic messages based on the actual missing evidence |
-| Per-trimester evidence availability | ✅ | T1/T2/T3/entire pregnancy coverage report; no risk value is produced |
+| Per-trimester evidence-priority scoring | ✅ | Maternal, fetal, and overall evidence-priority index (0-100) per trimester from actual evidence only; configurable endpoint mapping and source reliability weights |
 | Reported side-effect terms | ✅ | Observed terms with report counts and High/Moderate/Low volume levels |
-| Streamlit dashboard | ✅ | Search, 2D structure, identity, per-source evidence panels, animal ADR section, provenance badges |
+| Streamlit dashboard | ✅ | Search, 2D structure, identity, per-source evidence panels, trimester-wise prioritization table, animal ADR section, provenance badges |
 | Dataset feasibility & overlap reports | ✅ | Generated from the current pipeline run |
 | Evidence-tiered coverage inventory | ✅ | 16 literature controls, measured source counts (`reports/pregnancy_evidence_inventory.*`) |
 | Trimester metric definitions | ⚠️ | AUROC/AUPRC/ΔAUROC/ECE per trimester implemented; blocked without labels |
 | Case studies | ✅ | docs/CASE_STUDIES.md (evidence availability, not predictions) |
 | Unit tests | ✅ | pytest suite |
 | ROR/PRR disproportionality ratios | ❌ | No case/non-case denominators exist in the acquired aggregates |
-| Trained pregnancy model, risk score, confidence | ❌ | Blocked: no validated human pregnancy-outcome labels |
+| Trained pregnancy model, risk score, confidence | ❌ | Blocked: no validated human pregnancy-outcome labels. Evidence-priority indices (not risk predictions) are available instead. |
 | AUROC / AUPRC / calibration | ❌ | Blocked; no labels means no metric, not a metric of zero |
-| Curated benchmark file | ❌ | Not present in the repository |
 
 ## Animal ADR Evidence Branch
 
@@ -119,6 +118,9 @@ python -m venv .venv
 # Blocked-evaluation record for the evidence engine
 .venv/bin/python -m src.ml_risk_model
 
+# Compile evidence for a drug (outputs JSON; no risk prediction)
+.venv/bin/python -m src.services.pregnancy_evidence_compiler warfarin
+
 # Evidence-tiered coverage inventory for 16 literature control drugs
 .venv/bin/python -m src.evidence_inventory
 
@@ -148,6 +150,10 @@ pregnancy risk prediction:
   FAERS aggregate reports, nonclinical developmental/reproductive toxicity
   studies, and animal spontaneous ADR reports, each in a separate panel with
   its own provenance.
+- **Pregnancy evidence compiler** — combines those records and surfaces local
+  narrative transfer statements for manual review. Animal ADRs and animal study
+  records are not treated as placental-transfer measurements; risk and confidence
+  remain unavailable without validated human outcome data.
 - **Evidence quality (Q_cov)** — measured per source: 0.5 × completeness (populated
   fraction of that source's content fields for the drug) + 0.5 × volume
   (`log1p(count) / log1p(reference volume)`), averaged over the four tracked

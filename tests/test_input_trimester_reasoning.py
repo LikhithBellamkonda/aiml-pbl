@@ -136,6 +136,21 @@ def test_trimester_filters_produce_distinct_unleaked_coverage(
         assert "t1-only" not in result["records"]["source_record_id"].tolist()
 
 
+def test_timing_summary_counts_only_records_tagged_to_each_stage(trimester_evidence):
+    result = evaluate_drug_safety(
+        "ExampleDrug",
+        trimester="All",
+        outcome_target="Fetal Outcomes Only",
+        evidence=trimester_evidence,
+    )
+
+    stages = result["trimester_evidence_counts"]
+    assert stages["first_trimester"]["record_count"] == 1
+    assert stages["second_trimester"]["record_count"] == 2
+    assert stages["third_trimester"]["record_count"] == 2
+    assert stages["unknown"]["record_count"] == 0
+
+
 def test_timing_specific_abstention_alert_does_not_use_other_trimesters(
     trimester_evidence,
 ):

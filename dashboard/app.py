@@ -31,6 +31,11 @@ def _evaluate_query(drug_name: str, drug_id: str, trimester: str, target: str):
     )
 
 
+@st.cache_data(show_spinner="Resolving drug identity and chemical structure...")
+def _build_profile(query: str):
+    return build_drug_profile(query)
+
+
 def has_evaluated_model(data):
     metadata = data.get("metadata", {})
     metrics = data.get("metrics", {})
@@ -60,6 +65,7 @@ def has_evaluated_model(data):
 def _render_readiness(data):
     feasibility = data["feasibility"]
     readiness = feasibility.get("training_readiness", {})
+    evaluated_model = has_evaluated_model(data)
     if not readiness and feasibility.get("target_decisions"):
         decisions = feasibility["target_decisions"]
         blocked = not any(item.get("decision") == "trainable" for item in decisions)
@@ -67,7 +73,6 @@ def _render_readiness(data):
             "status": "blocked" if blocked else "not_verified",
             "reason": decisions[0].get("reason", "") if blocked else "",
         }
-        evaluated_model = has_evaluated_model(data)
     labels_present = (ROOT / "data" / "pregnancy_labels.csv").exists()
     training_status = (
         "Trained"
@@ -110,8 +115,8 @@ def _render_readiness(data):
         )
     st.caption(
         "No validated human pregnancy-outcome labels exist locally, so no model "
-        "is trained and no AUROC/AUPRC/calibration value is reported. Missing "
-        "values are unavailable, not zero."
+        "is trained and no AUROC/AUPRC/calibration value is reported. Metrics "
+        "that have not been measured are not shown as zero."
     )
 
 
@@ -132,7 +137,23 @@ def _formula_html(formula: str) -> str:
     )
 
 
-def _render_filtered_summary(result, selected_name: str, target_label: str):
+def _format_count(value: float | int) -> str:
+    number = float(value)
+    if number.is_integer():
+        return f"{int(number):,}"
+    return f"{number:,.3f}".rstrip("0").rstrip(".")
+
+
+def _fmt_score(value: float | None) -> str:
+    if value is None:
+        return "—"
+    return f"{value:.1f}"
+
+
+def _render_filtered_summary(
+    result, selected_name: str, target_label: str, profile: dict | None = None
+):
+    profile = profile or {}
     timing_label = result["trimester"]
     st.subheader(f"{selected_name} · {target_label} · {timing_label}")
 
@@ -144,107 +165,171 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
         st.info(result["risk_scoring_status"])
         return
 
-    # Determine if ML prediction is active or AI fallback
-    if result.get("ml_prediction_active", True):
-        # Existing ML UI rendering
-        coverage_column, variance_column = st.columns(2)
-        with coverage_column:
-            coverage = result["evidence_coverage_score"]
-            st.progress(
-                coverage,
-                text=f"Evidence Coverage Score (Q_cov): {coverage:.0%}",
-            )
-            st.caption(
-                "Q_cov is the fraction of tracked pregnancy-evidence source families "
-                "represented in this filtered result; it is not evidence quality or safety."
-            )
-        with variance_column:
-            variance = result["model_prediction_variance"]
-            if variance is None:
-                st.metric("Model Prediction Variance (sigma)", "Unavailable")
-                st.caption(
-                    "No validated human pregnancy-outcome model is available. "
-                    "Variance is unknown, not zero."
-                )
-            else:
-                st.progress(
-                    min(max(float(variance), 0.0), 1.0),
-                    text=f"Model Prediction Variance (sigma): {float(variance):.3f}",
-                )
+    pregnancy = profile.get("pregnancy") or {}
+    pregnancy_rows = pregnancy.get("records") or []
+    records = result.get("records", pd.DataFrame())
+    relevant_categories = (
+        {"fetal", "neonatal"}
+        if target_label == "Fetal Outcomes"
+        else {"maternal"}
+    )
+    if timing_label == "All":
+        selected_outcomes = [
+            row
+            for row in pregnancy.get("outcome_totals", [])
+            if row.get("category") in relevant_categories
+        ]
+        selected_row_count = sum(
+            int(row.get("records") or 0) for row in selected_outcomes
+        )
+        selected_reported_count = sum(
+            float(row["reported_count"])
+            for row in selected_outcomes
+            if row.get("reported_count") is not None
+        )
+        has_reported_counts = any(
+            row.get("reported_count") is not None for row in selected_outcomes
+        )
     else:
-        # Evidence-synthesis UI: no model produced a value, so the panel
-        # explains what the evidence does and does not cover.
-        synthesis = result.get("ai_evidence_synthesis", {})
-        st.info("Evidence synthesis active — no model prediction is produced")
-        st.markdown("**Evidence source families missing for this filter:**")
-        missing = synthesis.get("missing_source_families", [])
-        if missing:
-            st.write(", ".join(missing))
-        else:
-            st.write("None")
-        st.markdown("**Details:**")
-        for key, val in synthesis.get("details", {}).items():
-            st.write(f"- **{key}**: {val}")
+        selected_row_count = int(len(records))
+        selected_outcomes = []
+        if not records.empty and "outcome" in records.columns:
+            group_columns = [
+                column
+                for column in ("outcome_category", "outcome")
+                if column in records.columns
+            ]
+            grouped = records.groupby(group_columns, dropna=False)
+            for key, rows in grouped:
+                values = key if isinstance(key, tuple) else (key,)
+                item = dict(zip(group_columns, values))
+                counts = (
+                    pd.to_numeric(rows["reported_count"], errors="coerce")
+                    if "reported_count" in rows.columns
+                    else pd.Series(dtype=float)
+                )
+                item.update(
+                    {
+                        "records": int(len(rows)),
+                        "reported_count": float(counts.sum())
+                        if counts.notna().any()
+                        else None,
+                    }
+                )
+                selected_outcomes.append(item)
+        selected_reported_count = sum(
+            float(row["reported_count"])
+            for row in selected_outcomes
+            if row.get("reported_count") is not None
+        )
+        has_reported_counts = any(
+            row.get("reported_count") is not None for row in selected_outcomes
+        )
+    trimester_counts = result.get("trimester_evidence_counts") or {}
+    stage_values = [
+        ("First trimester", "first_trimester"),
+        ("Second trimester", "second_trimester"),
+        ("Third trimester", "third_trimester"),
+        ("Entire pregnancy", "entire_pregnancy"),
+        ("Timing not recorded", "unknown"),
+    ]
+    stage_frame = pd.DataFrame(
+        [
+            {
+                "Timing": label,
+                "Evidence rows": int(
+                    (trimester_counts.get(key) or {}).get("record_count") or 0
+                ),
+            }
+            for label, key in stage_values
+        ]
+    )
 
-    if result["abstention_alert"]:
-        st.warning(result["abstention_alert"])
-    else:
-        st.info(result["risk_scoring_status"])
-
-    # Prediction status panel. No validated human pregnancy-outcome model
-    # exists, so this panel reports evidence availability and abstention. It
-    # never substitutes a heuristic number for a prediction.
-    evidence_quality = result.get("evidence_quality")
     availability = result.get("evidence_availability", {}) or {}
     with st.container(border=True):
-        st.markdown("### Pregnancy risk assessment")
-        risk_col, conf_col, eq_col, model_col = st.columns(4)
-        with risk_col:
-            st.metric("Predicted foetal risk", "Unavailable")
-            st.metric("Predicted maternal risk", "Unavailable")
-            st.caption("No validated human pregnancy-outcome model is available.")
-        with conf_col:
-            st.metric("Prediction confidence", "Unavailable")
-            st.caption(
-                "Confidence is undefined when no model output exists. "
-                "The absence of a prediction is not a low-risk result."
-            )
-        with eq_col:
-            st.metric(
-                "Evidence quality (Q_cov)",
-                "Unavailable"
-                if evidence_quality is None
-                else f"{float(evidence_quality):.1%}",
-            )
-            if evidence_quality is None:
-                st.caption(
-                    "No source family records this drug, so quality is "
-                    "undefined — not 0%, and not evidence of safety."
-                )
-            elif result.get("evidence_gap", True):
-                st.error("Evidence gap: understudied or single-source drug.")
-            else:
-                st.caption(
-                    "Measured completeness and volume of the records held "
-                    "for this drug, not risk and not prediction confidence."
-                )
-        with model_col:
-            st.metric("Model used", "None (abstained)")
-            st.caption("No trained human pregnancy-outcome checkpoint exists.")
+        st.markdown("### Observed pregnancy evidence")
+        records_col, reported_col, model_col = st.columns(3)
+        records_col.metric("Source outcome rows", selected_row_count)
+        reported_col.metric(
+            "Sum across outcome counts",
+            _format_count(selected_reported_count)
+            if has_reported_counts
+            else "No count recorded",
+        )
+        model_col.metric("Pregnancy outcome model", "Not trained")
+        st.caption(
+            "Counts are source-reported aggregates; the same case may contribute "
+            "to multiple outcomes. They are not unique reports, incidence, probability, "
+            "severity, or an individual's risk. No validated pregnancy outcome model "
+            "is trained from the current local labels."
+        )
 
-        available_sources = availability.get("available_sources") or []
-        missing_sources = availability.get("missing_sources") or []
-        st.markdown(
-            "**Evidence source families with drug-level records:** "
-            + (", ".join(available_sources) if available_sources else "None")
+        stage_total = int(stage_frame["Evidence rows"].sum())
+        unknown_count = int(
+            (trimester_counts.get("unknown") or {}).get("record_count") or 0
         )
-        st.markdown(
-            "**Evidence source families without drug-level records:** "
-            + (", ".join(missing_sources) if missing_sources else "None")
-        )
+        if stage_total:
+            st.markdown("#### Evidence rows by recorded timing")
+            st.bar_chart(stage_frame, x="Timing", y="Evidence rows", height=250)
+        if unknown_count and not int(stage_frame.iloc[:4]["Evidence rows"].sum()):
+            st.info(
+                f"{unknown_count} pregnancy evidence row(s) have no trimester "
+                "annotation. No stage is inferred from untimed records."
+            )
+        elif not stage_total:
+            st.info("No source outcome rows match this drug and outcome filter.")
+
+        if selected_outcomes:
+            st.markdown("#### Reported outcomes in the local source tables")
+            outcome_frame = pd.DataFrame(
+                [
+                    {
+                        "Outcome term": str(row.get("outcome") or "").replace("_", " "),
+                        "Source rows": int(row.get("records") or 0),
+                        "Reported count": row.get("reported_count"),
+                    }
+                    for row in selected_outcomes
+                ]
+            )
+            st.dataframe(outcome_frame, hide_index=True, width="stretch")
+            plot_rows = outcome_frame.dropna(subset=["Reported count"])
+            if not plot_rows.empty:
+                st.bar_chart(
+                    plot_rows,
+                    x="Outcome term",
+                    y="Reported count",
+                    height=280,
+                )
+            st.caption(
+                "Reported counts are transcribed from the cited aggregate source. "
+                "They have no population denominator, may overlap across outcomes, "
+                "and are not risk percentages."
+            )
+        elif pregnancy_rows and timing_label == "All":
+            st.info(
+                f"{len(pregnancy_rows)} pregnancy source row(s) exist, but none "
+                "are categorized under this outcome filter."
+            )
+        else:
+            st.info("No human pregnancy outcome rows are indexed for this drug.")
 
         breakdown = result.get("evidence_source_breakdown") or []
-        with st.expander("How this evidence-quality value is computed", expanded=False):
+        with st.expander("Evidence source coverage and measurement details", expanded=False):
+            available_sources = availability.get("available_sources") or []
+            missing_sources = availability.get("missing_sources") or []
+            st.metric(
+                "Tracked source families with records",
+                f"{len(available_sources)} / "
+                f"{len(available_sources) + len(missing_sources)}",
+            )
+            st.caption(
+                "Represented: "
+                + (", ".join(available_sources) if available_sources else "None")
+            )
+            st.caption(
+                "No drug-level record in: "
+                + (", ".join(missing_sources) if missing_sources else "None")
+            )
             if breakdown:
                 st.dataframe(
                     pd.DataFrame(
@@ -255,17 +340,17 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
                                 "records": item.get("records"),
                                 "observed count total": item.get("observed_total"),
                                 "completeness": (
-                                    "unavailable"
+                                    "not measured"
                                     if item.get("completeness") is None
                                     else f"{float(item['completeness']):.1%}"
                                 ),
                                 "volume component": (
-                                    "unavailable"
+                                    "not measured"
                                     if item.get("volume_score") is None
                                     else f"{float(item['volume_score']):.1%}"
                                 ),
                                 "source quality": (
-                                    "unavailable"
+                                    "not measured"
                                     if item.get("quality") is None
                                     else f"{float(item['quality']):.1%}"
                                 ),
@@ -277,87 +362,151 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
                     width="stretch",
                 )
             else:
-                st.caption("No per-source quality breakdown is available.")
+                st.caption("No per-source measurement rows were generated.")
             if result.get("evidence_quality_method"):
                 st.caption(result["evidence_quality_method"])
             st.caption(
-                "Every value above is measured from the stored records for this "
-                "drug. A source family with no record contributes 0 to Q_cov."
+                "These are evidence completeness/volume measurements, not clinical "
+                "confidence or a predicted pregnancy outcome."
             )
 
-        observed = (result.get("evidence_summary") or {}).get(
-            "observed_outcome_reports"
-        ) or {}
-        with st.expander("Observed pregnancy-outcome records (not risk)", expanded=False):
-            if observed:
-                st.dataframe(
-                    pd.DataFrame(
-                        [
-                            {
-                                "outcome": str(outcome).replace("_", " "),
-                                "source records": (
-                                    "no record" if value is None else str(value)
-                                ),
-                            }
-                            for outcome, value in observed.items()
-                        ]
-                    ),
-                    hide_index=True,
-                    width="stretch",
-                )
-            else:
-                st.caption("No pregnancy-outcome record summary is available.")
+        # --- Trimester-wise evidence-priority prioritization ---
+        maternal = result.get("maternal_priority", {}) or {}
+        fetal = result.get("fetal_priority", {}) or {}
+        overall = result.get("overall_priority", {}) or {}
+        evidence_status = result.get("evidence_status", "score_unavailable")
+        status_detail = result.get("status_detail", "")
+
+        with st.container(border=True):
+            st.markdown("### Trimester-wise evidence-priority index")
             st.caption(
-                "Counts are source-reported spontaneous-report terms. 'No record' "
-                "is missing evidence, not a zero and not a negative outcome."
+                "Exploratory evidence-priority index (0-100) computed from actual "
+                "recorded evidence only. Not a clinical risk probability. "
+                "A score is unavailable when no eligible human evidence exists "
+                "for a trimester."
             )
 
-        with st.expander("Trimester-wise evidence availability", expanded=False):
-            trimester_metrics = result.get("trimester_metrics", {}) or {}
-            if not trimester_metrics:
-                st.caption("No trimester-level evidence summary is available.")
-            for trimester_key, entry in trimester_metrics.items():
-                if not isinstance(entry, dict):
-                    continue
-                eq_value = entry.get("evidence_quality")
-                record_count = entry.get("timed_record_count") or 0
-                label = entry.get("label") or str(trimester_key).replace("_", " ")
-                if eq_value is None:
-                    st.markdown(
-                        f"**{label}** — evidence quality: unavailable "
-                        f"(no trimester-resolved records for this drug)"
-                    )
-                else:
-                    st.markdown(
-                        f"**{label}** — evidence quality: "
-                        f"{float(eq_value):.1%} from {record_count} timed "
-                        "record(s)"
-                    )
+            # Status badge
+            status_colors = {
+                "human_pregnancy_evidence_available": "#2e7d32",
+                "human_and_nonclinical_evidence_available": "#1565c0",
+                "limited_pregnancy_evidence": "#f9a825",
+                "single_source_evidence": "#f9a825",
+                "conflicting_evidence": "#ef6c00",
+                "insufficient_evidence": "#ef6c00",
+                "score_unavailable": "#9e9e9e",
+            }
+            status_color = status_colors.get(evidence_status, "#9e9e9e")
+            st.markdown(
+                f"<span style='color:{status_color};font-weight:bold'>"
+                f"Evidence status: {evidence_status.replace('_', ' ').title()}</span>",
+                unsafe_allow_html=True,
+            )
+            if status_detail:
+                st.caption(status_detail)
+
+            # Trimester-wise table
+            trimester_order = [
+                ("first_trimester", "T1 (0-13 wks)"),
+                ("second_trimester", "T2 (14-27 wks)"),
+                ("third_trimester", "T3 (28+ wks)"),
+                ("entire_pregnancy", "Entire Pregnancy"),
+            ]
+            table_rows = []
+            for tkey, tlabel in trimester_order:
+                m = maternal.get(tkey, {})
+                f = fetal.get(tkey, {})
+                o = overall.get(tkey, {})
+                table_rows.append(
+                    {
+                        "Trimester": tlabel,
+                        "Maternal priority": _fmt_score(m.get("score")),
+                        "Maternal records": m.get("eligible_record_count", 0),
+                        "Fetal priority": _fmt_score(f.get("score")),
+                        "Fetal records": f.get("eligible_record_count", 0),
+                        "Overall priority": _fmt_score(o.get("score")),
+                        "Overall records": o.get("eligible_record_count", 0),
+                    }
+                )
+            st.dataframe(
+                pd.DataFrame(table_rows),
+                hide_index=True,
+                width="stretch",
+            )
+            st.caption(
+                "Score is unavailable (shown as —) when no eligible human evidence "
+                "exists for that trimester. Overall = 0.5 × Maternal + 0.5 × Fetal; "
+                "if either component is unavailable, overall is unavailable."
+            )
+
+            # Detailed trimester breakdown
+            with st.expander("Trimester detail", expanded=False):
+                for tkey, tlabel in trimester_order:
+                    m = maternal.get(tkey, {})
+                    f = fetal.get(tkey, {})
+                    o = overall.get(tkey, {})
+                    st.markdown(f"#### {tlabel}")
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric(
+                            "Maternal",
+                            _fmt_score(m.get("score")),
+                            f"{m.get('eligible_record_count', 0)} records",
+                        )
+                    with col2:
+                        st.metric(
+                            "Fetal",
+                            _fmt_score(f.get("score")),
+                            f"{f.get('eligible_record_count', 0)} records",
+                        )
+                    with col3:
+                        st.metric(
+                            "Overall",
+                            _fmt_score(o.get("score")),
+                            f"{o.get('eligible_record_count', 0)} records",
+                        )
+                    if m.get("source_counts"):
+                        st.caption(
+                            "Maternal sources: "
+                            + ", ".join(
+                                f"{k} ({v})" for k, v in m["source_counts"].items()
+                            )
+                        )
+                    if f.get("source_counts"):
+                        st.caption(
+                            "Fetal sources: "
+                            + ", ".join(
+                                f"{k} ({v})" for k, v in f["source_counts"].items()
+                            )
+                        )
+                    if f.get("has_nonclinical_evidence"):
+                        st.caption(
+                            "Nonclinical (animal) evidence also available — "
+                            "reported separately, not merged into human score."
+                        )
+
         st.caption(
-            "Evidence availability and evidence quality describe the underlying "
-            "records only. They are not a risk score, and a drug with no records "
-            "must not be interpreted as safe."
+            "Trimester sections show only records whose source explicitly supplies "
+            "timing. The dashboard does not invent different trimester risk scores."
         )
 
-    # Side effects reported for this drug. Only measured counts and a
-    # documented report-volume band are shown; no score is invented.
     side_effects = result.get("side_effects", []) or []
     if side_effects:
         with st.container(border=True):
-            st.markdown("### Reported Side Effects")
+            st.markdown("### General ADR term index")
             st.caption(
-                "Observed ADR terms and the number of source records that mention "
-                "each. 'Report-volume level' is a band on that count "
-                "(High >= 10, Moderate 3-9, Low < 3 records), not clinical "
-                "severity, incidence or validated confidence."
+                "The source contains drug-to-term mappings, not patient-level "
+                "reports. Entry counts below are source-table rows and may include "
+                "multiple MedDRA concept types for the same term."
             )
             table = pd.DataFrame(
                 [
                     {
                         "term": se["term"],
-                        "records": se["report_count"],
-                        "report-volume level": se["level"],
-                        "MEDDRA id": se.get("meddra_id") or "not recorded",
+                        "source entries": se["source_entries"],
+                        "MedDRA concept types": se.get("concept_types") or "not recorded",
+                        "MedDRA id": se.get("meddra_id") or "not recorded",
+                        "source": se.get("source_dataset") or "not recorded",
                     }
                     for se in side_effects[:50]
                 ]
@@ -365,8 +514,7 @@ def _render_filtered_summary(result, selected_name: str, target_label: str):
             st.dataframe(table, hide_index=True, width="stretch")
             if len(side_effects) > 50:
                 st.caption(
-                    f"Showing the 50 most-recorded terms of {len(side_effects)} "
-                    "observed ADR terms."
+                    f"Showing 50 of {len(side_effects)} distinct indexed ADR terms."
                 )
 
 
@@ -434,8 +582,7 @@ def _render_animal_adr(result):
             st.info(
                 evidence.get(
                     "message",
-                    "Animal ADR evidence unavailable. This does not indicate that "
-                    "the drug is safe.",
+                    "No matching animal ADR records in the local snapshot.",
                 )
             )
         else:
@@ -451,11 +598,10 @@ def _render_animal_adr(result):
             )
             quality, mapping, dates = st.columns(3)
             quality.metric(
-                "Record completeness", f"{evidence.get('record_completeness', 0.0):.0%}"
+                "Record completeness",
+                f"{evidence.get('record_completeness', 0.0):.2f} / 1",
             )
-            mapping.metric(
-                "Drug mapping confidence", f"{evidence.get('mapping_confidence', 0.0):.0%}"
-            )
+            mapping.metric("Drug mapping status", evidence.get("mapping_status") or "Not mapped")
             dates.metric(
                 "Reporting period",
                 f"{evidence.get('report_date_min') or '?'} to "
@@ -486,8 +632,8 @@ def _render_animal_adr(result):
 def _render_drug_profile(profile):
     """Render resolved identity and each evidence source separately.
 
-    Nothing in this panel is a risk estimate: absent evidence is reported as
-    unavailable rather than scored.
+    Nothing in this panel is a risk estimate: absent evidence is described as
+    missing from the local sources rather than scored.
     """
     identity = profile.get("identity") or {}
     counts = profile.get("evidence_counts") or {}
@@ -496,20 +642,20 @@ def _render_drug_profile(profile):
     with st.container(border=True):
         st.markdown("### Standardized drug identity")
         cid_col, key_col, status_col, id_col = st.columns(4)
-        cid_col.metric("PubChem CID", identity.get("pubchem_cid") or "Unavailable")
-        key_col.metric("InChIKey", identity.get("inchikey") or "Unavailable")
+        cid_col.metric("PubChem CID", identity.get("pubchem_cid") or "No CID mapped")
+        key_col.metric("InChIKey", identity.get("inchikey") or "No InChIKey mapped")
         status_col.metric(
             "Mapping status", str(identity.get("resolution_status") or "unknown")
         )
         id_col.metric(
             "Project drug id",
-            str(identity.get("drug_id") or profile.get("drug_id") or "Unavailable"),
+            str(identity.get("drug_id") or profile.get("drug_id") or "Not assigned"),
         )
         st.caption(
             "Resolved from: "
             + str(identity.get("resolution_source") or "project identifier mapping")
-            + " · name key: "
-            + str(profile.get("name_key") or "not applicable")
+            +             " · indexed name: "
+            + str(profile.get("name_key") or "not recorded")
         )
         for warning in profile.get("warnings") or []:
             st.warning(warning)
@@ -525,7 +671,7 @@ def _render_drug_profile(profile):
             if formula:
                 st.markdown(_formula_html(formula), unsafe_allow_html=True)
             else:
-                st.info("No molecular formula is recorded for this identity.")
+                st.info("Formula is not recorded for this structure.")
             weight = identity.get("molecular_weight")
             if weight not in (None, ""):
                 try:
@@ -537,21 +683,21 @@ def _render_drug_profile(profile):
                 st.caption("SMILES (linear symbolic representation)")
                 st.code(str(smiles), language="text")
             else:
-                st.caption("No SMILES is recorded for this identity.")
+                st.caption("SMILES is not mapped for this drug identity.")
         with image_column:
             if structure_png:
                 st.image(
                     base64.b64decode(structure_png.split(",", 1)[-1]),
                     caption=(
                         "2D structure drawn locally from the recorded SMILES "
-                        f"(scaffold: {molecular.get('scaffold') or 'not available'})."
+                        f"(scaffold: {molecular.get('scaffold') or 'not classified'})."
                     ),
                     width=340,
                 )
             elif molecular.get("reason"):
-                st.info(f"Structure depiction unavailable: {molecular['reason']}")
+                st.info(f"Structure not drawn: {molecular['reason']}")
             else:
-                st.info("No 2D structure is available for this identity.")
+                st.info("No structure is mapped to this drug identity.")
 
     with st.container(border=True):
         st.markdown("### Evidence availability by source")
@@ -579,16 +725,51 @@ def _render_drug_profile(profile):
         ]
         frame = pd.DataFrame(rows)
         frame["records"] = frame["records"].map(
-            lambda value: "unavailable" if value is None else value
+            lambda value: "No indexed record" if value is None else value
         )
         st.dataframe(frame, hide_index=True, width="stretch")
         st.caption(
-            "Absent evidence is reported as unavailable. It is not zero risk and "
-            "not a negative outcome. Animal ADR evidence is shown separately below."
+            "A missing row means this local source has no linked record; it is not "
+            "a zero-risk or negative-outcome result. Animal ADR evidence is separate."
         )
         missing = availability.get("missing_sources") or []
         if missing:
-            st.info("Sources without records: " + ", ".join(missing))
+            st.info("No linked record in: " + ", ".join(missing))
+
+    research_priority = profile.get("research_priority") or {}
+    if research_priority.get("available"):
+        with st.container(border=True):
+            st.markdown("### Research-priority index — evidence gaps only")
+            score_column, detail_column = st.columns([1, 3])
+            score_column.metric(
+                "Missing evidence domains (out of 3)",
+                f"{research_priority['score']} / {research_priority['max_score']}",
+            )
+            detail_column.info(
+                "One point is added for each missing domain. A higher score means "
+                "more local evidence gaps—not higher fetal or maternal risk. "
+                "This is not endpoint-specific, is not a prediction, and has no "
+                "prediction-confidence value."
+            )
+            st.dataframe(
+                pd.DataFrame(
+                    [
+                        {
+                            "Evidence domain": component["domain"],
+                            "Status": "Available" if component["covered"] else "Missing",
+                            "Index points": component["gap_points"],
+                        }
+                        for component in research_priority.get("components") or []
+                    ]
+                ),
+                hide_index=True,
+                width="stretch",
+            )
+            st.caption(
+                "The index records source coverage only; available aggregate records "
+                "are not treated as incidence or proof of safety. Maternal- and "
+                "fetal-risk estimates remain unavailable."
+            )
 
     adr = profile.get("adr") or {}
     with st.expander("General adverse-drug-reaction evidence", expanded=False):
@@ -608,7 +789,7 @@ def _render_drug_profile(profile):
     molecular = profile.get("molecular") or {}
     with st.expander("Chemical and molecular properties", expanded=False):
         if not molecular.get("available"):
-            st.info(molecular.get("reason") or "No molecular structure available.")
+            st.info(molecular.get("reason") or "No molecular descriptors for this identity.")
         else:
             descriptors = molecular.get("descriptors") or {}
             st.dataframe(
@@ -623,7 +804,7 @@ def _render_drug_profile(profile):
             )
             fingerprint = molecular.get("fingerprint") or {}
             st.caption(
-                f"Scaffold: {molecular.get('scaffold') or 'not available'} · "
+                f"Scaffold: {molecular.get('scaffold') or 'not classified'} · "
                 f"{fingerprint.get('type', 'fingerprint')}: "
                 f"{fingerprint.get('on_bits', 0)} bits set. "
                 "Descriptors describe the structure only; they are not biological predictions."
@@ -643,7 +824,7 @@ def _render_drug_profile(profile):
         if not toxicity.get("available"):
             st.info(
                 toxicity.get("reason")
-                or "No developmental/reproductive toxicity records."
+                or "No linked developmental/reproductive toxicity rows."
             )
         else:
             st.caption(
@@ -664,7 +845,7 @@ def _render_drug_profile(profile):
             "not incidence, and imply no causality."
         )
         if not pregnancy.get("available"):
-            st.info(pregnancy.get("reason") or "No human pregnancy evidence recorded.")
+            st.info(pregnancy.get("reason") or "No linked human pregnancy rows.")
         else:
             st.caption(
                 f"{pregnancy.get('record_count', 0)} records · sources: "
@@ -687,10 +868,100 @@ def _render_drug_profile(profile):
                     width="stretch",
                 )
 
+    if not pregnancy.get("available"):
+        related = profile.get("related_pregnancy_evidence") or {}
+        with st.container(border=True):
+            st.markdown("### Research leads — direct pregnancy data missing")
+            st.warning(
+                "Research needed: no direct human pregnancy-outcome rows are linked "
+                "to this drug. The nearest-structure records below belong to those "
+                "compounds only; weak similarity does not establish a useful "
+                "analogue or a shared effect. No risk probability or trimester-specific "
+                "result is inferred."
+            )
+            molecular = profile.get("molecular") or {}
+            descriptors = molecular.get("descriptors") or {}
+            property_specs = [
+                ("Calculated logP", "clogp"),
+                ("Topological polar surface area", "tpsa"),
+                ("Hydrogen-bond donors", "h_bond_donors"),
+                ("Hydrogen-bond acceptors", "h_bond_acceptors"),
+            ]
+            property_specs = [
+                (label, descriptors[key])
+                for label, key in property_specs
+                if descriptors.get(key) is not None
+            ]
+            if property_specs:
+                st.markdown("#### Computed chemistry context")
+                property_columns = st.columns(len(property_specs))
+                for column, (label, value) in zip(property_columns, property_specs):
+                    column.metric(label, f"{value:g}")
+                st.caption(
+                    "Structure-derived properties can inform follow-up research, "
+                    "but they are not validated predictors of placental transfer "
+                    "or pregnancy outcome."
+                )
+            toxicity = profile.get("reproductive_toxicity") or {}
+            if toxicity.get("available"):
+                st.caption(
+                    f"This drug also has {toxicity.get('record_count', 0)} "
+                    "nonclinical toxicity study records; these are not human outcomes."
+                )
+            if related.get("available"):
+                rows = []
+                for candidate in related.get("candidates") or []:
+                    outcome_labels = []
+                    for outcome in candidate.get("outcomes") or []:
+                        label = outcome["outcome"]
+                        count = outcome.get("reported_count")
+                        if count is not None:
+                            label += f" (source-reported count {count:g})"
+                        outcome_labels.append(label)
+                    rows.append(
+                        {
+                            "Nearest compound in local evidence": candidate["drug_name"],
+                            "Structural similarity (Tanimoto)": (
+                                f"{candidate['similarity']:.3f}"
+                            ),
+                            "Pregnancy source rows": candidate["source_record_count"],
+                            "Source-reported outcomes": (
+                                "; ".join(outcome_labels) or "No named outcome term"
+                            ),
+                            "Timing": candidate["timing"],
+                            "Sources": ", ".join(candidate.get("sources") or [])
+                            or "Not specified",
+                        }
+                    )
+                st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+                st.caption(
+                    f"{related.get('similarity_method')}. Similarity is a chemical "
+                    "comparison, not a validated safety measure. Aggregate source "
+                    "counts can overlap and do not show incidence or causality. "
+                    "No similarity cutoff is validated here; low values may not "
+                    "identify meaningful analogues."
+                )
+            else:
+                st.info(
+                    related.get("reason")
+                    or "No structurally related compounds with linked pregnancy records."
+                )
+            st.caption(
+                "The local pregnancy records do not provide gestational timing, so "
+                "trimester-specific conclusions cannot be supported. FDA pregnancy "
+                "labeling calls for drug-specific risk summaries, clinical "
+                "considerations, and data."
+            )
+            st.markdown(
+                "[FDA Pregnancy and Lactation Labeling Resources]"
+                "(https://www.fda.gov/drugs/labeling-information-drug-products/"
+                "pregnancy-and-lactation-labeling-resources)"
+            )
+
     faers = profile.get("faers") or {}
     with st.expander("FAERS reporting summary", expanded=False):
         if not faers.get("available"):
-            st.info(faers.get("reason") or "No FAERS reporting summary.")
+            st.info(faers.get("reason") or "No FAERS summary row is linked.")
         else:
             st.caption(
                 f"Aggregate reports: {faers.get('report_count')} · "
@@ -702,11 +973,35 @@ def _render_drug_profile(profile):
 
 def main():
     st.set_page_config(page_title="MEPRank Research Dashboard", layout="wide")
-    st.title("Pregnancy-Related Drug Safety Research Dashboard")
+    st.markdown(
+        """
+        <style>
+        .main .block-container {max-width: 1500px; padding-top: 1.6rem;}
+        [data-testid="stAppViewContainer"] {color: var(--text-color);}
+        [data-testid="stMetric"] {
+            background-color: var(--secondary-background-color);
+            border: 1px solid rgba(128, 128, 128, 0.28);
+            border-radius: 14px;
+            padding: 0.8rem 1rem;
+        }
+        [data-testid="stMetricLabel"],
+        [data-testid="stMetricValue"],
+        [data-testid="stMetricDelta"],
+        [data-testid="stMetricLabel"] *,
+        [data-testid="stMetricValue"] *,
+        [data-testid="stMetricDelta"] * {
+            color: var(--text-color) !important;
+        }
+        [data-testid="stTabs"] button {font-weight: 600;}
+        [data-testid="stSidebar"] {border-right: 1px solid rgba(128, 128, 128, 0.28);}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.title("Pregnancy Drug Evidence Explorer")
     st.caption(
-        "Evidence-aware prioritization of potential pregnancy-stage-specific "
-        "safety signals: trimester-segmented evidence, explicit coverage and "
-        "missing-source reporting. No unvalidated risk score is produced."
+        "Explore observed source records, molecular structure, and explicitly "
+        "timed pregnancy evidence. No unvalidated risk score is shown."
     )
     st.warning(
         "Research-support prototype only. This dashboard does not provide clinical "
@@ -767,9 +1062,8 @@ def main():
             "Provenance → raw filtered records.  Data readiness → model status."
         )
 
-    profile = None
     if search_query.strip():
-        profile = build_drug_profile(search_query.strip())
+        profile = _build_profile(search_query.strip())
         if profile.get("ambiguous"):
             st.warning(
                 f"'{search_query.strip()}' matches multiple drug identifiers. "
@@ -783,10 +1077,19 @@ def main():
             _render_readiness(data)
             return
         if not profile.get("matched"):
-            st.error(
-                f"No local identifier mapping or evidence entry matches "
-                f"'{search_query.strip()}'."
-            )
+            st.info(f"No exact keyword match for '{search_query.strip()}' in the local drug index.")
+            suggestions = [
+                name
+                for name in medication_names
+                if search_query.strip().casefold() in name.casefold()
+            ]
+            if suggestions:
+                st.markdown("**Similar indexed drug names**")
+                st.dataframe(
+                    pd.DataFrame({"Drug name": suggestions[:12]}),
+                    hide_index=True,
+                    width="stretch",
+                )
             for warning in profile.get("warnings") or []:
                 st.caption(warning)
             _render_readiness(data)
@@ -800,6 +1103,23 @@ def main():
             mapping["original_name"].astype(str).eq(selected_name)
         ]
         drug_id = str(drug_rows.iloc[0].get("drug_id", ""))
+        profile = _build_profile(drug_id or selected_name)
+        if profile.get("ambiguous"):
+            st.warning(
+                f"The selected name '{selected_name}' maps to multiple drug "
+                "identifiers. Search by CID or project drug ID to select one."
+            )
+            st.dataframe(
+                pd.DataFrame(profile.get("candidates") or []),
+                hide_index=True,
+                width="stretch",
+            )
+            return
+        if profile.get("matched"):
+            drug_id = str(profile.get("drug_id") or drug_id)
+            selected_name = str(
+                (profile.get("identity") or {}).get("name") or selected_name
+            )
 
     timing_filter = (
         "All" if selected_timing == "All Trimesters" else selected_timing
@@ -826,16 +1146,9 @@ def main():
         ]
     )
     with overview_tab:
-        if profile is not None:
-            _render_drug_profile(profile)
-        else:
-            st.info(
-                f"Showing mapping entry '{selected_name}'. Search a drug name or "
-                "identifier in the sidebar for its resolved identity, structure "
-                "and evidence."
-            )
+        _render_drug_profile(profile)
     with evidence_tab:
-        _render_filtered_summary(result, selected_name, target_label)
+        _render_filtered_summary(result, selected_name, target_label, profile)
     with animal_tab:
         _render_animal_adr(result)
     with provenance_tab:

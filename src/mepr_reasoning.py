@@ -6,6 +6,7 @@ from typing import Any
 import pandas as pd
 
 from src.ml_risk_model import score_drug, summarise_drug  # evidence coverage + observed counts
+from src.scoring import PrioritizationEngine  # evidence-based trimester-wise prioritization
 from src.services.animal_adr_service import animal_evidence
 
 
@@ -138,78 +139,69 @@ def _supports_timed_outcome_review(record: pd.Series) -> bool:
     )
 
 
-def _classify_adverse_level(report_count: int) -> str:
-    """Classify adverse effect level as High / Moderate / Low.
-
-    This is exploratory only — derived from report counts, not clinical
-    severity. Not a validated medical assessment.
-    """
-    if report_count >= 10:
-        return "High"
-    if report_count >= 3:
-        return "Moderate"
-    return "Low"
-
-
 def _load_side_effects_for_drug(drug_id: str) -> list[dict[str, Any]]:
-    """Load reported side effects for a drug from real_adr_evidence.csv.
+    """Load drug-term rows from real_adr_evidence.csv, not patient reports.
 
-    Returns a list of dicts with: term, meddra_id, source_dataset,
-    report_count and level (High/Moderate/Low). The level is a report-volume
-    band, not a severity or confidence estimate. Sorted by report_count
-    descending.
+    ``source_identifier`` identifies the drug, not an individual report.
+    Entries therefore count source-table rows (including distinct MedDRA
+    concept types) and must not be presented as patient or report counts.
     """
     if not ADR_EVIDENCE_PATH.is_file() or not drug_id:
         return []
 
-    try:
-        df = pd.read_csv(
-            ADR_EVIDENCE_PATH,
-            usecols=lambda column: column
-            in {
-                "drug_id",
-                "adverse_event_term",
-                "meddra_id",
-                "source_dataset",
-                "source_identifier",
-            },
-        )
-        drug_df = df[df["drug_id"].astype(str) == str(drug_id)]
-        if drug_df.empty:
-            return []
-
-        grouped = (
-            drug_df.groupby("adverse_event_term")
-            .agg(
-                meddra_id=("meddra_id", "first"),
-                source_dataset=("source_dataset", lambda x: ", ".join(sorted(set(x)))),
-                report_count=("source_identifier", "count"),
-            )
-            .reset_index()
-        )
-
-        side_effects: list[dict[str, Any]] = []
-        for _, row in grouped.iterrows():
-            term = str(row["adverse_event_term"]) if pd.notna(row["adverse_event_term"]) else ""
-            if not term:
-                continue
-            count = int(row["report_count"])
-            side_effects.append(
-                {
-                    "term": term,
-                    "meddra_id": str(row["meddra_id"])
-                    if pd.notna(row["meddra_id"])
-                    else "",
-                    "source_dataset": row["source_dataset"],
-                    "report_count": count,
-                    "level": _classify_adverse_level(count),
-                }
-            )
-
-        side_effects.sort(key=lambda x: x["report_count"], reverse=True)
-        return side_effects
-    except Exception:
+    df = pd.read_csv(
+        ADR_EVIDENCE_PATH,
+        usecols=lambda column: column
+        in {
+            "drug_id",
+            "adverse_event_term",
+            "meddra_id",
+            "concept_type",
+            "source_dataset",
+        },
+    )
+    drug_df = df[df["drug_id"].astype(str) == str(drug_id)]
+    if drug_df.empty:
         return []
+
+    grouped = (
+        drug_df.groupby(["adverse_event_term", "meddra_id"], dropna=False)
+        .agg(
+            source_entries=("adverse_event_term", "size"),
+            concept_types=(
+                "concept_type",
+                lambda values: ", ".join(
+                    sorted({str(value) for value in values.dropna()})
+                ),
+            ),
+            source_dataset=("source_dataset", lambda values: ", ".join(sorted(set(values)))),
+        )
+        .reset_index()
+    )
+
+    side_effects: list[dict[str, Any]] = []
+    for _, row in grouped.iterrows():
+        term = (
+            str(row["adverse_event_term"])
+            if pd.notna(row["adverse_event_term"])
+            else ""
+        )
+        if not term:
+            continue
+        side_effects.append(
+            {
+                "term": term,
+                "meddra_id": str(row["meddra_id"])
+                if pd.notna(row["meddra_id"])
+                else "",
+                "concept_types": row["concept_types"],
+                "source_dataset": row["source_dataset"],
+                "source_entries": int(row["source_entries"]),
+            }
+        )
+
+    side_effects.sort(key=lambda item: item["source_entries"], reverse=True)
+    return side_effects
 
 
 def _filter_drug(
@@ -272,18 +264,52 @@ def evaluate_drug_safety(
         outcome_values.isin(allowed_outcomes)
         & source_values.isin(HUMAN_REPORT_SOURCE_FAMILIES)
     ].copy()
+    if "source_dataset" not in filtered.columns:
+        filtered["source_dataset"] = ""
+    filtered["source_family"] = filtered["source_dataset"].map(_source_family)
+
+    timing_values = (
+        filtered["trimester"].fillna("unknown").map(_normalize)
+        if "trimester" in filtered.columns
+        else pd.Series("unknown", index=filtered.index)
+    )
+    known_timing = set(TRIMESTER_VALUES.values())
+    trimester_buckets = timing_values.where(timing_values.isin(known_timing), "unknown")
+    trimester_evidence_counts: dict[str, dict[str, Any]] = {}
+    for label, trimester_value in TRIMESTER_VALUES.items():
+        stage_rows = filtered.loc[trimester_buckets.eq(trimester_value)]
+        trimester_evidence_counts[trimester_value] = {
+            "label": label,
+            "record_count": int(len(stage_rows)),
+            "source_families": sorted(
+                family
+                for family in stage_rows["source_family"].dropna().unique()
+                if family
+            ),
+            "timed_support_count": sum(
+                _supports_timed_outcome_review(record)
+                for _, record in stage_rows.iterrows()
+            ),
+        }
+    unknown_rows = filtered.loc[trimester_buckets.eq("unknown")]
+    trimester_evidence_counts["unknown"] = {
+        "label": "Timing not recorded",
+        "record_count": int(len(unknown_rows)),
+        "source_families": sorted(
+            family
+            for family in unknown_rows["source_family"].dropna().unique()
+            if family
+        ),
+        "timed_support_count": 0,
+    }
 
     if trimester != "All":
         selected_timing = TRIMESTER_VALUES[trimester]
         if "trimester" not in filtered.columns:
             filtered = filtered.iloc[0:0]
         else:
-            timing_values = filtered["trimester"].fillna("unknown").map(_normalize)
             filtered = filtered.loc[timing_values.eq(selected_timing)]
 
-    if "source_dataset" not in filtered.columns:
-        filtered["source_dataset"] = ""
-    filtered["source_family"] = filtered["source_dataset"].map(_source_family)
     source_families = sorted(
         family for family in filtered["source_family"].unique() if family
     )
@@ -418,6 +444,19 @@ def evaluate_drug_safety(
         except Exception:  # pragma: no cover - defensive, scoring is auxiliary
             drug_risk = {}
 
+    # Evidence-based trimester-wise prioritization engine (maternal + fetal +
+    # overall, 0-100 indices from actual evidence only). No ML predictions,
+    # no pseudo-labels, no synthetic scores.
+    prioritization: dict[str, Any] = {}
+    if drug_id:
+        try:
+            engine = PrioritizationEngine()
+            prio_result = engine.score_drug(str(drug_id))
+            prioritization = prio_result.to_dict()
+        except Exception:  # pragma: no cover - defensive, scoring is auxiliary
+            prioritization = {}
+
+
     result: dict[str, Any] = {
 
         "trimester": trimester,
@@ -428,14 +467,18 @@ def evaluate_drug_safety(
         "evidence_source_families": source_families,
         "evidence_coverage_score": coverage_score,
         "timed_outcome_support_count": timed_support_count,
+        "trimester_evidence_counts": trimester_evidence_counts,
         "provenance_badges": provenance,
         "abstention_alert": abstention_alert,
+        # Evidence-based trimester-wise prioritization scores (0-100 indices
+        # from actual evidence only). risk_score is the overall index for the
+        # requested trimester, or None when no eligible evidence exists.
         "risk_score": None,
         "model_prediction_variance": None,
         "risk_scoring_status": (
-            "No validated human pregnancy-outcome model exists. Risk scores, "
-            "model confidence and trimester-wise risk are unavailable; recorded "
-            "counts are observed evidence, not risk."
+            "Exploratory evidence-priority indices (0-100) are computed from "
+            "actual recorded evidence. No validated human pregnancy-outcome "
+            "model exists; scores are not clinical risk probabilities."
         ),
         "ml_prediction_active": ml_prediction_active,
         "ai_evidence_synthesis": ai_evidence_synthesis,
@@ -458,7 +501,7 @@ def evaluate_drug_safety(
         },
         "risk_available": False,
         "model_used": drug_risk.get("model_used", "none"),
-        # Per-trimester evidence availability (no risk values by design)
+        # Per-trimester evidence availability (from ml_risk_model)
         "trimester_metrics": {
             t: {
                 "label": v.get("label"),
@@ -475,7 +518,38 @@ def evaluate_drug_safety(
             for t, v in (drug_risk.get("foetus_risk", {}).get("trimester_wise", {}) or {}).items()
             if isinstance(v, dict)
         },
+        # --- New: trimester-wise evidence-priority indices ---
+        "maternal_priority": prioritization.get("maternal_priority", {}),
+        "fetal_priority": prioritization.get("fetal_priority", {}),
+        "overall_priority": prioritization.get("overall_priority", {}),
+        "evidence_status": prioritization.get("evidence_status", "score_unavailable"),
+        "status_detail": prioritization.get("status_detail", ""),
     }
+
+    # Set risk_score from the overall priority for the requested trimester.
+    # When trimester is "All", use the entire_pregnancy overall score.
+    trimester_key = (
+        TRIMESTER_VALUES.get(trimester, "entire_pregnancy")
+        if trimester != "All"
+        else "entire_pregnancy"
+    )
+    overall_for_trimester = prioritization.get("overall_priority", {}).get(
+        trimester_key, {}
+    )
+    result["risk_score"] = overall_for_trimester.get("score")
+    result["risk_available"] = overall_for_trimester.get("score_available", False)
+    trimester_label_map = {
+        "first_trimester": "First Trimester (T1)",
+        "second_trimester": "Second Trimester (T2)",
+        "third_trimester": "Third Trimester (T3)",
+        "entire_pregnancy": "Entire Pregnancy",
+    }
+    tl = trimester_label_map.get(trimester_key, trimester_key)
+    if result["risk_score"] is not None:
+        result["risk_scoring_status"] = (
+            f"Exploratory evidence-priority index ({result['risk_score']}/100) "
+            f"for {tl}. Not a clinical risk probability."
+        )
 
     # Animal spontaneous ADR evidence stays a separate, independent branch and
     # is always reported as evidence availability, never as a risk conclusion.
